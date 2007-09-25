@@ -1,0 +1,100 @@
+/***************************************************************************************************
+ * Copyright (c) 2006 Eclipse Guru and others.
+ * All rights reserved. 
+ *
+ * This program and the accompanying materials are made available under the terms of the 
+ * Eclipse Public License v1.0 which accompanies this distribution, and is available at
+ * http://www.eclipse.org/legal/epl-v10.html
+ * 
+ * Contributors: Eclipse Guru - initial API and implementation
+ *               Eclipse.org - ideas, concepts and code from existing Eclipse projects
+ **************************************************************************************************/
+package org.eclipseguru.gwt.ui.decorators;
+
+import org.eclipse.core.resources.IResource;
+import org.eclipse.core.runtime.IAdaptable;
+import org.eclipse.core.runtime.ListenerList;
+import org.eclipse.jface.viewers.IDecoration;
+import org.eclipse.jface.viewers.ILabelProviderListener;
+import org.eclipse.jface.viewers.ILightweightLabelDecorator;
+import org.eclipseguru.gwt.core.GwtUtil;
+import org.eclipseguru.gwt.ui.GwtUiImages;
+
+/**
+ * A simple label decorator to decorate GWT files.
+ */
+public class GwtLabelDecorator implements ILightweightLabelDecorator {
+
+	/** listeners */
+	private ListenerList listeners;
+
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see org.eclipse.jface.viewers.IBaseLabelProvider#addListener(org.eclipse.jface.viewers.ILabelProviderListener)
+	 */
+	public void addListener(ILabelProviderListener listener) {
+		if (listeners == null)
+			listeners = new ListenerList();
+
+		listeners.add(listener);
+	}
+
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see org.eclipse.jface.viewers.ILightweightLabelDecorator#decorate(java.lang.Object,
+	 *      org.eclipse.jface.viewers.IDecoration)
+	 */
+	public void decorate(Object element, IDecoration decoration) {
+		IResource resource = null;
+		if (element instanceof IResource)
+			resource = (IResource) element;
+		else if (element instanceof IAdaptable)
+			resource = (IResource) ((IAdaptable) element).getAdapter(IResource.class);
+
+		if (GwtUtil.isModuleDescriptor(resource))
+			decorateModuleDescriptor(resource, decoration);
+	}
+
+	/**
+	 * Decorates a module descriptor.
+	 * 
+	 * @param resource
+	 * @param decoration
+	 */
+	private void decorateModuleDescriptor(IResource resource, IDecoration decoration) {
+		decoration.addOverlay(GwtUiImages.DESC_OVERLAY_MODULE, IDecoration.TOP_RIGHT);
+	}
+
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see org.eclipse.jface.viewers.IBaseLabelProvider#dispose()
+	 */
+	public void dispose() {
+		// TODO Auto-generated method stub
+
+	}
+
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see org.eclipse.jface.viewers.IBaseLabelProvider#isLabelProperty(java.lang.Object,
+	 *      java.lang.String)
+	 */
+	public boolean isLabelProperty(Object element, String property) {
+		return true;
+	}
+
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see org.eclipse.jface.viewers.IBaseLabelProvider#removeListener(org.eclipse.jface.viewers.ILabelProviderListener)
+	 */
+	public void removeListener(ILabelProviderListener listener) {
+		if (null != listeners)
+			listeners.remove(listener);
+	}
+
+}

@@ -1,0 +1,382 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<?eclipse version="3.2"?>
+<plugin>
+	<extension
+		point="org.eclipse.core.filebuffers.annotationModelCreation">
+		<factory
+			contentTypeId="org.eclipseguru.gwt.core.modulesource"
+			class="org.eclipse.wst.sse.ui.internal.StructuredResourceMarkerAnnotationModelFactory" />
+	</extension>
+ <extension
+       point="org.eclipse.core.runtime.adapters">
+    <factory
+          adaptableType="org.eclipseguru.gwt.core.GwtElement"
+          class="org.eclipseguru.gwt.ui.adapters.GwtElementAdapterFactory">
+       <adapter
+             type="org.eclipse.ui.model.IWorkbenchAdapter">
+       </adapter>
+    </factory>
+ </extension>
+	<extension point="org.eclipse.ui.newWizards">
+		<category name="GWT" id="com.googlipse.gwt.newWizards" />
+		<wizard category="com.googlipse.gwt.newWizards"
+			class="com.googlipse.gwt.wizards.NewGwtModuleWizard"
+			icon="$nl$/icons/gwt.png"
+			id="com.googlipse.gwt.wizards.NewGwtModuleWizard" name="GWT Module" />
+		<wizard category="com.googlipse.gwt.newWizards"
+			class="com.googlipse.gwt.wizards.NewGwtRemoteServiceWizard"
+			icon="$nl$/icons/gwt.png"
+			id="com.googlipse.gwt.wizards.NewGwtRemoteServiceWizard"
+			name="GWT Remote Service" />
+	</extension>
+	<extension point="org.eclipse.ui.keywords">
+		<keyword id="org.eclipseguru.gwt.ui.general"
+			label="GWT Google development deploy home directory" />
+	</extension>
+	<extension point="org.eclipse.ui.preferencePages">
+		<page
+			class="org.eclipseguru.gwt.ui.preferences.GwtPreferencesPage"
+			id="com.googlipse.gwt.preferences.PreferencePage" name="GWT">
+			<keywordReference id="org.eclipseguru.gwt.ui.general" />
+		</page>
+	</extension>
+	<extension point="org.eclipse.ui.propertyPages">
+		<page
+        adaptable="true"
+        class="org.eclipseguru.gwt.ui.properties.ProjectProperties"
+        id="org.eclipseguru.gwt.ui.projectPropertyPage"
+        name="GWT Deployment"
+        objectClass="org.eclipse.core.resources.IProject">
+			<filter name="nature"
+				value="org.eclipseguru.gwt.core.nature" />
+		</page>
+	</extension>
+	<extension point="org.eclipse.ui.perspectiveExtensions">
+		<perspectiveExtension
+			targetID="org.eclipse.jst.j2ee.J2EEPerspective">
+			<newWizardShortcut
+				id="com.googlipse.gwt.wizards.NewGwtModuleWizard" />
+			<newWizardShortcut
+				id="com.googlipse.gwt.wizards.NewGwtRemoteServiceWizard" />
+		</perspectiveExtension>
+		<perspectiveExtension
+			targetID="org.eclipse.jdt.ui.JavaPerspective">
+			<newWizardShortcut
+				id="com.googlipse.gwt.wizards.NewGwtModuleWizard" />
+			<newWizardShortcut
+				id="com.googlipse.gwt.wizards.NewGwtRemoteServiceWizard" />
+		</perspectiveExtension>
+	</extension>
+	<extension point="org.eclipse.ui.popupMenus">
+		<objectContribution adaptable="true"
+			id="org.eclipseguru.gwt.ui.contribution.IResourceMenu.tools"
+			objectClass="org.eclipse.core.resources.IResource">
+			<menu id="org.eclipseguru.gwt.ui.menu.tools"
+				label="GWT Tools" path="additions">
+				<separator name="build" />
+				<separator name="admin" />
+			</menu>
+		</objectContribution>
+		<objectContribution adaptable="true"
+			id="org.eclipseguru.gwt.ui.contribution.IProjectActions.nongwtproject.extra"
+			objectClass="org.eclipse.core.resources.IProject">
+			<action
+				class="org.eclipseguru.gwt.ui.actions.ConnectProjectWithGwtToolingAction"
+				enablesFor="1"
+				id="org.eclipseguru.gwt.ui.actions.connectWithProject"
+				label="Add GWT Tooling Support"
+				menubarPath="org.eclipseguru.gwt.ui.menu.tools/admin" />
+			<visibility>
+				<and>
+					<not>
+						<objectState name="nature"
+							value="org.eclipseguru.gwt.core.nature" />
+					</not>
+					<objectState name="open" value="true" />
+					<objectState name="nature"
+						value="org.eclipse.jdt.core.javanature" />
+				</and>
+			</visibility>
+		</objectContribution>
+		<objectContribution adaptable="true"
+			id="org.eclipseguru.gwt.ui.contribution.IProjectActions.gwtproject.extra"
+			objectClass="org.eclipse.core.resources.IProject">
+			<action
+				class="org.eclipseguru.gwt.ui.actions.PublishProjectAction"
+				enablesFor="1"
+				id="org.eclipseguru.gwt.ui.actions.publishProject"
+				label="Compile and Publish"
+				menubarPath="org.eclipseguru.gwt.ui.menu.tools/build" />
+			<action
+				class="org.eclipseguru.gwt.ui.actions.UpdateJREContainerAccessRulesAction"
+				enablesFor="1"
+				id="org.eclipseguru.gwt.ui.actions.updateProjectBuildPath"
+				label="Add GWT to Build Path"
+				menubarPath="org.eclipseguru.gwt.ui.menu.tools/admin" />
+			<action
+				class="org.eclipseguru.gwt.ui.actions.UpdateProjectBuildPathAction"
+				enablesFor="1"
+				id="org.eclipseguru.gwt.ui.actions.updateJREContainerAccessRules"
+				label="Update JRE Access Rules"
+				menubarPath="org.eclipseguru.gwt.ui.menu.tools/admin" />
+			<action
+				class="org.eclipseguru.gwt.ui.actions.DisconnectProjectFromGwtToolingAction"
+				enablesFor="1"
+				id="org.eclipseguru.gwt.ui.actions.updateProjectBuildPath"
+				label="Remove GWT Tooling Support"
+				menubarPath="org.eclipseguru.gwt.ui.menu.tools/admin" />
+			<visibility>
+				<and>
+					<objectState name="nature"
+						value="org.eclipseguru.gwt.core.nature" />
+				</and>
+			</visibility>
+		</objectContribution>
+	</extension>
+	<extension point="org.eclipse.ui.editors">
+		<editor
+			class="org.eclipseguru.gwt.ui.editor.ModuleSourceEditor"
+			contributorClass="org.eclipseguru.gwt.ui.editor.ModuleSourceActionContributor"
+			icon="$nl$/icons/gwt.png"
+			id="org.eclipseguru.gwt.ui.editor.module"
+			name="GWT Module Editor"
+			symbolicFontName="org.eclipse.wst.sse.ui.textfont">
+			<contentTypeBinding 
+				contentTypeId="org.eclipseguru.gwt.core.modulesource"/>
+		</editor>
+	</extension>
+	<extension point="org.eclipse.ui.editorActions">
+		<editorContribution
+			id="org.eclipseguru.gwt.core.modulesource.editorActions"
+			targetID="org.eclipseguru.gwt.core.modulesource">
+			<action
+				id="CleanupDocument"
+				label="Cleanup Document..."
+				definitionId="org.eclipse.wst.sse.ui.cleanup.document"
+				tooltip="Cleanup Document"
+				class="org.eclipse.wst.xml.ui.internal.actions.CleanupActionXMLDelegate"
+				actionID="CleanupDocument">
+			</action>
+			<action
+				id="ToggleComment"
+				label="Toggle Comment"
+				definitionId="org.eclipse.wst.sse.ui.toggle.comment"
+				tooltip="Toggle Comment"
+				class="org.eclipse.wst.xml.ui.internal.actions.ToggleCommentActionXMLDelegate"
+				actionID="ToggleComment">
+			</action>
+			<action
+				id="AddBlockComment"
+				label="Add Block Comment"
+				definitionId="org.eclipse.wst.sse.ui.add.block.comment"
+				tooltip="Add Block Comment"
+				class="org.eclipse.wst.xml.ui.internal.actions.AddBlockCommentActionXMLDelegate"
+				actionID="AddBlockComment">
+			</action>
+			<action
+				id="RemoveBlockComment"
+				label="Remove Block Comment"
+				definitionId="org.eclipse.wst.sse.ui.remove.block.comment"
+				tooltip="Remove Block Comment"
+				class="org.eclipse.wst.xml.ui.internal.actions.RemoveBlockCommentActionXMLDelegate"
+				actionID="RemoveBlockComment">
+			</action>
+			<action
+				id="FindOccurrences"
+				label="Occurrences in File"
+				definitionId="org.eclipse.wst.sse.ui.search.find.occurrences"
+				class="org.eclipse.wst.xml.ui.internal.search.XMLFindOccurrencesActionDelegate"
+				actionID="FindOccurrences">
+			</action>
+			<action
+				id="StructureSelectEnclosing"
+				label="Enclosing Element"
+				definitionId="org.eclipse.wst.sse.ui.structure.select.enclosing"
+				tooltip="Expand selection to include enclosing element"
+				class="org.eclipse.wst.xml.ui.internal.selection.StructuredSelectEnclosingXMLActionDelegate"
+				actionID="StructureSelectEnclosing">
+			</action>
+			<action
+				id="StructureSelectNext"
+				label="Next Element"
+				definitionId="org.eclipse.wst.sse.ui.structure.select.next"
+				tooltip="Expand selection to include next sibling"
+				class="org.eclipse.wst.xml.ui.internal.selection.StructuredSelectNextXMLActionDelegate"
+				actionID="StructureSelectNext">
+			</action>
+			<action
+				id="StructureSelectPrevious"
+				label="Previous Element"
+				definitionId="org.eclipse.wst.sse.ui.structure.select.previous"
+				tooltip="Expand selection to include previous sibling"
+				class="org.eclipse.wst.xml.ui.internal.selection.StructuredSelectPreviousXMLActionDelegate"
+				actionID="StructureSelectPrevious">
+			</action>
+			<action
+				id="StructureSelectHistory"
+				label="Restore Last Selection"
+				definitionId="org.eclipse.wst.sse.ui.structure.select.last"
+				tooltip="Restore last selection"
+				class="org.eclipse.wst.sse.ui.internal.selection.StructuredSelectHistoryActionDelegate"
+				actionID="StructureSelectHistory">
+			</action>
+		</editorContribution>
+        <editorContribution
+            targetID="org.eclipseguru.gwt.core.modulesource"
+            id="org.eclipseguru.gwt.core.modulesource.ruler.actions">
+         <action
+               label="Add Boo&amp;kmark..."
+               helpContextId="org.eclipse.ui.bookmark_action_context"
+               class="org.eclipse.ui.texteditor.BookmarkRulerAction"
+               actionID="RulerDoubleClick"
+               id="org.eclipse.ui.texteditor.BookmarkRulerAction"/>
+         <action
+               label="Select Ruler"
+               class="org.eclipse.ui.texteditor.SelectRulerAction"
+               actionID="RulerClick"
+               id="org.eclipse.ui.texteditor.SelectRulerAction"/>
+        </editorContribution>
+	</extension>
+ <extension
+       point="org.eclipse.ui.decorators">
+    <decorator
+          adaptable="true"
+          class="org.eclipseguru.gwt.ui.decorators.GwtLabelDecorator"
+          id="org.eclipseguru.gwt.ui.decorators.element"
+          label="GWT Element Decorator"
+          lightweight="true"
+          state="true">
+       <description>
+          The GWT Element decorator adds
+       </description>
+       <enablement>
+          <and>
+	          <objectClass
+                name="org.eclipse.core.resources.IResource"/>
+	      <objectState
+                name="projectNature"
+                value="org.eclipseguru.gwt.core.nature">
+          </objectState>
+          </and>
+       </enablement>
+    </decorator>
+ </extension>
+	<extension
+		point="org.eclipse.debug.ui.launchConfigurationTypeImages">
+		<launchConfigurationTypeImage
+			configTypeID="org.eclipseguru.gwt.core.launch.browser"
+			icon="$nl$/icons/gwt.png"
+			id="org.eclipseguru.gwt.launch.gwtApplicationImage" />
+	</extension>
+	<extension
+		point="org.eclipse.debug.ui.launchConfigurationTabGroups">
+		<launchConfigurationTabGroup
+			class="org.eclipseguru.gwt.ui.launch.GwtBrowserLaunchConfigurationTabGroup"
+			description="Launch a Google Ajax application in the Google Web Toolkit browser."
+			id="org.eclipseguru.gwt.launch.gwtApplicationTabGroup"
+			type="org.eclipseguru.gwt.core.launch.browser">
+			<launchMode
+				description="Debug a Google Ajax application in the Google Web Toolkit browser."
+				mode="debug" />
+			<launchMode
+				description="Launch a Google Ajax application in the Google Web Toolkit browser."
+				mode="run" />
+		</launchConfigurationTabGroup>
+	</extension>
+	<extension point="org.eclipse.wst.common.project.facet.ui.images">
+		<image facet="gwt.web" path="$nl$/icons/gwt.png" />
+		<image facet="gwt.module" path="$nl$/icons/gwt.png" />
+	</extension>
+	<extension point="org.eclipse.wst.sse.ui.editorConfiguration">
+		<sourceViewerConfiguration
+			class="org.eclipseguru.gwt.ui.editor.ModuleSourceStructuredTextViewerConfiguration"
+			target="org.eclipseguru.gwt.core.modulesource" />
+		<propertySheetConfiguration
+			class="org.eclipse.wst.xml.ui.views.properties.XMLPropertySheetConfiguration"
+			target="org.eclipseguru.gwt.core.modulesource" />
+		<provisionalConfiguration
+			type="sourceeditingtexttools"
+			class="org.eclipse.wst.xml.ui.internal.provisional.XMLSourceEditingTextTools"
+			target="org.eclipseguru.gwt.core.modulesource" />
+	</extension>
+ <extension
+       point="org.eclipse.wst.server.core.clients">
+    <client
+          class="org.eclipseguru.gwt.ui.server.GwtBrowserClient"
+          description="Open the Module in a GWT Browser"
+          id="org.eclipseguru.gwt.ui.server.browser"
+          launchable="org.eclipseguru.gwt.core.server.GwtBrowserLaunchable"
+          name="GWT Browser"
+          >
+    </client>
+ </extension>
+ <extension
+       point="org.eclipse.ltk.core.refactoring.renameParticipants">
+    <renameParticipant
+          class="org.eclipseguru.gwt.internal.core.refactoring.ModuleEntryPointITypeRenameParticipant"
+          id="org.eclipseguru.gwt.refactoring.module.entrypoint.typeRename"
+          name="GWT modul entry point participant">
+       <enablement>
+          <with
+                variable="affectedNatures">
+             <iterate
+                   operator="or">
+                <equals
+                      value="org.eclipse.jdt.core.javanature">
+                </equals>
+             </iterate>
+          </with>
+          <with
+                variable="affectedNatures">
+             <iterate
+                   operator="or">
+                <equals
+                      value="org.eclipseguru.gwt.core.nature">
+                </equals>
+             </iterate>
+          </with>
+          <with
+                variable="element">
+             <instanceof
+                   value="org.eclipse.jdt.core.IType">
+             </instanceof>
+          </with>
+       </enablement>
+    </renameParticipant>
+ </extension>
+ <extension
+       point="org.eclipse.ltk.core.refactoring.moveParticipants">
+    <moveParticipant
+          class="org.eclipseguru.gwt.internal.core.refactoring.ModuleEntryPointITypeMoveParticipant"
+          id="org.eclipseguru.gwt.refactoring.module.entrypoint.typeMove"
+          name="GWT modul entry point participant">
+       <enablement>
+          <with
+                variable="affectedNatures">
+             <iterate
+                   operator="or">
+                <equals
+                      value="org.eclipse.jdt.core.javanature">
+                </equals>
+             </iterate>
+          </with>
+          <with
+                variable="affectedNatures">
+             <iterate
+                   operator="or">
+                <equals
+                      value="org.eclipseguru.gwt.core.nature">
+                </equals>
+             </iterate>
+          </with>
+          <with
+                variable="element">
+             <instanceof
+                   value="org.eclipse.jdt.core.IType">
+             </instanceof>
+          </with>
+       </enablement>
+    </moveParticipant>
+ </extension>
+
+</plugin>

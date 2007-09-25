@@ -1,0 +1,204 @@
+/***************************************************************************************************
+ * Copyright (c) 2006 Gunnar Wagenknecht, Truition and others.
+ * All rights reserved. 
+ *
+ * This program and the accompanying materials are made available under the terms of the 
+ * Eclipse Public License v1.0 which accompanies this distribution, and is available at
+ * http://www.eclipse.org/legal/epl-v10.html
+ * 
+ * Contributors: Gunnar Wagenknecht - initial API and implementation
+ *               Eclipse.org - ideas, concepts and code from existing Eclipse projects
+ **************************************************************************************************/
+package org.eclipseguru.gwt.core;
+
+import java.util.ArrayList;
+import java.util.List;
+
+import org.eclipse.core.resources.IFile;
+import org.eclipse.core.resources.IFolder;
+import org.eclipse.core.resources.IResource;
+import org.eclipse.core.resources.IResourceProxy;
+import org.eclipse.core.resources.IResourceProxyVisitor;
+import org.eclipse.core.runtime.CoreException;
+import org.eclipse.jdt.core.ICompilationUnit;
+import org.eclipse.jdt.core.IType;
+import org.eclipse.jdt.core.JavaCore;
+import org.eclipse.jdt.core.JavaModelException;
+import org.eclipse.jdt.core.Signature;
+import org.eclipseguru.gwt.core.internal.codegen.AsyncServiceCodeGenerator;
+
+import com.googlipse.gwt.common.Constants;
+
+/**
+ * A GWT remote services
+ */
+public class GwtRemoteService extends GwtElement {
+
+	/** REMOTE_SERVICE_CLASS_SIMPLE_NAME */
+	public static final String REMOTE_SERVICE_CLASS_SIMPLE_NAME = "RemoteService";
+
+	/**
+	 * Finds all interfaces in the specified modules which implements
+	 * {@value GwtRemoteService#REMOTE_SERVICE_CLASS_SIMPLE_NAME}.
+	 * 
+	 * @param projectModules
+	 * @return a list of all found interfaces
+	 * @throws CoreException
+	 */
+	public static List<IType> findRemoteServices(GwtModule[] projectModules) throws CoreException {
+		final List<IType> remoteServiceFiles = new ArrayList<IType>();
+		for (final GwtModule module : projectModules) {
+			// skip modules without a java package
+			if ((null == module.getModulePackage()) || !module.getModulePackage().exists())
+				continue;
+
+			// get the "client" folder
+			IFolder folder = ((IFolder) module.getModulePackage().getResource()).getFolder(Constants.CLIENT_PACKAGE);
+			if (!folder.exists())
+				continue;
+
+			// check for service definitions
+			folder.accept(new IResourceProxyVisitor() {
+				public boolean visit(IResourceProxy proxy) throws CoreException {
+					switch (proxy.getType()) {
+					case IResource.FOLDER:
+						return true;
+
+					case IResource.FILE:
+						if (!JavaCore.isJavaLikeFileName(proxy.getName()))
+							return false;
+
+						IFile file = (IFile) proxy.requestResource();
+						if (!module.isModuleResource(file))
+							return false;
+
+						ICompilationUnit cu = JavaCore.createCompilationUnitFrom(file);
+						if ((null != cu) && module.getModulePackage().getJavaProject().isOnClasspath(cu))
+							GwtRemoteService.findRemoteServices(cu, remoteServiceFiles);
+					}
+					return false;
+				}
+			}, IResource.DEPTH_INFINITE);
+		}
+		return remoteServiceFiles;
+	}
+
+	/**
+	 * Finds remote services in the specified compilation unit which implement
+	 * {@value #REMOTE_SERVICE_CLASS_SIMPLE_NAME}.
+	 * 
+	 * @param cu
+	 * @param remoteServiceFiles
+	 * @throws JavaModelException
+	 */
+	public static void findRemoteServices(ICompilationUnit cu, List<IType> remoteServiceFiles) throws JavaModelException {
+		// for every type declared in the java file
+		for (IType someType : cu.getTypes()) {
+			// ignore binary types and non-interfaces
+			if (!someType.isInterface() || someType.isBinary())
+				continue;
+			// for every interface implemented by that type
+			for (String aSuperInterfaceSignature : someType.getSuperInterfaceTypeSignatures()) {
+				String simpleName = GwtUtil.getTypeNameWithoutParameters(Signature.getSignatureSimpleName(aSuperInterfaceSignature));
+				if (simpleName.equals(GwtRemoteService.REMOTE_SERVICE_CLASS_SIMPLE_NAME) && !remoteServiceFiles.contains(someType))
+					remoteServiceFiles.add(someType);
+			}
+		}
+	}
+
+	/**
+	 * Indicates if the specified type is a remote service, i.e. implements the
+	 * <code>{@value #REMOTE_SERVICE_CLASS_SIMPLE_NAME}</code> interface.
+	 * 
+	 * @param someType
+	 *            a type
+	 * @return <code>true</code> if the specified type implements the
+	 *         <code>{@value #REMOTE_SERVICE_CLASS_SIMPLE_NAME}</code>
+	 *         interface, <code>false</code> otherwise
+	 * @throws JavaModelException
+	 */
+	public static boolean isRemoteService(IType someType) throws JavaModelException {
+		// ignore non-interfaces
+		if (!someType.isInterface())
+			return false;
+
+		// for every interface implemented by that type
+		for (String aSuperInterfaceSignature : someType.getSuperInterfaceTypeSignatures()) {
+			String simpleName = GwtUtil.getTypeNameWithoutParameters(Signature.getSignatureSimpleName(aSuperInterfaceSignature));
+			if (simpleName.equals(GwtRemoteService.REMOTE_SERVICE_CLASS_SIMPLE_NAME))
+				return true;
+		}
+
+		return false;
+	}
+
+	/** type */
+	private final IType type;
+
+	/** asyncType */
+	private IType asyncType;
+
+	/**
+	 * Creates a new instance
+	 * 
+	 * @param type
+	 * @param parent
+	 */
+	GwtRemoteService(IType type, GwtModule parent) {
+		super(parent);
+		this.type = type;
+	}
+
+	/**
+	 * Returns the {@link IType type} of the async stub.
+	 * 
+	 * @return the {@link IType type} of the async stub
+	 */
+	public IType getAsyncStubType() {
+		if (null == asyncType) {
+			final String asyncTypeName = getAsyncStubTypeName();
+			final String asyncCUName = AsyncServiceCodeGenerator.getAsyncCUName(type);
+			asyncType = type.getPackageFragment().getCompilationUnit(asyncCUName).getType(asyncTypeName);
+		}
+		return asyncType;
+	}
+
+	/**
+	 * Returns the simple, unqualified name of the async service stub.
+	 * 
+	 * @return the simple, unqualified name of the async service stub
+	 */
+	public String getAsyncStubTypeName() {
+		return AsyncServiceCodeGenerator.getAsyncTypeNameWithoutParameters(type);
+	}
+
+	/**
+	 * Returns the underlying {@link IType type}.
+	 * 
+	 * @return the underlying {@link IType type}
+	 */
+	public IType getJavaType() {
+		return type;
+	}
+
+	/**
+	 * Returns the simple name of the remote service unqualified by package or
+	 * enclosing type name.
+	 * 
+	 * @return the simple type name.
+	 */
+	@Override
+	public String getName() {
+		return type.getElementName();
+	}
+
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see org.eclipseguru.gwt.core.GwtElement#getType()
+	 */
+	@Override
+	public int getType() {
+		return GWT_REMOTE_SERVICE;
+	}
+}

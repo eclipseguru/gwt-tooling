@@ -1,0 +1,7 @@
+package @basePackage.client;
+
+import com.google.gwt.user.client.rpc.RemoteService;
+
+public interface @serviceName extends RemoteService {
+
+}
