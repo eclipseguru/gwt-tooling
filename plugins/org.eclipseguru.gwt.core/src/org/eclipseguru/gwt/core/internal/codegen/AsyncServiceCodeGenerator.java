@@ -52,7 +52,7 @@ import org.eclipseguru.gwt.core.utils.ProgressUtil;
 /**
  * A utility class for generating code
  */
-@SuppressWarnings("restriction") 
+@SuppressWarnings("restriction")
 public class AsyncServiceCodeGenerator extends JdtTypeGenerator {
 
 	/** TAG_GWT_CALLBACK_VALUE */

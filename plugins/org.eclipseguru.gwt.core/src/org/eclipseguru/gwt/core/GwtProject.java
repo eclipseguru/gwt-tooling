@@ -105,7 +105,7 @@ public class GwtProject extends GwtElement {
 			return false;
 		}
 	}
-	
+
 	/**
 	 * Indicates if a project has the
 	 * {@value GwtFacetConstants#FACET_ID_GWT_WEB} facet assigned.

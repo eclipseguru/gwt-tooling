@@ -51,7 +51,7 @@ import org.eclipseguru.gwt.core.utils.ProgressUtil;
 /**
  * Abstract base class for a JDT code generator.
  */
-@SuppressWarnings("restriction") 
+@SuppressWarnings("restriction")
 public abstract class JdtTypeGenerator {
 	/**
 	 * Constant to signal that the created type is a class.

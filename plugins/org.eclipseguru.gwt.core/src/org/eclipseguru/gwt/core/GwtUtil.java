@@ -193,9 +193,9 @@ public class GwtUtil {
 	public static boolean hasFacet(IProject project, String facteId) {
 		try {
 			final IFacetedProject facetsManager = ProjectFacetsManager.create(project);
-			if(null == facetsManager)
+			if (null == facetsManager)
 				return false;
-			
+
 			return facetsManager.hasProjectFacet(ProjectFacetsManager.getProjectFacet(facteId));
 		} catch (CoreException e) {
 			// fail gracefully

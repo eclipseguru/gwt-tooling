@@ -35,7 +35,7 @@ import org.eclipse.text.edits.TextEdit;
  * Class used in rewrite routines to add and remove needed imports to a
  * compilation unit.
  */
-@SuppressWarnings("restriction") 
+@SuppressWarnings("restriction")
 public class ImportsManager {
 
 	/**

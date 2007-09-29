@@ -53,7 +53,7 @@ import com.googlipse.gwt.common.Constants;
 /**
  * This is the builder for GWT projects.
  */
-@SuppressWarnings("restriction") 
+@SuppressWarnings("restriction")
 public class GwtProjectBuilder extends IncrementalProjectBuilder {
 
 	/**

@@ -84,14 +84,14 @@ public class GwtProjectPublisher extends WorkspaceJob {
 	private final class CompileErrorParser implements IStreamListener {
 		/** compileErrors */
 		private final List<String> compileErrors = new ArrayList<String>();
-		
+
 		private StringBuilder collectedOutput = new StringBuilder();
 
 		private void analyzeOutput() {
 			compileErrors.clear();
 			try {
 				BufferedReader reader = new BufferedReader(new StringReader(collectedOutput.toString()));
-				String text=null;
+				String text = null;
 				while ((text = reader.readLine()) != null) {
 					if (text.trim().startsWith("[ERROR] ")) {
 						String errorMsg = text.trim().substring("[ERROR] ".length());
@@ -115,13 +115,13 @@ public class GwtProjectPublisher extends WorkspaceJob {
 			analyzeOutput();
 			return Collections.unmodifiableList(compileErrors);
 		}
-		
+
 		private boolean ignoreError(String errorMsg) {
-			if(errorMsg.equals("Build failed"))
+			if (errorMsg.equals("Build failed"))
 				return true;
-			if(errorMsg.equals("Failure while parsing XML"))
+			if (errorMsg.equals("Failure while parsing XML"))
 				return true;
-			if(errorMsg.contains("Unexpected exception while processing element"))
+			if (errorMsg.contains("Unexpected exception while processing element"))
 				return true;
 			return false;
 		}

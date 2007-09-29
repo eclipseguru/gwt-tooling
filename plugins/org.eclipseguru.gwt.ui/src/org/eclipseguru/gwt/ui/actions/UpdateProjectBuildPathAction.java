@@ -44,6 +44,10 @@ import org.eclipseguru.gwt.ui.GwtUi;
  */
 public class UpdateProjectBuildPathAction implements IObjectActionDelegate {
 
+	private IProject selectedProject;
+
+	private IWorkbenchWindow workbenchWindow;
+
 	protected IWorkspaceRunnable createUpdateClasspathRunnable(final IProject project) {
 		return new IWorkspaceRunnable() {
 			public void run(IProgressMonitor monitor) throws CoreException {
@@ -62,10 +66,6 @@ public class UpdateProjectBuildPathAction implements IObjectActionDelegate {
 			}
 		};
 	}
-
-	private IProject selectedProject;
-
-	private IWorkbenchWindow workbenchWindow;
 
 	protected IProject getSelectedProject() {
 		return selectedProject;
