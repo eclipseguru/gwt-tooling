@@ -1,5 +1,5 @@
 /***************************************************************************************************
- * Copyright (c) 2006 Eclipse Guru and others.
+ * Copyright (c) 2007,2006 Eclipse Guru and others.
  * All rights reserved. 
  *
  * This program and the accompanying materials are made available under the terms of the 
@@ -8,6 +8,7 @@
  * 
  * Contributors: Eclipse Guru - initial API and implementation
  *               Eclipse.org - ideas, concepts and code from existing Eclipse projects
+ *               Hugo Garcia - contribution for issue #9
  **************************************************************************************************/
 package org.eclipseguru.gwt.core.preferences;
 
@@ -16,7 +17,9 @@ package org.eclipseguru.gwt.core.preferences;
  */
 public interface GwtCorePreferenceConstants {
 
-	/** PREF_GWT_HOME */
+	/**
+	 * Defines the path to the GWT home directory.
+	 */
 	String PREF_GWT_HOME = "gwtHome";
 
 	/** PREF_HOSTED_DEPLOY_MODE */
@@ -30,4 +33,9 @@ public interface GwtCorePreferenceConstants {
 
 	/** PREF_DEPLOYMENT_PATH */
 	String PREF_DEPLOYMENT_PATH = "deploymentPath";
+
+	/**
+	 * Defines path to a custom module template.
+	 */
+	String PREF_CUSTOM_MODULE_TEMPLATE_PATH = "customModuleTemplatePath";
 }

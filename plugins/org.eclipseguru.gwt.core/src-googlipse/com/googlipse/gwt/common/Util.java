@@ -1,6 +1,7 @@
 /*
  * Copyright 2006 TG. (techieguy@gmail.com)
- * Copyright 2006 Eclipse Guru (eclipseguru@gmail.com)
+ * Copyright 2006,2007 Eclipse Guru (eclipseguru@gmail.com)
+ * Copyright 2007 Hugo Garcia
  * 
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -189,8 +190,12 @@ public class Util {
 	}
 
 	public static String getTemplateContents(String templateName) throws IOException {
-
-		URL template = GwtCore.getGwtCore().getBundle().getEntry("/templates/" + templateName);
+		URL template;
+		String xhtmlTemplatePath = GwtCore.getGwtCore().getPluginPreferences().getString(GwtCorePreferenceConstants.PREF_CUSTOM_MODULE_TEMPLATE_PATH);
+		if (templateName.equals("Module.html.template") & (xhtmlTemplatePath != ""))
+			template = new URL("file://" + xhtmlTemplatePath);
+		else
+			template = GwtCore.getGwtCore().getBundle().getEntry("/templates/" + templateName);
 		InputStream stream = null;
 		try {
 			stream = template.openStream();
