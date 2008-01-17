@@ -34,6 +34,9 @@ public interface GwtCorePreferenceConstants {
 	/** PREF_DEPLOYMENT_PATH */
 	String PREF_DEPLOYMENT_PATH = "deploymentPath";
 
+	/** PREF_VM_ARGS */
+	String PREF_COMPILER_VM_ARGS = "compilerVmArgs";
+
 	/**
 	 * Defines path to a custom module template.
 	 */

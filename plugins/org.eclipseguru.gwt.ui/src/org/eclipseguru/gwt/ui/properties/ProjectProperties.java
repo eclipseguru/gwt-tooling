@@ -1,5 +1,5 @@
 /***************************************************************************************************
- * Copyright (c) 2006 Eclipse Guru and others.
+ * Copyright (c) 2006 2008 Eclipse Guru and others.
  * All rights reserved. 
  *
  * This program and the accompanying materials are made available under the terms of the 
@@ -8,11 +8,17 @@
  * 
  * Contributors: Eclipse Guru - initial API and implementation
  *               Eclipse.org - ideas, concepts and code from existing Eclipse projects
+ *               Elias Balasis - Patch for http://code.google.com/p/gwt-tooling/issues/detail?id=46
  **************************************************************************************************/
 package org.eclipseguru.gwt.ui.properties;
 
-import java.util.ArrayList;
-import java.util.List;
+import org.eclipseguru.gwt.core.GwtCore;
+import org.eclipseguru.gwt.core.GwtModule;
+import org.eclipseguru.gwt.core.GwtProject;
+import org.eclipseguru.gwt.core.GwtUtil;
+import org.eclipseguru.gwt.core.j2ee.ConfigureWebProjectJob;
+import org.eclipseguru.gwt.core.preferences.GwtCorePreferenceConstants;
+import org.eclipseguru.gwt.ui.dialogs.ModuleSelectionDialog;
 
 import org.eclipse.core.resources.IContainer;
 import org.eclipse.core.resources.IFolder;
@@ -32,6 +38,7 @@ import org.eclipse.core.runtime.Status;
 import org.eclipse.core.runtime.SubProgressMonitor;
 import org.eclipse.core.runtime.jobs.Job;
 import org.eclipse.core.runtime.preferences.IEclipsePreferences;
+import org.eclipse.debug.ui.StringVariableSelectionDialog;
 import org.eclipse.jdt.internal.corext.util.Messages;
 import org.eclipse.jdt.internal.ui.dialogs.StatusInfo;
 import org.eclipse.jdt.internal.ui.dialogs.StatusUtil;
@@ -74,17 +81,13 @@ import org.eclipse.ui.views.navigator.ResourceComparator;
 import org.eclipse.wst.common.componentcore.ComponentCore;
 import org.eclipse.wst.common.componentcore.resources.IVirtualComponent;
 import org.eclipse.wst.common.componentcore.resources.IVirtualReference;
-import org.eclipseguru.gwt.core.GwtCore;
-import org.eclipseguru.gwt.core.GwtModule;
-import org.eclipseguru.gwt.core.GwtProject;
-import org.eclipseguru.gwt.core.GwtUtil;
-import org.eclipseguru.gwt.core.j2ee.ConfigureWebProjectJob;
-import org.eclipseguru.gwt.core.preferences.GwtCorePreferenceConstants;
-import org.eclipseguru.gwt.ui.dialogs.ModuleSelectionDialog;
 import org.osgi.service.prefs.BackingStoreException;
 
+import java.util.ArrayList;
+import java.util.List;
+
 /**
- * @author Eclipse Guru (eclipseguru@gmail.com)
+ * Properties page for projects with GWT nature.
  */
 public class ProjectProperties extends PropertyPage implements IWorkbenchPropertyPage, IStatusChangeListener {
 
@@ -106,12 +109,12 @@ public class ProjectProperties extends PropertyPage implements IWorkbenchPropert
 				return;
 
 			switch (index) {
-			case IDX_BUTTON_ML_ADD:
-				handleModuleListAddButtonPressed();
-				break;
-			case IDX_BUTTON_ML_REMOVE:
-				handleModuleListRemoveButtonPressed();
-				break;
+				case IDX_BUTTON_ML_ADD:
+					handleModuleListAddButtonPressed();
+					break;
+				case IDX_BUTTON_ML_REMOVE:
+					handleModuleListRemoveButtonPressed();
+					break;
 			}
 
 			updateButtonEnabledState();
@@ -139,6 +142,19 @@ public class ProjectProperties extends PropertyPage implements IWorkbenchPropert
 		}
 	}
 
+	private class VMArgsDialogFieldAdapter implements IStringButtonAdapter, IDialogFieldListener {
+
+		// -------- IStringButtonAdapter --------
+		public void changeControlPressed(DialogField field) {
+			vmArgsChangeControlPressed(field);
+		}
+
+		// ---------- IDialogFieldListener --------
+		public void dialogFieldChanged(DialogField field) {
+			vmArgsDialogFieldChanged(field);
+		}
+	}
+
 	private static final int IDX_BUTTON_ML_ADD = 0;
 
 	private static final int IDX_BUTTON_ML_REMOVE = 1;
@@ -153,6 +169,8 @@ public class ProjectProperties extends PropertyPage implements IWorkbenchPropert
 
 	private StringDialogField deploymentPathDialogField;
 
+	private StringButtonDialogField vmArgsDialogField;
+
 	private GwtProject currentProject;
 
 	private boolean isHosted;
@@ -161,9 +179,13 @@ public class ProjectProperties extends PropertyPage implements IWorkbenchPropert
 
 	IPath deploymentPath;
 
-	private StatusInfo outputLocationStatus = new StatusInfo();
+	String vmArgs = "";
 
-	private StatusInfo deploymentPathStatus = new StatusInfo();
+	private final StatusInfo outputLocationStatus = new StatusInfo();
+
+	private final StatusInfo deploymentPathStatus = new StatusInfo();
+
+	private final StatusInfo vmArgsStatus = new StatusInfo();
 
 	private boolean isRebuildNecessary;
 
@@ -231,14 +253,16 @@ public class ProjectProperties extends PropertyPage implements IWorkbenchPropert
 
 			LayoutUtil.doDefaultLayout(deployment, new DialogField[] { hostedModeDialogField, deploymentPathDialogField }, false, 5, 5);
 			LayoutUtil.setHorizontalGrabbing(deploymentPathDialogField.getTextControl(deployment));
+			LayoutUtil.setHorizontalGrabbing(vmArgsDialogField.getTextControl(deployment));
 
-			LayoutUtil.doDefaultLayout(modules, new DialogField[] { modulesListDialogField, outputLocationDialogField }, true, 5, 5);
+			LayoutUtil.doDefaultLayout(modules, new DialogField[] { modulesListDialogField, outputLocationDialogField, vmArgsDialogField }, true, 5, 5);
 			LayoutUtil.setHorizontalGrabbing(modulesListDialogField.getListControl(modules));
 			((GridData) modulesListDialogField.getListControl(modules).getLayoutData()).grabExcessVerticalSpace = true;
 			modules.setLayoutData(new GridData(SWT.FILL, SWT.FILL, true, true));
 			LayoutUtil.setHorizontalGrabbing(outputLocationDialogField.getTextControl(modules));
+
 		} else {
-			LayoutUtil.doDefaultLayout(deployment, new DialogField[] { outputLocationDialogField }, false, 5, 5);
+			LayoutUtil.doDefaultLayout(deployment, new DialogField[] { outputLocationDialogField, vmArgsDialogField }, false, 5, 5);
 			LayoutUtil.setHorizontalGrabbing(outputLocationDialogField.getTextControl(deployment));
 		}
 
@@ -267,6 +291,11 @@ public class ProjectProperties extends PropertyPage implements IWorkbenchPropert
 		deploymentPathDialogField = new StringDialogField();
 		deploymentPathDialogField.setDialogFieldListener(new DeploymentPathDialogFieldAdapter());
 		deploymentPathDialogField.setLabelText("Deployment path:");
+
+		vmArgsDialogField = new StringButtonDialogField(new VMArgsDialogFieldAdapter());
+		vmArgsDialogField.setLabelText("Compiler VM Args:");
+		vmArgsDialogField.setButtonLabel("Variables...");
+		vmArgsDialogField.setDialogFieldListener(adapter);
 	}
 
 	private void deploymentPathDialogFieldChanged(DialogField field) {
@@ -343,12 +372,22 @@ public class ProjectProperties extends PropertyPage implements IWorkbenchPropert
 	private void doStatusLineUpdate() {
 		if (Display.getCurrent() != null) {
 			IStatus res = findMostSevereStatus();
-			this.statusChanged(res);
+			statusChanged(res);
 		}
 	}
 
 	private IStatus findMostSevereStatus() {
-		return StatusUtil.getMostSevere(new IStatus[] { outputLocationStatus, deploymentPathStatus });
+		return StatusUtil.getMostSevere(new IStatus[] { outputLocationStatus, deploymentPathStatus, vmArgsStatus });
+	}
+
+	/**
+	 * Returns the current compiler VM arguments which will be added to the GWT
+	 * compiler Java runner as additional VM arguments.
+	 * 
+	 * @return the VM arguments for the GWT compiler
+	 */
+	public String getCompilerVmArgs() {
+		return vmArgsDialogField.getText();
 	}
 
 	/**
@@ -447,6 +486,10 @@ public class ProjectProperties extends PropertyPage implements IWorkbenchPropert
 		deploymentPath = GwtUtil.getDeploymentPath(project);
 		deploymentPathDialogField.setText(deploymentPath.makeAbsolute().toString());
 
+		// VM args
+		vmArgs = GwtUtil.getCompilerVmArgs(project);
+		vmArgsDialogField.setText(vmArgs);
+
 		// no rebuild after fresh initialization
 		isRebuildNecessary = false;
 	}
@@ -480,11 +523,11 @@ public class ProjectProperties extends PropertyPage implements IWorkbenchPropert
 		if (isRebuildNecessary) {
 			MessageDialog dialog = new MessageDialog(getShell(), "Build Needed", null, "The deployment settings have changed.  The project needs to be rebuilt for the changes to take effect.  Do you want to rebuild now?", MessageDialog.QUESTION, new String[] { IDialogConstants.YES_LABEL, IDialogConstants.NO_LABEL, IDialogConstants.CANCEL_LABEL }, 2);
 			switch (dialog.open()) {
-			case 2:
-				return false;
-			case Window.OK:
-				build = true;
-				break;
+				case 2:
+					return false;
+				case Window.OK:
+					build = true;
+					break;
 			}
 		}
 
@@ -505,6 +548,9 @@ public class ProjectProperties extends PropertyPage implements IWorkbenchPropert
 
 		// deployment path
 		projectPreferences.put(GwtCorePreferenceConstants.PREF_DEPLOYMENT_PATH, deploymentPath.makeAbsolute().toString());
+
+		// VM args
+		projectPreferences.put(GwtCorePreferenceConstants.PREF_COMPILER_VM_ARGS, getCompilerVmArgs());
 
 		// Dump changes
 		try {
@@ -590,4 +636,41 @@ public class ProjectProperties extends PropertyPage implements IWorkbenchPropert
 				outputLocationStatus.setWarning(Messages.format(NewWizardMessages.OutputLocation_DotAsLocation, pathStr));
 		}
 	}
+
+	private void updateVmArgsStatus() {
+		vmArgs = "";
+
+		// TODO: validate VM args (if required)
+		// ...
+
+		vmArgs = getCompilerVmArgs();
+		vmArgsStatus.setOK();
+	}
+
+	private void vmArgsChangeControlPressed(DialogField field) {
+		if (field == vmArgsDialogField) {
+			StringVariableSelectionDialog dialog = new StringVariableSelectionDialog(getShell());
+			dialog.open();
+			String variableExpression = dialog.getVariableExpression();
+			if (variableExpression == null)
+				return;
+			int startSel = vmArgsDialogField.getTextControl(null).getSelection().x;
+			int lenSel = vmArgsDialogField.getTextControl(null).getSelectionCount();
+			String currentText = getCompilerVmArgs();
+			String newText = "";
+			if (startSel > 0)
+				newText += currentText.substring(0, startSel);
+			newText += variableExpression + currentText.substring(startSel + lenSel);
+			vmArgsDialogField.setText(newText);
+		}
+	}
+
+	private void vmArgsDialogFieldChanged(DialogField field) {
+		if (field == vmArgsDialogField) {
+			updateVmArgsStatus();
+			isRebuildNecessary = true;
+		}
+		doStatusLineUpdate();
+	}
+
 }

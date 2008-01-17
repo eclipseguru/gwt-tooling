@@ -11,6 +11,8 @@
  **************************************************************************************************/
 package org.eclipseguru.gwt.core;
 
+import org.eclipseguru.gwt.core.preferences.GwtCorePreferenceConstants;
+
 import org.eclipse.core.resources.IProject;
 import org.eclipse.core.resources.IResource;
 import org.eclipse.core.resources.IStorage;
@@ -24,7 +26,6 @@ import org.eclipse.core.runtime.preferences.IScopeContext;
 import org.eclipse.core.runtime.preferences.InstanceScope;
 import org.eclipse.wst.common.project.facet.core.IFacetedProject;
 import org.eclipse.wst.common.project.facet.core.ProjectFacetsManager;
-import org.eclipseguru.gwt.core.preferences.GwtCorePreferenceConstants;
 
 /**
  * A core utility
@@ -42,6 +43,28 @@ public class GwtUtil {
 
 	/** GWT_MODULE_SOURCE_EXTENSION */
 	public static final String GWT_MODULE_SOURCE_EXTENSION = ".gwt.xml"; //$NON-NLS-1$
+
+	/** NO_VM_ARGS */
+	private static final String NO_VM_ARGS = ""; //$NON-NLS-1$
+
+	/**
+	 * Returns the GWT compiler Java VM arguments for the specified project.
+	 * <p>
+	 * Note, the contents are added to the GWT compiler Java command as
+	 * additional VM arguments
+	 * </p>
+	 * 
+	 * @param project
+	 * @return the GWT compiler VM arguments deployment for the specified
+	 *         project
+	 */
+	public static String getCompilerVmArgs(GwtProject project) {
+		IEclipsePreferences projectPreferences = project.getProjectPreferences();
+		if (null == projectPreferences)
+			return NO_VM_ARGS;
+
+		return projectPreferences.get(GwtCorePreferenceConstants.PREF_COMPILER_VM_ARGS, NO_VM_ARGS);
+	}
 
 	/**
 	 * Returns the deployment path for the specified project.

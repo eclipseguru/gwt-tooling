@@ -45,6 +45,7 @@ import org.eclipse.core.runtime.IStatus;
 import org.eclipse.core.runtime.MultiStatus;
 import org.eclipse.core.runtime.OperationCanceledException;
 import org.eclipse.core.runtime.Status;
+import org.eclipse.core.variables.VariablesPlugin;
 import org.eclipse.debug.core.DebugEvent;
 import org.eclipse.debug.core.DebugPlugin;
 import org.eclipse.debug.core.IDebugEventSetListener;
@@ -85,21 +86,20 @@ public class GwtProjectPublisher extends WorkspaceJob {
 		/** compileErrors */
 		private final List<String> compileErrors = new ArrayList<String>();
 
-		private StringBuilder collectedOutput = new StringBuilder();
+		private final StringBuilder collectedOutput = new StringBuilder();
 
 		private void analyzeOutput() {
 			compileErrors.clear();
 			try {
 				BufferedReader reader = new BufferedReader(new StringReader(collectedOutput.toString()));
 				String text = null;
-				while ((text = reader.readLine()) != null) {
+				while ((text = reader.readLine()) != null)
 					if (text.trim().startsWith("[ERROR] ")) {
 						String errorMsg = text.trim().substring("[ERROR] ".length());
 						errorMsg = stripNewlines(errorMsg);
 						if (!ignoreError(errorMsg))
 							compileErrors.add(errorMsg);
 					}
-				}
 			} catch (IOException e) {
 				compileErrors.add("Internal error while analyzing compile output: " + e.getMessage());
 			}
@@ -219,9 +219,8 @@ public class GwtProjectPublisher extends WorkspaceJob {
 			// GWT libraries
 			GwtRuntime runtime = GwtCore.getRuntime(gwtProject);
 			String[] gwtRuntimeClasspath = runtime.getGwtRuntimeClasspath();
-			for (int i = 0; i < gwtRuntimeClasspath.length; i++) {
-				classpath.add(gwtRuntimeClasspath[i]);
-			}
+			for (String element : gwtRuntimeClasspath)
+				classpath.add(element);
 
 			// regular classpath
 			String[] projectClassPath = JavaRuntime.computeDefaultRuntimeClassPath(gwtProject.getJavaProject());
@@ -240,6 +239,8 @@ public class GwtProjectPublisher extends WorkspaceJob {
 			VMRunnerConfiguration vmConfig = new VMRunnerConfiguration(Constants.GWT_COMPILER_CLASS, classpath.toArray(new String[classpath.size()]));
 			vmConfig.setWorkingDirectory(targetFolder.getLocation().toOSString());
 			vmConfig.setProgramArguments(prepareGwtCompileArguments(module, targetFolder));
+			String vmArgs = VariablesPlugin.getDefault().getStringVariableManager().performStringSubstitution(GwtUtil.getCompilerVmArgs(project));
+			vmConfig.setVMArguments(vmArgs.split(" "));
 			final ILaunch gwtLaunch = new Launch(null, ILaunchManager.RUN_MODE, null);
 			DebugPlugin.getDefault().getLaunchManager().addLaunch(gwtLaunch);
 			DebugPlugin.getDefault().addDebugEventListener(new IDebugEventSetListener() {
@@ -249,10 +250,10 @@ public class GwtProjectPublisher extends WorkspaceJob {
 						if ((source instanceof IProcess)) {
 							IProcess process = (IProcess) source;
 							ILaunch launch = process.getLaunch();
-							if ((launch != null) && (launch == gwtLaunch)) {
-								if (event.getKind() == DebugEvent.CREATE) {
+							if ((launch != null) && (launch == gwtLaunch))
+								if (event.getKind() == DebugEvent.CREATE)
 									process.getStreamsProxy().getOutputStreamMonitor().addListener(compileErrorLogger);
-								} else if (event.getKind() == DebugEvent.TERMINATE) {
+								else if (event.getKind() == DebugEvent.TERMINATE) {
 									process.getStreamsProxy().getOutputStreamMonitor().removeListener(compileErrorLogger);
 									DebugPlugin.getDefault().removeDebugEventListener(this);
 
@@ -264,7 +265,6 @@ public class GwtProjectPublisher extends WorkspaceJob {
 										compilerLaunchLock.unlock();
 									}
 								}
-							}
 						}
 					}
 				}
@@ -295,15 +295,12 @@ public class GwtProjectPublisher extends WorkspaceJob {
 
 			// create marker for error message
 			final List<String> compileErrors = compileErrorLogger.getCompileErrors();
-			if (compileErrors.size() > 0) {
-				for (String error : compileErrors) {
+			if (compileErrors.size() > 0)
+				for (String error : compileErrors)
 					if (module.getModuleDescriptor() instanceof IResource)
 						ResourceUtil.createProblem(markerResource, NLS.bind("GWT Compiler: {0}", error));
-					else {
+					else
 						ResourceUtil.createProblem(markerResource, NLS.bind("GWT Compiler, module {0}: {1}", module.getModuleId(), error));
-					}
-				}
-			}
 
 			// refresh
 			targetFolder.refreshLocal(IResource.DEPTH_INFINITE, monitor);
@@ -446,6 +443,7 @@ public class GwtProjectPublisher extends WorkspaceJob {
 	 * @throws CoreException
 	 * @deprecated this is no longer in use (it's much simpler now in GWT 1.4)
 	 */
+	@Deprecated
 	private void publishHostedModuleFull(GwtModule module, IFolder targetFolder, IProgressMonitor monitor) throws CoreException {
 		// we need a "smart" publish that just generates
 		// the (module.nocache.html)
