@@ -38,6 +38,7 @@ import org.eclipse.wst.common.componentcore.resources.IVirtualFolder;
 import org.eclipse.wst.common.componentcore.resources.IVirtualReference;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
 /**
@@ -98,8 +99,9 @@ public class ConfigureWebProjectJob extends WorkspaceJob {
 		if (null != gwtHostedServlet) {
 			// remove mappings
 			final Object[] mappings = gwtHostedServlet.getMappings().toArray();
-			for (final Object element : mappings)
+			for (final Object element : mappings) {
 				webAppEdit.getWebApp().getServletMappings().remove(element);
+			}
 			// remove servlet
 			webAppEdit.getWebApp().getServlets().remove(gwtHostedServlet);
 		}
@@ -135,8 +137,9 @@ public class ConfigureWebProjectJob extends WorkspaceJob {
 				references.add(reference);
 				final IVirtualComponent referencedComponent = reference.getReferencedComponent();
 				final String deployedName = referencedComponent.getDeployedName();
-				if ((null != deployedName) && !foundGwtUserJar && deployedName.endsWith(gwtUserJarPath.toString()))
+				if ((null != deployedName) && !foundGwtUserJar && deployedName.endsWith(gwtUserJarPath.toString())) {
 					foundGwtUserJar = true;
+				}
 			}
 
 			// gwt-user.jar
@@ -153,8 +156,9 @@ public class ConfigureWebProjectJob extends WorkspaceJob {
 			ProgressUtil.checkCanceled(monitor);
 
 			// apply references
-			if (changedReferences)
+			if (changedReferences) {
 				flexProject.setReferences(references.toArray(new IVirtualReference[references.size()]));
+			}
 		} finally {
 			monitor.done();
 		}
@@ -167,17 +171,21 @@ public class ConfigureWebProjectJob extends WorkspaceJob {
 	 */
 	private void createDeploymentFolderForOutputFolder(final IVirtualComponent flexProject, final IProgressMonitor monitor) throws CoreException {
 		try {
-			final GwtModule[] modules = project.getModules();
-			monitor.beginTask("Create Deployment Folder...", modules.length * 2);
+			final List<GwtModule> modules = new ArrayList<GwtModule>();
+			modules.addAll(Arrays.asList(project.getModules()));
+			modules.addAll(Arrays.asList(project.getIncludedModules()));
+			monitor.beginTask("Create Deployment Folder...", modules.size() * 2);
 			for (final GwtModule gwtModule : modules) {
 				final IVirtualFolder gwtDeployFolder = flexProject.getRootFolder().getFolder(deploymentPath.append(gwtModule.getName()));
 				// be aggressive: remove any old resource first
-				if (gwtDeployFolder.exists())
+				if (gwtDeployFolder.exists()) {
 					gwtDeployFolder.delete(IResource.FORCE, ProgressUtil.subProgressMonitor(monitor, 1));
-				else
+				} else {
 					monitor.worked(1);
-				if (gwtModule.getEntryPointTypeName() != null)
+				}
+				if (gwtModule.getEntryPointTypeName() != null) {
 					gwtDeployFolder.createLink(outputPath.append(gwtModule.getName()), IResource.FORCE, ProgressUtil.subProgressMonitor(monitor, 1));
+				}
 			}
 		} finally {
 			monitor.done();
@@ -197,8 +205,9 @@ public class ConfigureWebProjectJob extends WorkspaceJob {
 
 			// get the flex project component
 			final IVirtualComponent flexProject = ComponentCore.createComponent(project.getProjectResource());
-			if (!flexProject.exists())
+			if (!flexProject.exists()) {
 				flexProject.create(IResource.FORCE, null);
+			}
 
 			ProgressUtil.checkCanceled(monitor);
 
@@ -208,14 +217,16 @@ public class ConfigureWebProjectJob extends WorkspaceJob {
 			ProgressUtil.checkCanceled(monitor);
 
 			// add necessary jar files
-			// TODO: I think this is not necessary
-			if (false)
+			// XXX: I think this is not necessary
+			if (false) {
 				addModuleJars(flexProject, ProgressUtil.subProgressMonitor(monitor, 1));
+			}
 
-			// update the deployment desciptor
-			// TODO: not necessary with GWT 1.1
-			if (false)
+			// update the deployment descriptor
+			// XXX: not necessary with GWT 1.1
+			if (false) {
 				updateDeploymentDescriptor(flexProject, ProgressUtil.subProgressMonitor(monitor, 1));
+			}
 
 		} finally {
 			monitor.done();
@@ -235,34 +246,40 @@ public class ConfigureWebProjectJob extends WorkspaceJob {
 		try {
 			monitor.beginTask("Updating web.xml...", 2);
 
-			if (!isHostedDeploymentMode)
+			if (!isHostedDeploymentMode) {
 				return;
+			}
 
 			// get factory
 			final IArtifactEditFactory artifactEditFactory = ArtifactEditRegistryReader.instance().getArtifactEdit(project.getProjectResource());
-			if (null == artifactEditFactory)
+			if (null == artifactEditFactory) {
 				return;
+			}
 
 			// create edit
 			edit = artifactEditFactory.createArtifactEditForWrite(flexProject);
-			if (null == edit)
+			if (null == edit) {
 				return;
+			}
 
 			// adapt to web edit
 			final WebArtifactEdit webAppEdit = (WebArtifactEdit) edit.getAdapter(WebArtifactEdit.class);
-			if (null == webAppEdit)
+			if (null == webAppEdit) {
 				return;
+			}
 
 			// in add gwt-hosted.html servlet in hosted mode
-			if (false)// (isHostedDeploymentMode)
+			if (false) {
 				addGwtHostedServlet(webAppEdit);
+			}
 			monitor.worked(1);
 
 			// save descriptor
 			webAppEdit.saveIfNecessary(ProgressUtil.subProgressMonitor(monitor, 1));
 		} finally {
-			if (null != edit)
+			if (null != edit) {
 				edit.dispose();
+			}
 			monitor.done();
 		}
 	}
