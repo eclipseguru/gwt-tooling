@@ -11,23 +11,14 @@
  **************************************************************************************************/
 package org.eclipseguru.gwt.core.builder;
 
-import java.io.BufferedReader;
-import java.io.ByteArrayInputStream;
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.InputStreamReader;
-import java.io.StringReader;
-import java.text.MessageFormat;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.concurrent.TimeUnit;
-import java.util.concurrent.locks.Condition;
-import java.util.concurrent.locks.Lock;
-import java.util.concurrent.locks.ReentrantLock;
+import org.eclipseguru.gwt.core.GwtCore;
+import org.eclipseguru.gwt.core.GwtModule;
+import org.eclipseguru.gwt.core.GwtProject;
+import org.eclipseguru.gwt.core.GwtUtil;
+import org.eclipseguru.gwt.core.launch.GwtLaunchUtil;
+import org.eclipseguru.gwt.core.runtimes.GwtRuntime;
+import org.eclipseguru.gwt.core.utils.ProgressUtil;
+import org.eclipseguru.gwt.core.utils.ResourceUtil;
 
 import org.eclipse.core.resources.IFile;
 import org.eclipse.core.resources.IFolder;
@@ -62,14 +53,24 @@ import org.eclipse.jdt.launching.IVMRunner;
 import org.eclipse.jdt.launching.JavaRuntime;
 import org.eclipse.jdt.launching.VMRunnerConfiguration;
 import org.eclipse.osgi.util.NLS;
-import org.eclipseguru.gwt.core.GwtCore;
-import org.eclipseguru.gwt.core.GwtModule;
-import org.eclipseguru.gwt.core.GwtProject;
-import org.eclipseguru.gwt.core.GwtUtil;
-import org.eclipseguru.gwt.core.launch.GwtLaunchUtil;
-import org.eclipseguru.gwt.core.runtimes.GwtRuntime;
-import org.eclipseguru.gwt.core.utils.ProgressUtil;
-import org.eclipseguru.gwt.core.utils.ResourceUtil;
+
+import java.io.BufferedReader;
+import java.io.ByteArrayInputStream;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.InputStreamReader;
+import java.io.StringReader;
+import java.text.MessageFormat;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.concurrent.TimeUnit;
+import java.util.concurrent.locks.Condition;
+import java.util.concurrent.locks.Lock;
+import java.util.concurrent.locks.ReentrantLock;
 
 import com.googlipse.gwt.common.Constants;
 
@@ -126,8 +127,11 @@ public class GwtProjectPublisher extends WorkspaceJob {
 			return false;
 		}
 
-		/* (non-Javadoc)
-		 * @see org.eclipse.debug.core.IStreamListener#streamAppended(java.lang.String, org.eclipse.debug.core.model.IStreamMonitor)
+		/*
+		 * (non-Javadoc)
+		 * 
+		 * @see org.eclipse.debug.core.IStreamListener#streamAppended(java.lang.String,
+		 *      org.eclipse.debug.core.model.IStreamMonitor)
 		 */
 		public void streamAppended(String text, IStreamMonitor monitor) {
 			collectedOutput.append(text);
@@ -145,7 +149,7 @@ public class GwtProjectPublisher extends WorkspaceJob {
 	 * @param name
 	 */
 	public GwtProjectPublisher(GwtProject project) {
-		super(MessageFormat.format("Publishing {0}", project.getName()));
+		super(MessageFormat.format("GWT Compiling and Publishing {0}", project.getName()));
 		this.project = project;
 
 		// configure job
@@ -239,8 +243,7 @@ public class GwtProjectPublisher extends WorkspaceJob {
 			VMRunnerConfiguration vmConfig = new VMRunnerConfiguration(Constants.GWT_COMPILER_CLASS, classpath.toArray(new String[classpath.size()]));
 			vmConfig.setWorkingDirectory(targetFolder.getLocation().toOSString());
 			vmConfig.setProgramArguments(prepareGwtCompileArguments(module, targetFolder));
-			String vmArgs = VariablesPlugin.getDefault().getStringVariableManager().performStringSubstitution(GwtUtil.getCompilerVmArgs(project));
-			vmConfig.setVMArguments(vmArgs.split(" "));
+			vmConfig.setVMArguments(prepareGwtCompilerVmArguments(module));
 			final ILaunch gwtLaunch = new Launch(null, ILaunchManager.RUN_MODE, null);
 			DebugPlugin.getDefault().getLaunchManager().addLaunch(gwtLaunch);
 			DebugPlugin.getDefault().addDebugEventListener(new IDebugEventSetListener() {
@@ -279,7 +282,7 @@ public class GwtProjectPublisher extends WorkspaceJob {
 				// try to wait for the compiler
 				monitor.subTask(MessageFormat.format("Waiting for the GWT Compiler to finish compiling module ''{0}''...", module.getName()));
 				int i = 0;
-				while (!gwtLaunch.isTerminated() && (i < 30)) {
+				while (!gwtLaunch.isTerminated() && (i < 300)) {
 					ProgressUtil.checkCanceled(monitor);
 					try {
 						compilerLaunchFinishes.await(1, TimeUnit.SECONDS);
@@ -289,6 +292,8 @@ public class GwtProjectPublisher extends WorkspaceJob {
 						Thread.interrupted();
 					}
 				}
+				if (!gwtLaunch.isTerminated())
+					ResourceUtil.createProblem(markerResource, "GWT Compiler: Took too long to complete. Compile results might be undefined.");
 			} finally {
 				compilerLaunchLock.unlock();
 			}
@@ -320,12 +325,12 @@ public class GwtProjectPublisher extends WorkspaceJob {
 	}
 
 	/**
-	 * Builds the compile arguments for compiling the specified modul into the
+	 * Builds the compile arguments for compiling the specified module into the
 	 * specified target folder.
 	 * 
 	 * @param module
 	 * @param targetFolder
-	 * @return
+	 * @return the program arguments
 	 * @throws CoreException
 	 */
 	private String[] prepareGwtCompileArguments(GwtModule module, IFolder targetFolder) throws CoreException {
@@ -348,6 +353,19 @@ public class GwtProjectPublisher extends WorkspaceJob {
 		args.add(module.getModuleId());
 
 		return args.toArray(new String[args.size()]);
+	}
+
+	/**
+	 * Builds the additional JavaVM arguments for compiling the specified
+	 * module.
+	 * 
+	 * @param module
+	 * @return the VM arguments
+	 * @throws CoreException
+	 */
+	private String[] prepareGwtCompilerVmArguments(GwtModule module) throws CoreException {
+		String vmArgs = VariablesPlugin.getDefault().getStringVariableManager().performStringSubstitution(GwtUtil.getCompilerVmArgs(module.getProject()));
+		return vmArgs.split(" ");
 	}
 
 	/**
@@ -508,16 +526,13 @@ public class GwtProjectPublisher extends WorkspaceJob {
 					// ProgressUtil.subProgressMonitor(monitor, 1));
 
 					/*
-					 * In hosted mode: - copy module public files only
-					 * 
-					 * In compiled mode: - copy module public files and -
-					 * compiled module output
-					 * 
-					 * Always: - check that support files exist in build output
-					 * directory (gwt-hosted.jsp, gwt.js, history.html,
-					 * gwt-user.jar) - check that the build output folder and
-					 * the gwt-user.jar is correctly registered with deployment
-					 * path in flex project component file
+					 * In hosted mode: - copy module public files only In
+					 * compiled mode: - copy module public files and - compiled
+					 * module output Always: - check that support files exist in
+					 * build output directory (gwt-hosted.jsp, gwt.js,
+					 * history.html, gwt-user.jar) - check that the build output
+					 * folder and the gwt-user.jar is correctly registered with
+					 * deployment path in flex project component file
 					 */
 
 					// publish my modules
