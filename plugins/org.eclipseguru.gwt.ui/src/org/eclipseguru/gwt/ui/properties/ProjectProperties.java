@@ -105,8 +105,9 @@ public class ProjectProperties extends PropertyPage implements IWorkbenchPropert
 
 	private final class ModulesListDialogFieldAdapter implements IListAdapter {
 		public void customButtonPressed(final ListDialogField field, final int index) {
-			if (field != modulesListDialogField)
+			if (field != modulesListDialogField) {
 				return;
+			}
 
 			switch (index) {
 				case IDX_BUTTON_ML_ADD:
@@ -196,17 +197,20 @@ public class ProjectProperties extends PropertyPage implements IWorkbenchPropert
 		final IProject[] allProjects = workspaceRoot.getProjects();
 		final List<IProject> rejectedElements = new ArrayList<IProject>(allProjects.length);
 		final GwtProject currProject = getProject();
-		for (int i = 0; i < allProjects.length; i++)
-			if (!allProjects[i].equals(currProject))
+		for (int i = 0; i < allProjects.length; i++) {
+			if (!allProjects[i].equals(currProject)) {
 				rejectedElements.add(allProjects[i]);
+			}
+		}
 		final ViewerFilter filter = new TypedViewerFilter(acceptedClasses, rejectedElements.toArray());
 
 		final ILabelProvider lp = new WorkbenchLabelProvider();
 		final ITreeContentProvider cp = new WorkbenchContentProvider();
 
 		IResource initSelection = null;
-		if (outputLocationPath != null)
+		if (outputLocationPath != null) {
 			initSelection = currProject.getProjectResource().findMember(outputLocationPath);
+		}
 
 		final FolderSelectionDialog dialog = new FolderSelectionDialog(getShell(), lp, cp);
 		dialog.setTitle(NewWizardMessages.BuildPathsBlock_ChooseOutputFolderDialog_title);
@@ -217,8 +221,9 @@ public class ProjectProperties extends PropertyPage implements IWorkbenchPropert
 		dialog.setInitialSelection(initSelection);
 		dialog.setComparator(new ResourceComparator(ResourceComparator.NAME));
 
-		if (dialog.open() == Window.OK)
+		if (dialog.open() == Window.OK) {
 			return (IContainer) dialog.getFirstResult();
+		}
 		return null;
 	}
 
@@ -253,13 +258,13 @@ public class ProjectProperties extends PropertyPage implements IWorkbenchPropert
 
 			LayoutUtil.doDefaultLayout(deployment, new DialogField[] { hostedModeDialogField, deploymentPathDialogField }, false, 5, 5);
 			LayoutUtil.setHorizontalGrabbing(deploymentPathDialogField.getTextControl(deployment));
-			LayoutUtil.setHorizontalGrabbing(vmArgsDialogField.getTextControl(deployment));
 
 			LayoutUtil.doDefaultLayout(modules, new DialogField[] { modulesListDialogField, outputLocationDialogField, vmArgsDialogField }, true, 5, 5);
 			LayoutUtil.setHorizontalGrabbing(modulesListDialogField.getListControl(modules));
 			((GridData) modulesListDialogField.getListControl(modules).getLayoutData()).grabExcessVerticalSpace = true;
 			modules.setLayoutData(new GridData(SWT.FILL, SWT.FILL, true, true));
 			LayoutUtil.setHorizontalGrabbing(outputLocationDialogField.getTextControl(modules));
+			LayoutUtil.setHorizontalGrabbing(vmArgsDialogField.getTextControl(deployment));
 
 		} else {
 			LayoutUtil.doDefaultLayout(deployment, new DialogField[] { outputLocationDialogField, vmArgsDialogField }, false, 5, 5);
@@ -340,18 +345,21 @@ public class ProjectProperties extends PropertyPage implements IWorkbenchPropert
 			protected IStatus run(IProgressMonitor monitor) {
 				try {
 					IProject[] projects = null;
-					if (getProject() == null)
+					if (getProject() == null) {
 						projects = ResourcesPlugin.getWorkspace().getRoot().getProjects();
-					else
+					} else {
 						projects = new IProject[] { getProject().getProjectResource() };
+					}
 					monitor.beginTask("", projects.length * 2); //$NON-NLS-1$
 					for (IProject projectToBuild : projects) {
-						if (!projectToBuild.isOpen())
+						if (!projectToBuild.isOpen()) {
 							continue;
-						if (GwtProject.hasGwtNature(projectToBuild))
+						}
+						if (GwtProject.hasGwtNature(projectToBuild)) {
 							projectToBuild.build(IncrementalProjectBuilder.FULL_BUILD, GwtCore.BUILDER_ID, null, new SubProgressMonitor(monitor, 1));
-						else
+						} else {
 							monitor.worked(1);
+						}
 					}
 				} catch (CoreException e) {
 					return e.getStatus();
@@ -414,13 +422,15 @@ public class ProjectProperties extends PropertyPage implements IWorkbenchPropert
 	public GwtProject getProject() {
 		if (null == currentProject) {
 			final IAdaptable adaptable = getElement();
-			if (adaptable instanceof IProject)
+			if (adaptable instanceof IProject) {
 				currentProject = GwtCore.create((IProject) adaptable);
-			else
+			} else {
 				currentProject = GwtCore.create((IProject) adaptable.getAdapter(IProject.class));
+			}
 
-			if (null == currentProject)
+			if (null == currentProject) {
 				throw new IllegalStateException("Project not found!");
+			}
 		}
 
 		return currentProject;
@@ -434,8 +444,9 @@ public class ProjectProperties extends PropertyPage implements IWorkbenchPropert
 			final IVirtualReference[] references = component.getReferences();
 			for (final IVirtualReference reference : references) {
 				final IProject referencedProject = reference.getReferencedComponent().getProject();
-				if (GwtProject.hasGwtNature(referencedProject))
+				if (GwtProject.hasGwtNature(referencedProject)) {
 					projects.add(GwtCore.create(referencedProject));
+				}
 			}
 
 			final ModuleSelectionDialog dialog = new ModuleSelectionDialog(getShell(), projects.toArray(new GwtProject[projects.size()]));
@@ -479,8 +490,9 @@ public class ProjectProperties extends PropertyPage implements IWorkbenchPropert
 
 		// included modules
 		final GwtModule[] includedModules = project.getIncludedModules();
-		for (final GwtModule module : includedModules)
+		for (final GwtModule module : includedModules) {
 			modulesListDialogField.addElement(module);
+		}
 
 		// deployment path
 		deploymentPath = GwtUtil.getDeploymentPath(project);
@@ -497,8 +509,9 @@ public class ProjectProperties extends PropertyPage implements IWorkbenchPropert
 	private void outputChangeControlPressed(final DialogField field) {
 		if (field == outputLocationDialogField) {
 			final IContainer container = chooseContainer();
-			if (container != null)
+			if (container != null) {
 				outputLocationDialogField.setText(container.getProjectRelativePath().makeRelative().toString());
+			}
 		}
 	}
 
@@ -532,15 +545,17 @@ public class ProjectProperties extends PropertyPage implements IWorkbenchPropert
 		}
 
 		final IEclipsePreferences projectPreferences = project.getProjectPreferences();
-		if (null == projectPreferences)
+		if (null == projectPreferences) {
 			return false;
+		}
 
 		// hosted mode
 		projectPreferences.putBoolean(GwtCorePreferenceConstants.PREF_HOSTED_DEPLOY_MODE, isHosted);
 
 		// output location
-		if (project.getProjectResource().getFullPath().isPrefixOf(outputLocationPath))
+		if (project.getProjectResource().getFullPath().isPrefixOf(outputLocationPath)) {
 			outputLocationPath = outputLocationPath.removeFirstSegments(1);
+		}
 		projectPreferences.put(GwtCorePreferenceConstants.PREF_OUTPUT_LOCATION, outputLocationPath.makeRelative().toString());
 
 		// modules list
@@ -560,12 +575,14 @@ public class ProjectProperties extends PropertyPage implements IWorkbenchPropert
 		}
 
 		// setup the flexible project structure
-		if (GwtProject.hasGwtWebFacet(project.getProjectResource()))
+		if (GwtProject.hasGwtWebFacet(project.getProjectResource())) {
 			doFlexProjectSetup();
+		}
 
 		// build
-		if (build)
+		if (build) {
 			doFullBuild();
+		}
 
 		return true;
 	}
@@ -629,11 +646,13 @@ public class ProjectProperties extends PropertyPage implements IWorkbenchPropert
 		final Path outputPath = (new Path(pathStr));
 		pathStr = outputPath.lastSegment();
 		if (null != pathStr) {
-			if (pathStr.equals(".settings") && (outputPath.segmentCount() == 2))
+			if (pathStr.equals(".settings") && (outputPath.segmentCount() == 2)) {
 				outputLocationStatus.setWarning(NewWizardMessages.OutputLocation_SettingsAsLocation);
+			}
 
-			if ((pathStr.charAt(0) == '.') && (pathStr.length() > 1))
+			if ((pathStr.charAt(0) == '.') && (pathStr.length() > 1)) {
 				outputLocationStatus.setWarning(Messages.format(NewWizardMessages.OutputLocation_DotAsLocation, pathStr));
+			}
 		}
 	}
 
@@ -652,14 +671,16 @@ public class ProjectProperties extends PropertyPage implements IWorkbenchPropert
 			final StringVariableSelectionDialog dialog = new StringVariableSelectionDialog(getShell());
 			dialog.open();
 			final String variableExpression = dialog.getVariableExpression();
-			if (variableExpression == null)
+			if (variableExpression == null) {
 				return;
+			}
 			final int startSel = vmArgsDialogField.getTextControl(null).getSelection().x;
 			final int lenSel = vmArgsDialogField.getTextControl(null).getSelectionCount();
 			final String currentText = getCompilerVmArgs();
 			String newText = "";
-			if (startSel > 0)
+			if (startSel > 0) {
 				newText += currentText.substring(0, startSel);
+			}
 			newText += variableExpression + currentText.substring(startSel + lenSel);
 			vmArgsDialogField.setText(newText);
 		}
