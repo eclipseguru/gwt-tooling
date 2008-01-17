@@ -34,6 +34,7 @@ import org.eclipse.wst.common.componentcore.internal.util.IArtifactEditFactory;
 import org.eclipse.wst.common.componentcore.resources.IVirtualComponent;
 import org.eclipse.wst.common.componentcore.resources.IVirtualFolder;
 import org.eclipse.wst.common.componentcore.resources.IVirtualReference;
+import org.eclipseguru.gwt.core.GwtModule;
 import org.eclipseguru.gwt.core.GwtProject;
 import org.eclipseguru.gwt.core.GwtUtil;
 import org.eclipseguru.gwt.core.utils.ProgressUtil;
@@ -165,15 +166,19 @@ public class ConfigureWebProjectJob extends WorkspaceJob {
 	 */
 	private void createDeploymentFolderForOutputFolder(final IVirtualComponent flexProject, IProgressMonitor monitor) throws CoreException {
 		try {
-			monitor.beginTask("Create Deployment Folder...", 2);
-
-			final IVirtualFolder gwtDeployFolder = flexProject.getRootFolder().getFolder(deploymentPath);
-			// be aggressive: remove any old resource first
-			if (gwtDeployFolder.exists())
-				gwtDeployFolder.delete(IResource.FORCE, ProgressUtil.subProgressMonitor(monitor, 1));
-			else
-				monitor.worked(1);
-			gwtDeployFolder.createLink(outputPath, IResource.FORCE, ProgressUtil.subProgressMonitor(monitor, 1));
+			GwtModule[] modules = project.getModules();
+			monitor.beginTask("Create Deployment Folder...", modules.length*2);
+			for (int i = 0; i < modules.length; i++) {
+				GwtModule gwtModule = modules[i];
+				final IVirtualFolder gwtDeployFolder = flexProject.getRootFolder().getFolder(deploymentPath.append(gwtModule.getName()));
+				// be aggressive: remove any old resource first
+				if (gwtDeployFolder.exists())
+					gwtDeployFolder.delete(IResource.FORCE, ProgressUtil.subProgressMonitor(monitor, 1));
+				else
+					monitor.worked(1);
+				if(gwtModule.getEntryPointTypeName() != null)
+					gwtDeployFolder.createLink(outputPath.append(gwtModule.getName()), IResource.FORCE, ProgressUtil.subProgressMonitor(monitor, 1));
+			}
 		} finally {
 			monitor.done();
 		}
