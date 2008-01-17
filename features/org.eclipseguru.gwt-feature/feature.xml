@@ -2,7 +2,7 @@
 <feature
       id="org.eclipseguru.gwt"
       label="%featureName"
-      version="1.3.5.qualifier"
+      version="1.4.0.qualifier"
       provider-name="%providerName"
       image="gwt_120.png">
 
