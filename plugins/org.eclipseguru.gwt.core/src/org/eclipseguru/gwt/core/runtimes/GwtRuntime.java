@@ -40,7 +40,7 @@ public class GwtRuntime {
 	 * 
 	 * @param location
 	 */
-	public GwtRuntime(IPath location) {
+	public GwtRuntime(final IPath location) {
 		this.location = location;
 	}
 

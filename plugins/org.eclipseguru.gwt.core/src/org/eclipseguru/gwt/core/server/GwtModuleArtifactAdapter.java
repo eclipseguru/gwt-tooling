@@ -11,6 +11,11 @@
  **************************************************************************************************/
 package org.eclipseguru.gwt.core.server;
 
+import org.eclipseguru.gwt.core.GwtCore;
+import org.eclipseguru.gwt.core.GwtModule;
+import org.eclipseguru.gwt.core.GwtUtil;
+import org.eclipseguru.gwt.core.launch.GwtLaunchUtil;
+
 import org.eclipse.core.resources.IFile;
 import org.eclipse.core.resources.IProject;
 import org.eclipse.core.runtime.IAdaptable;
@@ -19,10 +24,6 @@ import org.eclipse.wst.server.core.IModule;
 import org.eclipse.wst.server.core.IModuleArtifact;
 import org.eclipse.wst.server.core.ServerUtil;
 import org.eclipse.wst.server.core.model.ModuleArtifactAdapterDelegate;
-import org.eclipseguru.gwt.core.GwtCore;
-import org.eclipseguru.gwt.core.GwtModule;
-import org.eclipseguru.gwt.core.GwtUtil;
-import org.eclipseguru.gwt.core.launch.GwtLaunchUtil;
 
 /**
  * The GWT module arifact adapter.
@@ -35,17 +36,16 @@ public class GwtModuleArtifactAdapter extends ModuleArtifactAdapterDelegate {
 	 * @param project
 	 * @return
 	 */
-	protected static IModule getWebModule(IProject project) {
+	protected static IModule getWebModule(final IProject project) {
 		if (null == project)
 			return null;
 
-		IModule[] modules = ServerUtil.getModules("jst.web");
+		final IModule[] modules = ServerUtil.getModules("jst.web");
 		if ((null == modules) || (modules.length == 0))
 			return null;
-		for (IModule module : modules) {
+		for (final IModule module : modules)
 			if (project.equals(module.getProject()))
 				return module;
-		}
 		return null;
 	}
 
@@ -55,26 +55,26 @@ public class GwtModuleArtifactAdapter extends ModuleArtifactAdapterDelegate {
 	 * @see org.eclipse.wst.server.core.model.ModuleArtifactAdapterDelegate#getModuleArtifact(java.lang.Object)
 	 */
 	@Override
-	public IModuleArtifact getModuleArtifact(Object obj) {
+	public IModuleArtifact getModuleArtifact(final Object obj) {
 		if (!(obj instanceof IAdaptable))
 			return null;
 
-		IFile file = (IFile) ((IAdaptable) obj).getAdapter(IFile.class);
+		final IFile file = (IFile) ((IAdaptable) obj).getAdapter(IFile.class);
 		if (null == file)
 			return null;
 
 		if (!GwtUtil.isModuleDescriptor(file))
 			return null;
 
-		GwtModule gwtModule = GwtCore.create(file);
+		final GwtModule gwtModule = GwtCore.create(file);
 		if (null == gwtModule)
 			return null;
 
-		IModule webModule = getWebModule(gwtModule.getProjectResource());
+		final IModule webModule = getWebModule(gwtModule.getProjectResource());
 		if (null == webModule)
 			return null;
 
-		IPath path = GwtUtil.getDeploymentPath(gwtModule.getProject()).append(GwtLaunchUtil.computeDefaultUrl(gwtModule.getModuleId()));
+		final IPath path = GwtUtil.getDeploymentPath(gwtModule.getProject()).append(GwtLaunchUtil.computeDefaultUrl(gwtModule.getModuleId()));
 		return new GwtBrowserResource(webModule, path, gwtModule);
 	}
 }

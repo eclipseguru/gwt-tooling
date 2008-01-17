@@ -17,11 +17,7 @@
  */
 package com.googlipse.gwt.wizards;
 
-import java.io.IOException;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import org.eclipseguru.gwt.core.utils.ProgressUtil;
 
 import org.eclipse.core.resources.IContainer;
 import org.eclipse.core.resources.IFile;
@@ -42,7 +38,12 @@ import org.eclipse.swt.SWT;
 import org.eclipse.swt.layout.GridLayout;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.ui.PlatformUI;
-import org.eclipseguru.gwt.core.utils.ProgressUtil;
+
+import java.io.IOException;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 import com.googlipse.gwt.common.Constants;
 import com.googlipse.gwt.common.Util;
@@ -83,7 +84,7 @@ public class NewGwtModuleWizardPage extends NewTypeWizardPage {
 		setSuperClass(JAVA_LANG_OBJECT, false);
 
 		// super interfaces
-		List<String> superInterfaces = new ArrayList<String>(1);
+		final List<String> superInterfaces = new ArrayList<String>(1);
 		superInterfaces.add(COM_GOOGLE_GWT_CORE_CLIENT_ENTRY_POINT);
 		setSuperInterfaces(superInterfaces, false);
 	}
@@ -91,15 +92,15 @@ public class NewGwtModuleWizardPage extends NewTypeWizardPage {
 	/*
 	 * @see WizardPage#createControl
 	 */
-	public void createControl(Composite parent) {
+	public void createControl(final Composite parent) {
 		initializeDialogUnits(parent);
 
-		Composite composite = new Composite(parent, SWT.NONE);
+		final Composite composite = new Composite(parent, SWT.NONE);
 		composite.setFont(parent.getFont());
 
-		int nColumns = 4;
+		final int nColumns = 4;
 
-		GridLayout layout = new GridLayout();
+		final GridLayout layout = new GridLayout();
 		layout.numColumns = nColumns;
 		composite.setLayout(layout);
 
@@ -137,13 +138,13 @@ public class NewGwtModuleWizardPage extends NewTypeWizardPage {
 
 			monitor.beginTask("Creating new module ...", 10);
 
-			IPackageFragmentRoot root = getPackageFragmentRoot();
+			final IPackageFragmentRoot root = getPackageFragmentRoot();
 			packageFragment = getPackageFragment();
 			if (packageFragment == null)
 				packageFragment = root.getPackageFragment(""); //$NON-NLS-1$
 
 			if (!packageFragment.exists()) {
-				String packName = packageFragment.getElementName();
+				final String packName = packageFragment.getElementName();
 				packageFragment = root.createPackageFragment(packName, true, ProgressUtil.subProgressMonitor(monitor, 1));
 			} else
 				monitor.worked(1);
@@ -152,8 +153,8 @@ public class NewGwtModuleWizardPage extends NewTypeWizardPage {
 			root.createPackageFragment(packageFragment.getElementName().concat(".").concat(Constants.CLIENT_PACKAGE), true, ProgressUtil.subProgressMonitor(monitor, 1));
 
 			// create public folder (note, public is a reserved keyword)
-			IFolder moduleFolder = (IFolder) packageFragment.getResource();
-			IFolder publicFolder = moduleFolder.getFolder(new Path(Constants.PUBLIC_FOLDER));
+			final IFolder moduleFolder = (IFolder) packageFragment.getResource();
+			final IFolder publicFolder = moduleFolder.getFolder(new Path(Constants.PUBLIC_FOLDER));
 			if (!publicFolder.exists())
 				publicFolder.create(IResource.FORCE, true, ProgressUtil.subProgressMonitor(monitor, 1));
 
@@ -170,36 +171,36 @@ public class NewGwtModuleWizardPage extends NewTypeWizardPage {
 
 	// ------ UI --------
 
-	private void createGwtXmlFile(IProgressMonitor monitor) throws IOException, CoreException {
+	private void createGwtXmlFile(final IProgressMonitor monitor) throws IOException, CoreException {
 		try {
 			monitor.beginTask("Creating gwt.xml file ...", 1);
 
-			IContainer packageFolder = (IContainer) packageFragment.getCorrespondingResource();
-			IFile moduleXml = packageFolder.getFile(new Path(getTypeNameWithoutParameters() + '.' + Constants.GWT_XML_EXT));
+			final IContainer packageFolder = (IContainer) packageFragment.getCorrespondingResource();
+			final IFile moduleXml = packageFolder.getFile(new Path(getTypeNameWithoutParameters() + '.' + Constants.GWT_XML_EXT));
 			Util.writeFileFromTemplate("Module.gwt.xml.template", moduleXml, templateVars);
 		} finally {
 			monitor.done();
 		}
 	}
 
-	private void createHtmlFile(IProgressMonitor monitor) throws IOException, CoreException {
+	private void createHtmlFile(final IProgressMonitor monitor) throws IOException, CoreException {
 		try {
 			monitor.beginTask("Creating Html file ...", 1);
 
-			IContainer packageFolder = (IContainer) packageFragment.getCorrespondingResource();
-			IFile moduleHtml = packageFolder.getFile(new Path(Constants.PUBLIC_FOLDER).append(getTypeNameWithoutParameters() + ".html"));
+			final IContainer packageFolder = (IContainer) packageFragment.getCorrespondingResource();
+			final IFile moduleHtml = packageFolder.getFile(new Path(Constants.PUBLIC_FOLDER).append(getTypeNameWithoutParameters() + ".html"));
 			Util.writeFileFromTemplate("Module.html.template", moduleHtml, templateVars);
 		} finally {
 			monitor.done();
 		}
 	}
 
-	private void createJavaFile(IProgressMonitor monitor) throws IOException, CoreException {
+	private void createJavaFile(final IProgressMonitor monitor) throws IOException, CoreException {
 		try {
 			monitor.beginTask("Creating Java file ...", 1);
 
-			IContainer packageFolder = (IContainer) packageFragment.getCorrespondingResource();
-			IFile moduleJava = packageFolder.getFile(new Path(Constants.CLIENT_PACKAGE).append(getTypeNameWithoutParameters() + ".java"));
+			final IContainer packageFolder = (IContainer) packageFragment.getCorrespondingResource();
+			final IFile moduleJava = packageFolder.getFile(new Path(Constants.CLIENT_PACKAGE).append(getTypeNameWithoutParameters() + ".java"));
 			Util.writeFileFromTemplate("Module.java.template", moduleJava, templateVars);
 		} finally {
 			monitor.done();
@@ -209,7 +210,7 @@ public class NewGwtModuleWizardPage extends NewTypeWizardPage {
 	// ------ validation --------
 	private void doStatusUpdate() {
 		// status of all used components
-		IStatus[] status = new IStatus[] { fContainerStatus, isEnclosingTypeSelected() ? fEnclosingTypeStatus : fPackageStatus, fTypeNameStatus, fModifierStatus, fSuperClassStatus, fSuperInterfacesStatus };
+		final IStatus[] status = new IStatus[] { fContainerStatus, isEnclosingTypeSelected() ? fEnclosingTypeStatus : fPackageStatus, fTypeNameStatus, fModifierStatus, fSuperClassStatus, fSuperInterfacesStatus };
 
 		// the most severe status will be displayed and the OK button
 		// enabled/disabled.
@@ -225,9 +226,9 @@ public class NewGwtModuleWizardPage extends NewTypeWizardPage {
 	 */
 	@Override
 	public IResource getModifiedResource() {
-		IPackageFragment pack = getPackageFragment();
+		final IPackageFragment pack = getPackageFragment();
 		if (pack != null) {
-			IContainer packageFolder = (IContainer) pack.getResource();
+			final IContainer packageFolder = (IContainer) pack.getResource();
 			if (null != packageFolder)
 				return packageFolder.getFile(new Path(Constants.CLIENT_PACKAGE).append(getTypeNameWithoutParameters() + ".java"));
 		}
@@ -235,8 +236,8 @@ public class NewGwtModuleWizardPage extends NewTypeWizardPage {
 	}
 
 	private String getTypeNameWithoutParameters() {
-		String typeNameWithParameters = getTypeName();
-		int angleBracketOffset = typeNameWithParameters.indexOf('<');
+		final String typeNameWithParameters = getTypeName();
+		final int angleBracketOffset = typeNameWithParameters.indexOf('<');
 		if (angleBracketOffset == -1)
 			return typeNameWithParameters;
 		else
@@ -247,7 +248,7 @@ public class NewGwtModuleWizardPage extends NewTypeWizardPage {
 	 * @see NewContainerWizardPage#handleFieldChanged
 	 */
 	@Override
-	protected void handleFieldChanged(String fieldName) {
+	protected void handleFieldChanged(final String fieldName) {
 		super.handleFieldChanged(fieldName);
 
 		doStatusUpdate();
@@ -261,8 +262,8 @@ public class NewGwtModuleWizardPage extends NewTypeWizardPage {
 	 * @param selection
 	 *            used to initialize the fields
 	 */
-	public void init(IStructuredSelection selection) {
-		IJavaElement jelem = getInitialJavaElement(selection);
+	public void init(final IStructuredSelection selection) {
+		final IJavaElement jelem = getInitialJavaElement(selection);
 		initContainerPage(jelem);
 		initTypePage(jelem);
 		doStatusUpdate();
@@ -284,7 +285,7 @@ public class NewGwtModuleWizardPage extends NewTypeWizardPage {
 	 * @see WizardPage#becomesVisible
 	 */
 	@Override
-	public void setVisible(boolean visible) {
+	public void setVisible(final boolean visible) {
 		super.setVisible(visible);
 		if (visible)
 			setFocus();

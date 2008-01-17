@@ -11,6 +11,14 @@
  **************************************************************************************************/
 package org.eclipseguru.gwt.core;
 
+import org.xml.sax.Attributes;
+import org.xml.sax.InputSource;
+import org.xml.sax.SAXException;
+import org.xml.sax.SAXNotRecognizedException;
+import org.xml.sax.SAXNotSupportedException;
+import org.xml.sax.XMLReader;
+import org.xml.sax.helpers.DefaultHandler;
+
 import java.io.IOException;
 import java.io.StringReader;
 import java.text.MessageFormat;
@@ -20,14 +28,6 @@ import java.util.List;
 import javax.xml.parsers.ParserConfigurationException;
 import javax.xml.parsers.SAXParser;
 import javax.xml.parsers.SAXParserFactory;
-
-import org.xml.sax.Attributes;
-import org.xml.sax.InputSource;
-import org.xml.sax.SAXException;
-import org.xml.sax.SAXNotRecognizedException;
-import org.xml.sax.SAXNotSupportedException;
-import org.xml.sax.XMLReader;
-import org.xml.sax.helpers.DefaultHandler;
 
 /**
  * An XML event handler for parsing a GWT module source file.
@@ -46,7 +46,7 @@ public class GwtModuleSourceHandler extends DefaultHandler {
 		 * Constructs an instance of <code>StopParsingException</code> with a
 		 * <code>null</code> detail message.
 		 */
-		public InvalidModuleSourceException(String message) {
+		public InvalidModuleSourceException(final String message) {
 			super(message);
 		}
 	}
@@ -99,7 +99,7 @@ public class GwtModuleSourceHandler extends DefaultHandler {
 	 * @throws SAXException
 	 *             If something in general goes wrong when creating the parser.
 	 */
-	private final SAXParser createParser(SAXParserFactory parserFactory) throws ParserConfigurationException, SAXException, SAXNotRecognizedException, SAXNotSupportedException {
+	private final SAXParser createParser(final SAXParserFactory parserFactory) throws ParserConfigurationException, SAXException, SAXNotRecognizedException, SAXNotSupportedException {
 		// Initialize the parser.
 		final SAXParser parser = parserFactory.newSAXParser();
 		final XMLReader reader = parser.getXMLReader();
@@ -110,9 +110,9 @@ public class GwtModuleSourceHandler extends DefaultHandler {
 			// not apply
 			reader.setFeature("http://xml.org/sax/features/validation", false); //$NON-NLS-1$
 			reader.setFeature("http://apache.org/xml/features/nonvalidating/load-external-dtd", false); //$NON-NLS-1$
-		} catch (SAXNotRecognizedException e) {
+		} catch (final SAXNotRecognizedException e) {
 			// not a big deal if the parser does not recognize the features
-		} catch (SAXNotSupportedException e) {
+		} catch (final SAXNotSupportedException e) {
 			// not a big deal if the parser does not support the features
 		}
 		return parser;
@@ -125,7 +125,7 @@ public class GwtModuleSourceHandler extends DefaultHandler {
 	 *      java.lang.String, java.lang.String)
 	 */
 	@Override
-	public void endElement(String uri, String localName, String qName) throws SAXException {
+	public void endElement(final String uri, final String localName, final String qName) throws SAXException {
 		super.endElement(uri, localName, qName);
 		level--;
 	}
@@ -154,7 +154,7 @@ public class GwtModuleSourceHandler extends DefaultHandler {
 		return inheritedModules.toArray(new String[inheritedModules.size()]);
 	}
 
-	protected boolean parseContents(InputSource contents) throws IOException, ParserConfigurationException, SAXException {
+	protected boolean parseContents(final InputSource contents) throws IOException, ParserConfigurationException, SAXException {
 		// Parse the file into we have what we need (or an error occurs).
 		try {
 			factory = getFactory();
@@ -165,7 +165,7 @@ public class GwtModuleSourceHandler extends DefaultHandler {
 			// (see https://bugs.eclipse.org/bugs/show_bug.cgi?id=63298)
 			contents.setSystemId("/"); //$NON-NLS-1$
 			parser.parse(contents, this);
-		} catch (StopParsingException e) {
+		} catch (final StopParsingException e) {
 			// Abort the parsing normally. Fall through...
 		}
 		return true;
@@ -175,7 +175,7 @@ public class GwtModuleSourceHandler extends DefaultHandler {
 	 * @param attributes
 	 * @throws InvalidModuleSourceException
 	 */
-	private void processEntryPoint(Attributes attributes) throws InvalidModuleSourceException {
+	private void processEntryPoint(final Attributes attributes) throws InvalidModuleSourceException {
 		if (null != entryPointClass)
 			throw new InvalidModuleSourceException("entry point defined more than once");
 		entryPointClass = attributes.getValue(ATTR_CLASS);
@@ -184,8 +184,8 @@ public class GwtModuleSourceHandler extends DefaultHandler {
 	/**
 	 * @param attributes
 	 */
-	private void processInherits(Attributes attributes) {
-		String moduleId = attributes.getValue(ATTR_NAME);
+	private void processInherits(final Attributes attributes) {
+		final String moduleId = attributes.getValue(ATTR_NAME);
 		if (null != moduleId)
 			inheritedModules.add(moduleId);
 	}
@@ -199,7 +199,7 @@ public class GwtModuleSourceHandler extends DefaultHandler {
 	 *      java.lang.String)
 	 */
 	@Override
-	public InputSource resolveEntity(String publicId, String systemId) throws SAXException {
+	public InputSource resolveEntity(final String publicId, final String systemId) throws SAXException {
 		return new InputSource(new StringReader("")); //$NON-NLS-1$
 	}
 
@@ -214,22 +214,22 @@ public class GwtModuleSourceHandler extends DefaultHandler {
 		level++;
 
 		switch (level) {
-		case 0:
-			if (!ELEM_MODULE.equals(elementName))
-				throw new InvalidModuleSourceException(MessageFormat.format("Root element is not ''{0}''.", ELEM_MODULE));
-			break;
+			case 0:
+				if (!ELEM_MODULE.equals(elementName))
+					throw new InvalidModuleSourceException(MessageFormat.format("Root element is not ''{0}''.", ELEM_MODULE));
+				break;
 
-		case 1:
-			if (ELEM_ENTRY_POINT.equals(elementName))
-				processEntryPoint(attributes);
-			else if (ELEM_INHERITS.equals(elementName))
-				processInherits(attributes);
-			break;
+			case 1:
+				if (ELEM_ENTRY_POINT.equals(elementName))
+					processEntryPoint(attributes);
+				else if (ELEM_INHERITS.equals(elementName))
+					processInherits(attributes);
+				break;
 
-		default:
-			// avoid compile warnings
-			if (false)
-				throw new StopParsingException();
+			default:
+				// avoid compile warnings
+				if (false)
+					throw new StopParsingException();
 		}
 	}
 }

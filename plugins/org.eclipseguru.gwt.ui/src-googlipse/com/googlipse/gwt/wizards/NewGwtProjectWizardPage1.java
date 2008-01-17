@@ -32,7 +32,6 @@ import org.eclipse.swt.widgets.Text;
 
 /**
  * @author TG. (techieguy@gmail.com)
- * 
  */
 public class NewGwtProjectWizardPage1 extends NewElementWizardPage {
 
@@ -51,9 +50,9 @@ public class NewGwtProjectWizardPage1 extends NewElementWizardPage {
 
 	}
 
-	public void createControl(Composite parent) {
+	public void createControl(final Composite parent) {
 
-		Composite newProjectPanel = new Composite(parent, SWT.NONE);
+		final Composite newProjectPanel = new Composite(parent, SWT.NONE);
 		newProjectPanel.setFont(parent.getFont());
 		newProjectPanel.setLayout(new GridLayout(2, false));
 		newProjectPanel.setLayoutData(new GridData(GridData.FILL_HORIZONTAL));
@@ -66,7 +65,7 @@ public class NewGwtProjectWizardPage1 extends NewElementWizardPage {
 		projectNameText.setLayoutData(new GridData(GridData.FILL, GridData.CENTER, true, false));
 		projectNameText.addModifyListener(new ModifyListener() {
 
-			public void modifyText(ModifyEvent e) {
+			public void modifyText(final ModifyEvent e) {
 				validate();
 			}
 		});
@@ -80,7 +79,7 @@ public class NewGwtProjectWizardPage1 extends NewElementWizardPage {
 	}
 
 	@Override
-	public void setVisible(boolean visible) {
+	public void setVisible(final boolean visible) {
 
 		super.setVisible(visible);
 		if (visible) {
@@ -96,8 +95,8 @@ public class NewGwtProjectWizardPage1 extends NewElementWizardPage {
 	public void validate() {
 
 		projectName = projectNameText.getText();
-		IWorkspace workspace = ResourcesPlugin.getWorkspace();
-		IStatus status = workspace.validateName(projectName, IResource.PROJECT);
+		final IWorkspace workspace = ResourcesPlugin.getWorkspace();
+		final IStatus status = workspace.validateName(projectName, IResource.PROJECT);
 		if (!status.isOK()) {
 			setErrorMessage(status.getMessage());
 			setPageComplete(false);

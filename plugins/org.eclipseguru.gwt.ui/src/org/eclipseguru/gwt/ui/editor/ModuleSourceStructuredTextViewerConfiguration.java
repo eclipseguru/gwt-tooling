@@ -11,8 +11,7 @@
  **************************************************************************************************/
 package org.eclipseguru.gwt.ui.editor;
 
-import java.util.ArrayList;
-import java.util.List;
+import org.eclipseguru.gwt.ui.editor.contentassist.ModuleSourceContentAssistProcessor;
 
 import org.eclipse.jface.text.contentassist.IContentAssistProcessor;
 import org.eclipse.jface.text.hyperlink.IHyperlinkDetector;
@@ -22,7 +21,9 @@ import org.eclipse.wst.sse.core.text.IStructuredPartitions;
 import org.eclipse.wst.sse.ui.StructuredTextViewerConfiguration;
 import org.eclipse.wst.xml.core.text.IXMLPartitions;
 import org.eclipse.wst.xml.ui.StructuredTextViewerConfigurationXML;
-import org.eclipseguru.gwt.ui.editor.contentassist.ModuleSourceContentAssistProcessor;
+
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  * The {@link StructuredTextViewerConfiguration} for the module source content
@@ -37,7 +38,7 @@ public class ModuleSourceStructuredTextViewerConfiguration extends StructuredTex
 	 *      java.lang.String)
 	 */
 	@Override
-	protected IContentAssistProcessor[] getContentAssistProcessors(ISourceViewer sourceViewer, String partitionType) {
+	protected IContentAssistProcessor[] getContentAssistProcessors(final ISourceViewer sourceViewer, final String partitionType) {
 		if ((partitionType == IStructuredPartitions.DEFAULT_PARTITION) || (partitionType == IXMLPartitions.XML_DEFAULT))
 			return new IContentAssistProcessor[] { new ModuleSourceContentAssistProcessor() };
 
@@ -50,20 +51,19 @@ public class ModuleSourceStructuredTextViewerConfiguration extends StructuredTex
 	 * @see org.eclipse.wst.xml.ui.StructuredTextViewerConfigurationXML#getHyperlinkDetectors(org.eclipse.jface.text.source.ISourceViewer)
 	 */
 	@Override
-	public IHyperlinkDetector[] getHyperlinkDetectors(ISourceViewer sourceViewer) {
+	public IHyperlinkDetector[] getHyperlinkDetectors(final ISourceViewer sourceViewer) {
 		if ((sourceViewer == null) || !fPreferenceStore.getBoolean(AbstractDecoratedTextEditorPreferenceConstants.EDITOR_HYPERLINKS_ENABLED))
 			return null;
 
-		List<IHyperlinkDetector> allDetectors = new ArrayList<IHyperlinkDetector>(5);
+		final List<IHyperlinkDetector> allDetectors = new ArrayList<IHyperlinkDetector>(5);
 		allDetectors.add(new ModuleSourceHyperlinkDetector()); // add own
 		// hyperlink
 		// detector
 
-		IHyperlinkDetector[] superDetectors = super.getHyperlinkDetectors(sourceViewer);
-		for (IHyperlinkDetector detector : superDetectors) {
+		final IHyperlinkDetector[] superDetectors = super.getHyperlinkDetectors(sourceViewer);
+		for (final IHyperlinkDetector detector : superDetectors)
 			if (!allDetectors.contains(detector))
 				allDetectors.add(detector);
-		}
 		return allDetectors.toArray(new IHyperlinkDetector[0]);
 	}
 }

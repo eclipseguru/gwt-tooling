@@ -11,11 +11,11 @@
  **************************************************************************************************/
 package org.eclipseguru.gwt.ui.server;
 
-import java.net.URL;
-import java.text.MessageFormat;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
+import org.eclipseguru.gwt.core.GwtModule;
+import org.eclipseguru.gwt.core.launch.GwtLaunchConstants;
+import org.eclipseguru.gwt.core.launch.GwtLaunchUtil;
+import org.eclipseguru.gwt.core.server.GwtBrowserLaunchable;
+import org.eclipseguru.gwt.ui.GwtUi;
 
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IStatus;
@@ -32,11 +32,12 @@ import org.eclipse.jface.window.Window;
 import org.eclipse.ui.dialogs.ElementListSelectionDialog;
 import org.eclipse.wst.server.core.IServer;
 import org.eclipse.wst.server.core.model.ClientDelegate;
-import org.eclipseguru.gwt.core.GwtModule;
-import org.eclipseguru.gwt.core.launch.GwtLaunchConstants;
-import org.eclipseguru.gwt.core.launch.GwtLaunchUtil;
-import org.eclipseguru.gwt.core.server.GwtBrowserLaunchable;
-import org.eclipseguru.gwt.ui.GwtUi;
+
+import java.net.URL;
+import java.text.MessageFormat;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
 
 /**
  * This is the launchable GWT browser.
@@ -51,9 +52,9 @@ public class GwtBrowserClient extends ClientDelegate {
 	 * @return the selected configuration or <code>null</code> if the user
 	 *         clicked cancel
 	 */
-	protected static ILaunchConfiguration chooseConfiguration(List<ILaunchConfiguration> configList, String mode) {
-		IDebugModelPresentation labelProvider = DebugUITools.newDebugModelPresentation();
-		ElementListSelectionDialog dialog = new ElementListSelectionDialog(GwtUi.getActiveWorkbenchShell(), labelProvider);
+	protected static ILaunchConfiguration chooseConfiguration(final List<ILaunchConfiguration> configList, final String mode) {
+		final IDebugModelPresentation labelProvider = DebugUITools.newDebugModelPresentation();
+		final ElementListSelectionDialog dialog = new ElementListSelectionDialog(GwtUi.getActiveWorkbenchShell(), labelProvider);
 		dialog.setElements(configList.toArray());
 		dialog.setTitle("Select a Browser Configuration");
 		if (mode.equals(ILaunchManager.DEBUG_MODE))
@@ -62,7 +63,7 @@ public class GwtBrowserClient extends ClientDelegate {
 			dialog.setMessage("Select GWT Browser configuration to run");
 
 		dialog.setMultipleSelection(false);
-		int result = dialog.open();
+		final int result = dialog.open();
 		labelProvider.dispose();
 		if (result == Window.OK)
 			return (ILaunchConfiguration) dialog.getFirstResult();
@@ -70,20 +71,19 @@ public class GwtBrowserClient extends ClientDelegate {
 		return null;
 	}
 
-	private static ILaunchConfiguration findGwtBrowserLaunchConfiguration(GwtModule module, String mode) {
-		String moduleId = module.getModuleId();
-		String projectName = module.getProjectName();
-		ILaunchConfigurationType configType = GwtLaunchUtil.getGwtBrowserLaunchConfigurationType();
+	private static ILaunchConfiguration findGwtBrowserLaunchConfiguration(final GwtModule module, final String mode) {
+		final String moduleId = module.getModuleId();
+		final String projectName = module.getProjectName();
+		final ILaunchConfigurationType configType = GwtLaunchUtil.getGwtBrowserLaunchConfigurationType();
 		List<ILaunchConfiguration> candidateConfigs = Collections.emptyList();
 		try {
-			ILaunchConfiguration[] configs = DebugPlugin.getDefault().getLaunchManager().getLaunchConfigurations(configType);
+			final ILaunchConfiguration[] configs = DebugPlugin.getDefault().getLaunchManager().getLaunchConfigurations(configType);
 			candidateConfigs = new ArrayList<ILaunchConfiguration>(configs.length);
-			for (ILaunchConfiguration config : configs) {
+			for (final ILaunchConfiguration config : configs)
 				if ((config.getAttribute(GwtLaunchConstants.ATTR_MODULE_ID, "").equals(moduleId)) && //$NON-NLS-1$
 						(config.getAttribute(IJavaLaunchConfigurationConstants.ATTR_PROJECT_NAME, "").equals(projectName)))
 					candidateConfigs.add(config);
-			}
-		} catch (CoreException e) {
+		} catch (final CoreException e) {
 			GwtUi.logError(MessageFormat.format("Error while searching for existing GWT Browser launch configurations for module {0}", module.getModuleId()), e);
 		}
 
@@ -93,7 +93,7 @@ public class GwtBrowserClient extends ClientDelegate {
 		 * return it. Otherwise, if there is more than one config associated
 		 * with the module, prompt the user to choose one.
 		 */
-		int candidateCount = candidateConfigs.size();
+		final int candidateCount = candidateConfigs.size();
 		if (candidateCount < 1)
 			return null;
 		else if (candidateCount == 1)
@@ -105,7 +105,7 @@ public class GwtBrowserClient extends ClientDelegate {
 			 * since cancelling the dialog should also cancel launching
 			 * anything.
 			 */
-			ILaunchConfiguration config = chooseConfiguration(candidateConfigs, mode);
+			final ILaunchConfiguration config = chooseConfiguration(candidateConfigs, mode);
 			if (config != null)
 				return config;
 		}
@@ -119,13 +119,13 @@ public class GwtBrowserClient extends ClientDelegate {
 	 *      java.lang.Object, java.lang.String, org.eclipse.debug.core.ILaunch)
 	 */
 	@Override
-	public IStatus launch(IServer server, Object launchable, String launchMode, ILaunch launch) {
+	public IStatus launch(final IServer server, final Object launchable, final String launchMode, final ILaunch launch) {
 		if (!(launchable instanceof GwtBrowserLaunchable))
 			return Status.CANCEL_STATUS;
 
-		GwtBrowserLaunchable browserLaunchable = (GwtBrowserLaunchable) launchable;
-		GwtModule module = browserLaunchable.getGwtModule();
-		URL url = browserLaunchable.getURL();
+		final GwtBrowserLaunchable browserLaunchable = (GwtBrowserLaunchable) launchable;
+		final GwtModule module = browserLaunchable.getGwtModule();
+		final URL url = browserLaunchable.getURL();
 
 		ILaunchConfiguration config = findGwtBrowserLaunchConfiguration(module, launchMode);
 		if (config == null)
@@ -142,7 +142,7 @@ public class GwtBrowserClient extends ClientDelegate {
 	 *      java.lang.Object, java.lang.String)
 	 */
 	@Override
-	public boolean supports(IServer server, Object launchable, String launchMode) {
+	public boolean supports(final IServer server, final Object launchable, final String launchMode) {
 		return launchable instanceof GwtBrowserLaunchable;
 	}
 }

@@ -11,6 +11,9 @@
  **************************************************************************************************/
 package org.eclipseguru.gwt.core.facet;
 
+import org.eclipseguru.gwt.core.GwtCore;
+import org.eclipseguru.gwt.core.utils.ProgressUtil;
+
 import org.eclipse.core.resources.IProject;
 import org.eclipse.core.resources.IProjectDescription;
 import org.eclipse.core.resources.IResource;
@@ -18,12 +21,10 @@ import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.wst.common.project.facet.core.IDelegate;
 import org.eclipse.wst.common.project.facet.core.IProjectFacetVersion;
-import org.eclipseguru.gwt.core.GwtCore;
-import org.eclipseguru.gwt.core.utils.ProgressUtil;
 
 public class GwtWebUninstallDelegate implements IDelegate {
 
-	public void execute(IProject project, IProjectFacetVersion facetVersion, Object config, IProgressMonitor monitor) throws CoreException {
+	public void execute(final IProject project, final IProjectFacetVersion facetVersion, final Object config, IProgressMonitor monitor) throws CoreException {
 
 		monitor = ProgressUtil.monitor(monitor);
 
@@ -31,11 +32,11 @@ public class GwtWebUninstallDelegate implements IDelegate {
 
 			monitor.beginTask("Uninstalling facet ...", 1);
 
-			IProjectDescription description = project.getDescription();
-			String[] prevNatures = description.getNatureIds();
-			String[] newNatures = new String[prevNatures.length - 1];
+			final IProjectDescription description = project.getDescription();
+			final String[] prevNatures = description.getNatureIds();
+			final String[] newNatures = new String[prevNatures.length - 1];
 			int i = 0;
-			for (String aNature : prevNatures)
+			for (final String aNature : prevNatures)
 				if (!aNature.equals(GwtCore.NATURE_ID))
 					newNatures[i++] = aNature;
 

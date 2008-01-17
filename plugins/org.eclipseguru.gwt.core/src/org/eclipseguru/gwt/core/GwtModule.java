@@ -11,11 +11,6 @@
  **************************************************************************************************/
 package org.eclipseguru.gwt.core;
 
-import java.io.IOException;
-import java.io.InputStream;
-
-import javax.xml.parsers.ParserConfigurationException;
-
 import org.eclipse.core.resources.IFile;
 import org.eclipse.core.resources.IProject;
 import org.eclipse.core.resources.IResource;
@@ -30,6 +25,11 @@ import org.eclipse.jdt.core.JavaCore;
 import org.eclipse.jdt.core.JavaModelException;
 import org.xml.sax.InputSource;
 import org.xml.sax.SAXException;
+
+import java.io.IOException;
+import java.io.InputStream;
+
+import javax.xml.parsers.ParserConfigurationException;
 
 import com.googlipse.gwt.common.Constants;
 
@@ -52,14 +52,14 @@ public class GwtModule extends GwtElement {
 	 *         <code>false</code> otherwise
 	 * @throws JavaModelException
 	 */
-	public static boolean isEntryPoint(IType someType) throws JavaModelException {
+	public static boolean isEntryPoint(final IType someType) throws JavaModelException {
 		// ignore non-classes
 		if (!someType.isClass())
 			return false;
 
 		// for every interface implemented by that type
-		IType[] stypes = someType.newSupertypeHierarchy(null).getAllSuperInterfaces(someType);
-		for (IType element : stypes)
+		final IType[] stypes = someType.newSupertypeHierarchy(null).getAllSuperInterfaces(someType);
+		for (final IType element : stypes)
 			if (element.getFullyQualifiedName().equals(ENTRY_POINT_TYPE))
 				return true;
 
@@ -93,7 +93,7 @@ public class GwtModule extends GwtElement {
 	 * @param moduleDescriptor
 	 * @param parent
 	 */
-	GwtModule(IFile moduleDescriptor, GwtProject parent) {
+	GwtModule(final IFile moduleDescriptor, final GwtProject parent) {
 		super(parent);
 
 		if (!GwtUtil.isModuleDescriptor(moduleDescriptor))
@@ -102,34 +102,34 @@ public class GwtModule extends GwtElement {
 		this.moduleDescriptor = moduleDescriptor;
 
 		// module package
-		IJavaElement element = JavaCore.create(moduleDescriptor.getParent());
+		final IJavaElement element = JavaCore.create(moduleDescriptor.getParent());
 		if (null != element)
 			switch (element.getElementType()) {
-			case IJavaElement.PACKAGE_FRAGMENT_ROOT:
-				modulePackage = ((IPackageFragmentRoot) element).getPackageFragment("");
-				break;
-			case IJavaElement.PACKAGE_FRAGMENT:
-				modulePackage = (IPackageFragment) element;
-				break;
-			default:
-				modulePackage = null;
-				break;
+				case IJavaElement.PACKAGE_FRAGMENT_ROOT:
+					modulePackage = ((IPackageFragmentRoot) element).getPackageFragment("");
+					break;
+				case IJavaElement.PACKAGE_FRAGMENT:
+					modulePackage = (IPackageFragment) element;
+					break;
+				default:
+					modulePackage = null;
+					break;
 			}
 		else
 			modulePackage = null;
 
 		// the module id
-		StringBuilder moduleIdBuilder = new StringBuilder();
+		final StringBuilder moduleIdBuilder = new StringBuilder();
 		if (null != modulePackage) {
 			moduleIdBuilder.append(modulePackage.getElementName());
 			if (moduleIdBuilder.length() > 0)
 				moduleIdBuilder.append('.');
 			moduleIdBuilder.append(moduleDescriptor.getName().substring(0, moduleDescriptor.getName().length() - Constants.GWT_XML_EXT.length() - 1));
 		} else {
-			String path = moduleDescriptor.getFullPath().makeRelative().toString();
+			final String path = moduleDescriptor.getFullPath().makeRelative().toString();
 			moduleIdBuilder.append(path.substring(0, path.length() - GwtUtil.GWT_MODULE_SOURCE_EXTENSION.length()).replace('/', '.'));
 		}
-		this.moduleId = moduleIdBuilder.toString();
+		moduleId = moduleIdBuilder.toString();
 	}
 
 	/**
@@ -139,7 +139,7 @@ public class GwtModule extends GwtElement {
 	 * @param packageFragment
 	 * @param parent
 	 */
-	GwtModule(IStorage moduleDescriptor, IPackageFragment packageFragment, GwtProject parent) {
+	GwtModule(final IStorage moduleDescriptor, final IPackageFragment packageFragment, final GwtProject parent) {
 		super(parent);
 
 		if (null == moduleDescriptor)
@@ -148,15 +148,15 @@ public class GwtModule extends GwtElement {
 		if (null == packageFragment)
 			throw new IllegalArgumentException("Package fragment cannot be null");
 
-		String simpleName = GwtUtil.getSimpleName(moduleDescriptor);
+		final String simpleName = GwtUtil.getSimpleName(moduleDescriptor);
 		if (null == simpleName)
 			throw new IllegalArgumentException("Invalid storage name");
 
 		if (packageFragment.isDefaultPackage())
-			this.moduleId = GwtUtil.getSimpleName(moduleDescriptor);
+			moduleId = GwtUtil.getSimpleName(moduleDescriptor);
 		else
-			this.moduleId = packageFragment.getElementName().concat(".").concat(simpleName);
-		this.modulePackage = packageFragment;
+			moduleId = packageFragment.getElementName().concat(".").concat(simpleName);
+		modulePackage = packageFragment;
 		this.moduleDescriptor = moduleDescriptor;
 	}
 
@@ -166,13 +166,13 @@ public class GwtModule extends GwtElement {
 	 * @param type
 	 * @return
 	 */
-	/* package */GwtRemoteService createRemoteService(IType type) {
+	/* package */GwtRemoteService createRemoteService(final IType type) {
 		// TODO Auto-generated method stub
 		return new GwtRemoteService(type, this);
 	}
 
 	@Override
-	public boolean equals(Object obj) {
+	public boolean equals(final Object obj) {
 		if (this == obj)
 			return true;
 		if (obj == null)
@@ -200,13 +200,13 @@ public class GwtModule extends GwtElement {
 			return entryPointType;
 
 		// get entry point type name
-		String entryPointClass = getEntryPointTypeName();
+		final String entryPointClass = getEntryPointTypeName();
 		if (null == entryPointClass)
 			return null;
 
 		try {
 			return getProject().getJavaProject().findType(entryPointClass);
-		} catch (JavaModelException e) {
+		} catch (final JavaModelException e) {
 			throw new GwtModelException(e.getStatus());
 		}
 	}
@@ -236,13 +236,13 @@ public class GwtModule extends GwtElement {
 		if (null != inheritedModules)
 			return inheritedModules;
 
-		GwtModuleSourceHandler info = getModuleSourceInfo();
+		final GwtModuleSourceHandler info = getModuleSourceInfo();
 
 		// read all inherited module ids
-		String[] inheritedModuleIds = info.getInheritedModules();
+		final String[] inheritedModuleIds = info.getInheritedModules();
 
 		// resolve modules
-		GwtModule[] resolvedModules = GwtModelManager.findModules(inheritedModuleIds, getProject());
+		final GwtModule[] resolvedModules = GwtModelManager.findModules(inheritedModuleIds, getProject());
 		return null != resolvedModules ? resolvedModules : GwtModelManager.NO_MODULES;
 	}
 
@@ -326,21 +326,21 @@ public class GwtModule extends GwtElement {
 			try {
 				contents = getModuleDescriptor().getContents();
 				moduleSourceInfo.parseContents(new InputSource(contents));
-			} catch (IOException e) {
+			} catch (final IOException e) {
 				throw new GwtModelException(GwtCore.newErrorStatus("Error while parsing module source", e));
-			} catch (ParserConfigurationException e) {
-				String message = "Internal Error: XML parser configuration error during pasing module source file."; //$NON-NLS-1$
+			} catch (final ParserConfigurationException e) {
+				final String message = "Internal Error: XML parser configuration error during pasing module source file."; //$NON-NLS-1$
 				GwtCore.logError(message, e);
 				throw new RuntimeException(message, e);
-			} catch (SAXException e) {
+			} catch (final SAXException e) {
 				throw new GwtModelException(GwtCore.newErrorStatus("Error while parsing module source", e));
-			} catch (CoreException e) {
+			} catch (final CoreException e) {
 				throw new GwtModelException(e.getStatus());
 			} finally {
 				if (null != contents)
 					try {
 						contents.close();
-					} catch (IOException e) {
+					} catch (final IOException e) {
 						// ignore
 					}
 			}
@@ -435,8 +435,8 @@ public class GwtModule extends GwtElement {
 	 * @return <code>true</code> if the path points to a resource within the
 	 *         module, <code>false</code> otherwise
 	 */
-	public boolean isModulePath(IPath fullPath) {
-		IPath moduleRoot = isBinary() ? modulePackage.getPath() : ((IFile) moduleDescriptor).getParent().getFullPath();
+	public boolean isModulePath(final IPath fullPath) {
+		final IPath moduleRoot = isBinary() ? modulePackage.getPath() : ((IFile) moduleDescriptor).getParent().getFullPath();
 
 		// client folder
 		if (moduleRoot.append(Constants.CLIENT_PACKAGE).isPrefixOf(fullPath))
@@ -466,7 +466,7 @@ public class GwtModule extends GwtElement {
 	 *         <code>false</code> otherwise
 	 * @see #isModulePath(IPath)
 	 */
-	public boolean isModuleResource(IResource resource) {
+	public boolean isModuleResource(final IResource resource) {
 		return isModulePath(resource.getFullPath());
 	}
 

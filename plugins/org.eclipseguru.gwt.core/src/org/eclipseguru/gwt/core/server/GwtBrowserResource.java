@@ -11,10 +11,11 @@
  **************************************************************************************************/
 package org.eclipseguru.gwt.core.server;
 
+import org.eclipseguru.gwt.core.GwtModule;
+
 import org.eclipse.core.runtime.IPath;
 import org.eclipse.wst.server.core.IModule;
 import org.eclipse.wst.server.core.IModuleArtifact;
-import org.eclipseguru.gwt.core.GwtModule;
 
 /**
  * A GWT Browser resource
@@ -36,7 +37,7 @@ public class GwtBrowserResource implements IModuleArtifact {
 	 * @param module
 	 * @param path
 	 */
-	public GwtBrowserResource(IModule module, IPath path, GwtModule gwtModule) {
+	public GwtBrowserResource(final IModule module, final IPath path, final GwtModule gwtModule) {
 		this.module = module;
 		this.path = path;
 		this.gwtModule = gwtModule;

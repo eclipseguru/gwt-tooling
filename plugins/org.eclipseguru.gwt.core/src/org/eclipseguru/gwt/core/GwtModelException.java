@@ -25,7 +25,7 @@ public class GwtModelException extends CoreException {
 	/**
 	 * @param status
 	 */
-	public GwtModelException(IStatus status) {
+	public GwtModelException(final IStatus status) {
 		super(status);
 	}
 

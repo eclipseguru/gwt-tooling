@@ -16,6 +16,9 @@
  */
 package com.googlipse.gwt.wizards;
 
+import org.eclipseguru.gwt.core.utils.ProgressUtil;
+import org.eclipseguru.gwt.ui.GwtUi;
+
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.jdt.core.IJavaElement;
@@ -25,12 +28,9 @@ import org.eclipse.jdt.internal.ui.wizards.NewElementWizard;
 import org.eclipse.jface.dialogs.ErrorDialog;
 import org.eclipse.jface.viewers.IStructuredSelection;
 import org.eclipse.ui.IWorkbench;
-import org.eclipseguru.gwt.core.utils.ProgressUtil;
-import org.eclipseguru.gwt.ui.GwtUi;
 
 /**
  * @author TG. (techieguy@gmail.com)
- * 
  */
 @SuppressWarnings("restriction")
 public class NewGwtProjectWizard extends NewElementWizard {
@@ -63,7 +63,7 @@ public class NewGwtProjectWizard extends NewElementWizard {
 		monitor = ProgressUtil.monitor(monitor);
 		try {
 			secondPage.doFinish(monitor);
-		} catch (Exception e) {
+		} catch (final Exception e) {
 			ErrorDialog.openError(getShell(), "Error", "We are sorry, an error occured while creating the module.", GwtUi.newErrorStatus(e));
 			monitor.setCanceled(true);
 		}
@@ -75,7 +75,7 @@ public class NewGwtProjectWizard extends NewElementWizard {
 	}
 
 	@Override
-	public void init(IWorkbench workbench, IStructuredSelection selection) {
+	public void init(final IWorkbench workbench, final IStructuredSelection selection) {
 		this.workbench = workbench;
 	}
 
@@ -87,7 +87,7 @@ public class NewGwtProjectWizard extends NewElementWizard {
 
 	@Override
 	public boolean performFinish() {
-		boolean finished = super.performFinish();
+		final boolean finished = super.performFinish();
 		if (finished) {
 			// selectAndReveal(secondPage.getJavaProject().getProject());
 		}

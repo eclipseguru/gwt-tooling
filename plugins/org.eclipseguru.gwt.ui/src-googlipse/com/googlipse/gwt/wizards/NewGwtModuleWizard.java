@@ -17,6 +17,8 @@
  */
 package com.googlipse.gwt.wizards;
 
+import org.eclipseguru.gwt.ui.GwtUi;
+
 import org.eclipse.core.resources.IFile;
 import org.eclipse.core.resources.IResource;
 import org.eclipse.core.runtime.CoreException;
@@ -27,7 +29,6 @@ import org.eclipse.jface.dialogs.ErrorDialog;
 import org.eclipse.jface.resource.ImageDescriptor;
 import org.eclipse.jface.viewers.IStructuredSelection;
 import org.eclipse.ui.IWorkbench;
-import org.eclipseguru.gwt.ui.GwtUi;
 
 /**
  * @author TG. (techieguy@gmail.com)
@@ -59,10 +60,10 @@ public class NewGwtModuleWizard extends NewElementWizard {
 	 * @see org.eclipse.jdt.internal.ui.wizards.NewElementWizard#finishPage(org.eclipse.core.runtime.IProgressMonitor)
 	 */
 	@Override
-	protected void finishPage(IProgressMonitor monitor) throws InterruptedException, CoreException {
+	protected void finishPage(final IProgressMonitor monitor) throws InterruptedException, CoreException {
 		try {
 			newModulePage.createGwtModule(monitor);
-		} catch (Exception e) {
+		} catch (final Exception e) {
 			ErrorDialog.openError(getShell(), "Error", "We are sorry, an error occured while creating the module.", GwtUi.newErrorStatus(e));
 			monitor.setCanceled(true);
 		}
@@ -85,7 +86,7 @@ public class NewGwtModuleWizard extends NewElementWizard {
 	 *      org.eclipse.jface.viewers.IStructuredSelection)
 	 */
 	@Override
-	public void init(IWorkbench workbench, IStructuredSelection selection) {
+	public void init(final IWorkbench workbench, final IStructuredSelection selection) {
 		super.init(workbench, selection);
 		this.selection = selection;
 	}
@@ -97,9 +98,9 @@ public class NewGwtModuleWizard extends NewElementWizard {
 	 */
 	@Override
 	public boolean performFinish() {
-		boolean success = super.performFinish();
+		final boolean success = super.performFinish();
 		if (success) {
-			IResource resource = newModulePage.getModifiedResource();
+			final IResource resource = newModulePage.getModifiedResource();
 			if (resource != null) {
 				selectAndReveal(resource);
 				openResource((IFile) resource);

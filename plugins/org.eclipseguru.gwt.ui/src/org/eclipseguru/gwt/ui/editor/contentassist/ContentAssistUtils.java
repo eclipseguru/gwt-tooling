@@ -41,14 +41,14 @@ class ContentAssistUtils {
 	 * @param contentAssistRequest
 	 * @return
 	 */
-	public static IResource getResource(ContentAssistRequest contentAssistRequest) {
+	public static IResource getResource(final ContentAssistRequest contentAssistRequest) {
 		IResource resource = null;
 		String baselocation = null;
 
 		if (contentAssistRequest != null) {
-			IStructuredDocumentRegion region = contentAssistRequest.getDocumentRegion();
+			final IStructuredDocumentRegion region = contentAssistRequest.getDocumentRegion();
 			if (region != null) {
-				IDocument document = region.getParentDocument();
+				final IDocument document = region.getParentDocument();
 				IStructuredModel model = null;
 				try {
 					model = StructuredModelManager.getModelManager().getExistingModelForRead(document);
@@ -62,21 +62,21 @@ class ContentAssistUtils {
 		}
 
 		if (baselocation != null) {
-			IWorkspaceRoot root = ResourcesPlugin.getWorkspace().getRoot();
-			IPath filePath = new Path(baselocation);
+			final IWorkspaceRoot root = ResourcesPlugin.getWorkspace().getRoot();
+			final IPath filePath = new Path(baselocation);
 			if (filePath.segmentCount() > 0)
 				resource = root.getFile(filePath);
 		}
 		return resource;
 	}
 
-	static final ICompilationUnit getWorkingCopy(IProject project) throws JavaModelException {
-		IPackageFragmentRoot[] roots = JavaCore.create(project).getPackageFragmentRoots();
+	static final ICompilationUnit getWorkingCopy(final IProject project) throws JavaModelException {
+		final IPackageFragmentRoot[] roots = JavaCore.create(project).getPackageFragmentRoots();
 		if (roots.length > 0) {
 			IPackageFragment frag = null;
 			for (int i = 0; i < roots.length; i++)
 				if ((roots[i].getKind() == IPackageFragmentRoot.K_SOURCE) || project.equals(roots[i].getCorrespondingResource()) || (roots[i].isArchive() && !roots[i].isExternal())) {
-					IJavaElement[] elems = roots[i].getChildren();
+					final IJavaElement[] elems = roots[i].getChildren();
 					if ((elems.length > 0) && (elems[i] instanceof IPackageFragment)) {
 						frag = (IPackageFragment) elems[i];
 						break;
@@ -88,8 +88,8 @@ class ContentAssistUtils {
 		return null;
 	}
 
-	public static final String removeLeadingSpaces(String value) {
-		char[] valueArray = value.toCharArray();
+	public static final String removeLeadingSpaces(final String value) {
+		final char[] valueArray = value.toCharArray();
 		int i = 0;
 		for (; i < valueArray.length; i++)
 			if (!Character.isWhitespace(valueArray[i]))

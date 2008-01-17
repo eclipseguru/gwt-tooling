@@ -17,8 +17,9 @@
  */
 package com.googlipse.gwt.facet;
 
-import org.eclipse.wst.common.componentcore.datamodel.FacetInstallDataModelProvider;
 import org.eclipseguru.gwt.core.facet.GwtFacetConstants;
+
+import org.eclipse.wst.common.componentcore.datamodel.FacetInstallDataModelProvider;
 
 /**
  * @author TG. (techieguy@gmail.com)
@@ -32,7 +33,7 @@ public class GwtWebInstallActionConfigFactory extends FacetInstallDataModelProvi
 	// }
 	//
 	@Override
-	public Object getDefaultProperty(String propertyName) {
+	public Object getDefaultProperty(final String propertyName) {
 
 		Object property;
 		if (propertyName.equals(FACET_ID))

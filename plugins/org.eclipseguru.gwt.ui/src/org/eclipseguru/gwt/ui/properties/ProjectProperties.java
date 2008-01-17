@@ -92,19 +92,19 @@ import java.util.List;
 public class ProjectProperties extends PropertyPage implements IWorkbenchPropertyPage, IStatusChangeListener {
 
 	private final class DeploymentPathDialogFieldAdapter implements IDialogFieldListener {
-		public void dialogFieldChanged(DialogField field) {
+		public void dialogFieldChanged(final DialogField field) {
 			deploymentPathDialogFieldChanged(field);
 		}
 	}
 
 	private final class HostedModeDialogFieldAdapter implements IDialogFieldListener {
-		public void dialogFieldChanged(DialogField field) {
+		public void dialogFieldChanged(final DialogField field) {
 			hostedModeDialogFieldChanged(field);
 		}
 	}
 
 	private final class ModulesListDialogFieldAdapter implements IListAdapter {
-		public void customButtonPressed(ListDialogField field, int index) {
+		public void customButtonPressed(final ListDialogField field, final int index) {
 			if (field != modulesListDialogField)
 				return;
 
@@ -120,11 +120,11 @@ public class ProjectProperties extends PropertyPage implements IWorkbenchPropert
 			updateButtonEnabledState();
 		}
 
-		public void doubleClicked(ListDialogField field) {
+		public void doubleClicked(final ListDialogField field) {
 			// nothing
 		}
 
-		public void selectionChanged(ListDialogField field) {
+		public void selectionChanged(final ListDialogField field) {
 			updateButtonEnabledState();
 		}
 	}
@@ -132,12 +132,12 @@ public class ProjectProperties extends PropertyPage implements IWorkbenchPropert
 	private class OutputLocationDialogFieldAdapter implements IStringButtonAdapter, IDialogFieldListener {
 
 		// -------- IStringButtonAdapter --------
-		public void changeControlPressed(DialogField field) {
+		public void changeControlPressed(final DialogField field) {
 			outputChangeControlPressed(field);
 		}
 
 		// ---------- IDialogFieldListener --------
-		public void dialogFieldChanged(DialogField field) {
+		public void dialogFieldChanged(final DialogField field) {
 			outputDialogFieldChanged(field);
 		}
 	}
@@ -145,12 +145,12 @@ public class ProjectProperties extends PropertyPage implements IWorkbenchPropert
 	private class VMArgsDialogFieldAdapter implements IStringButtonAdapter, IDialogFieldListener {
 
 		// -------- IStringButtonAdapter --------
-		public void changeControlPressed(DialogField field) {
+		public void changeControlPressed(final DialogField field) {
 			vmArgsChangeControlPressed(field);
 		}
 
 		// ---------- IDialogFieldListener --------
-		public void dialogFieldChanged(DialogField field) {
+		public void dialogFieldChanged(final DialogField field) {
 			vmArgsDialogFieldChanged(field);
 		}
 	}
@@ -190,25 +190,25 @@ public class ProjectProperties extends PropertyPage implements IWorkbenchPropert
 	private boolean isRebuildNecessary;
 
 	private IContainer chooseContainer() {
-		IWorkspaceRoot workspaceRoot = ResourcesPlugin.getWorkspace().getRoot();
-		Class[] acceptedClasses = new Class[] { IProject.class, IFolder.class };
-		ISelectionStatusValidator validator = new TypedElementSelectionValidator(acceptedClasses, false);
-		IProject[] allProjects = workspaceRoot.getProjects();
-		List<IProject> rejectedElements = new ArrayList<IProject>(allProjects.length);
-		GwtProject currProject = getProject();
+		final IWorkspaceRoot workspaceRoot = ResourcesPlugin.getWorkspace().getRoot();
+		final Class[] acceptedClasses = new Class[] { IProject.class, IFolder.class };
+		final ISelectionStatusValidator validator = new TypedElementSelectionValidator(acceptedClasses, false);
+		final IProject[] allProjects = workspaceRoot.getProjects();
+		final List<IProject> rejectedElements = new ArrayList<IProject>(allProjects.length);
+		final GwtProject currProject = getProject();
 		for (int i = 0; i < allProjects.length; i++)
 			if (!allProjects[i].equals(currProject))
 				rejectedElements.add(allProjects[i]);
-		ViewerFilter filter = new TypedViewerFilter(acceptedClasses, rejectedElements.toArray());
+		final ViewerFilter filter = new TypedViewerFilter(acceptedClasses, rejectedElements.toArray());
 
-		ILabelProvider lp = new WorkbenchLabelProvider();
-		ITreeContentProvider cp = new WorkbenchContentProvider();
+		final ILabelProvider lp = new WorkbenchLabelProvider();
+		final ITreeContentProvider cp = new WorkbenchContentProvider();
 
 		IResource initSelection = null;
 		if (outputLocationPath != null)
 			initSelection = currProject.getProjectResource().findMember(outputLocationPath);
 
-		FolderSelectionDialog dialog = new FolderSelectionDialog(getShell(), lp, cp);
+		final FolderSelectionDialog dialog = new FolderSelectionDialog(getShell(), lp, cp);
 		dialog.setTitle(NewWizardMessages.BuildPathsBlock_ChooseOutputFolderDialog_title);
 		dialog.setValidator(validator);
 		dialog.setMessage(NewWizardMessages.BuildPathsBlock_ChooseOutputFolderDialog_description);
@@ -223,12 +223,12 @@ public class ProjectProperties extends PropertyPage implements IWorkbenchPropert
 	}
 
 	@Override
-	protected Control createContents(Composite parent) {
-		Composite result = new Composite(parent, SWT.NONE);
+	protected Control createContents(final Composite parent) {
+		final Composite result = new Composite(parent, SWT.NONE);
 		result.setLayoutData(new GridData(SWT.FILL, SWT.FILL, true, true));
 
 		// the layout
-		GridLayout layout = new GridLayout();
+		final GridLayout layout = new GridLayout();
 		result.setLayout(layout);
 
 		// setup dialog fields
@@ -237,17 +237,17 @@ public class ProjectProperties extends PropertyPage implements IWorkbenchPropert
 		updateButtonEnabledState();
 
 		// create copntrols based on assiged facets
-		Group deployment = new Group(result, SWT.NONE);
+		final Group deployment = new Group(result, SWT.NONE);
 		deployment.setText("Deployment");
 		deployment.setLayoutData(new GridData(SWT.FILL, SWT.NONE, true, false));
 
-		IProject project = getProject().getProjectResource();
+		final IProject project = getProject().getProjectResource();
 		if (GwtProject.hasGwtModuleFacet(project)) {
 			LayoutUtil.doDefaultLayout(deployment, new DialogField[] { hostedModeDialogField, outputLocationDialogField }, false, 5, 5);
 			LayoutUtil.setHorizontalGrabbing(outputLocationDialogField.getTextControl(deployment));
 		} else if (GwtProject.hasGwtWebFacet(project)) {
 
-			Group modules = new Group(result, SWT.NONE);
+			final Group modules = new Group(result, SWT.NONE);
 			modules.setText("Modules");
 			modules.setLayoutData(new GridData(SWT.FILL, SWT.NONE, true, false));
 
@@ -278,11 +278,11 @@ public class ProjectProperties extends PropertyPage implements IWorkbenchPropert
 		hostedModeDialogField.setLabelText("Deploy using GWT's hosted mode.");
 		hostedModeDialogField.setDialogFieldListener(new HostedModeDialogFieldAdapter());
 
-		ModulesListDialogFieldAdapter moduleListAdapter = new ModulesListDialogFieldAdapter();
+		final ModulesListDialogFieldAdapter moduleListAdapter = new ModulesListDialogFieldAdapter();
 		modulesListDialogField = new ListDialogField(moduleListAdapter, BUTTONS_ML, new WorkbenchLabelProvider());
 		modulesListDialogField.setLabelText("Additional GWT modules from projects included via J2EE Module Dependencies:");
 
-		OutputLocationDialogFieldAdapter adapter = new OutputLocationDialogFieldAdapter();
+		final OutputLocationDialogFieldAdapter adapter = new OutputLocationDialogFieldAdapter();
 		outputLocationDialogField = new StringButtonDialogField(adapter);
 		outputLocationDialogField.setButtonLabel("Browse...");
 		outputLocationDialogField.setDialogFieldListener(adapter);
@@ -298,7 +298,7 @@ public class ProjectProperties extends PropertyPage implements IWorkbenchPropert
 		vmArgsDialogField.setDialogFieldListener(adapter);
 	}
 
-	private void deploymentPathDialogFieldChanged(DialogField field) {
+	private void deploymentPathDialogFieldChanged(final DialogField field) {
 		if (field == deploymentPathDialogField) {
 			updateDeploymentLocationStatus();
 			isRebuildNecessary = true;
@@ -310,7 +310,7 @@ public class ProjectProperties extends PropertyPage implements IWorkbenchPropert
 	 * Configures the flexible web project structure.
 	 */
 	private void doFlexProjectSetup() {
-		ConfigureWebProjectJob flexProjectJob = new ConfigureWebProjectJob(getProject(), outputLocationPath, deploymentPath, isHosted);
+		final ConfigureWebProjectJob flexProjectJob = new ConfigureWebProjectJob(getProject(), outputLocationPath, deploymentPath, isHosted);
 		flexProjectJob.schedule();
 	}
 
@@ -318,7 +318,7 @@ public class ProjectProperties extends PropertyPage implements IWorkbenchPropert
 	 * Schedules a rebuild.s
 	 */
 	private void doFullBuild() {
-		Job buildJob = new Job("Building Projects...") {
+		final Job buildJob = new Job("Building Projects...") {
 
 			/*
 			 * (non-Javadoc)
@@ -371,7 +371,7 @@ public class ProjectProperties extends PropertyPage implements IWorkbenchPropert
 
 	private void doStatusLineUpdate() {
 		if (Display.getCurrent() != null) {
-			IStatus res = findMostSevereStatus();
+			final IStatus res = findMostSevereStatus();
 			statusChanged(res);
 		}
 	}
@@ -413,7 +413,7 @@ public class ProjectProperties extends PropertyPage implements IWorkbenchPropert
 	 */
 	public GwtProject getProject() {
 		if (null == currentProject) {
-			IAdaptable adaptable = getElement();
+			final IAdaptable adaptable = getElement();
 			if (adaptable instanceof IProject)
 				currentProject = GwtCore.create((IProject) adaptable);
 			else
@@ -427,25 +427,25 @@ public class ProjectProperties extends PropertyPage implements IWorkbenchPropert
 	}
 
 	private void handleModuleListAddButtonPressed() {
-		GwtProject project = getProject();
+		final GwtProject project = getProject();
 		try {
-			List<GwtProject> projects = new ArrayList<GwtProject>(5);
-			IVirtualComponent component = ComponentCore.createComponent(project.getProjectResource());
-			IVirtualReference[] references = component.getReferences();
-			for (IVirtualReference reference : references) {
-				IProject referencedProject = reference.getReferencedComponent().getProject();
+			final List<GwtProject> projects = new ArrayList<GwtProject>(5);
+			final IVirtualComponent component = ComponentCore.createComponent(project.getProjectResource());
+			final IVirtualReference[] references = component.getReferences();
+			for (final IVirtualReference reference : references) {
+				final IProject referencedProject = reference.getReferencedComponent().getProject();
 				if (GwtProject.hasGwtNature(referencedProject))
 					projects.add(GwtCore.create(referencedProject));
 			}
 
-			ModuleSelectionDialog dialog = new ModuleSelectionDialog(getShell(), projects.toArray(new GwtProject[projects.size()]));
+			final ModuleSelectionDialog dialog = new ModuleSelectionDialog(getShell(), projects.toArray(new GwtProject[projects.size()]));
 			if (dialog.open() == Window.OK) {
-				GwtModule module = dialog.getSelectedModule();
+				final GwtModule module = dialog.getSelectedModule();
 				modulesListDialogField.addElement(module);
 				isRebuildNecessary = true;
 			}
 
-		} catch (CoreException e) {
+		} catch (final CoreException e) {
 			ErrorDialog.openError(getShell(), "Error", "We are sorry, an internal error occured.", e.getStatus());
 		}
 	}
@@ -455,7 +455,7 @@ public class ProjectProperties extends PropertyPage implements IWorkbenchPropert
 		isRebuildNecessary = true;
 	}
 
-	private void hostedModeDialogFieldChanged(DialogField field) {
+	private void hostedModeDialogFieldChanged(final DialogField field) {
 		if (field == hostedModeDialogField) {
 			isHosted = hostedModeDialogField.isSelected();
 			isRebuildNecessary = true;
@@ -466,7 +466,7 @@ public class ProjectProperties extends PropertyPage implements IWorkbenchPropert
 	 * Initializes dialog fields with data from preferences
 	 */
 	private void initDialogFields() {
-		GwtProject project = getProject();
+		final GwtProject project = getProject();
 
 		// hosted mode
 		isHosted = GwtUtil.isHostedDeploymentMode(project);
@@ -478,8 +478,8 @@ public class ProjectProperties extends PropertyPage implements IWorkbenchPropert
 		outputLocationDialogField.enableButton(getProject().exists());
 
 		// included modules
-		GwtModule[] includedModules = project.getIncludedModules();
-		for (GwtModule module : includedModules)
+		final GwtModule[] includedModules = project.getIncludedModules();
+		for (final GwtModule module : includedModules)
 			modulesListDialogField.addElement(module);
 
 		// deployment path
@@ -494,15 +494,15 @@ public class ProjectProperties extends PropertyPage implements IWorkbenchPropert
 		isRebuildNecessary = false;
 	}
 
-	private void outputChangeControlPressed(DialogField field) {
+	private void outputChangeControlPressed(final DialogField field) {
 		if (field == outputLocationDialogField) {
-			IContainer container = chooseContainer();
+			final IContainer container = chooseContainer();
 			if (container != null)
 				outputLocationDialogField.setText(container.getProjectRelativePath().makeRelative().toString());
 		}
 	}
 
-	private void outputDialogFieldChanged(DialogField field) {
+	private void outputDialogFieldChanged(final DialogField field) {
 		if (field == outputLocationDialogField) {
 			updateOutputLocationStatus();
 			isRebuildNecessary = true;
@@ -517,11 +517,11 @@ public class ProjectProperties extends PropertyPage implements IWorkbenchPropert
 	 */
 	@Override
 	public boolean performOk() {
-		GwtProject project = getProject();
+		final GwtProject project = getProject();
 
 		boolean build = false;
 		if (isRebuildNecessary) {
-			MessageDialog dialog = new MessageDialog(getShell(), "Build Needed", null, "The deployment settings have changed.  The project needs to be rebuilt for the changes to take effect.  Do you want to rebuild now?", MessageDialog.QUESTION, new String[] { IDialogConstants.YES_LABEL, IDialogConstants.NO_LABEL, IDialogConstants.CANCEL_LABEL }, 2);
+			final MessageDialog dialog = new MessageDialog(getShell(), "Build Needed", null, "The deployment settings have changed.  The project needs to be rebuilt for the changes to take effect.  Do you want to rebuild now?", MessageDialog.QUESTION, new String[] { IDialogConstants.YES_LABEL, IDialogConstants.NO_LABEL, IDialogConstants.CANCEL_LABEL }, 2);
 			switch (dialog.open()) {
 				case 2:
 					return false;
@@ -531,7 +531,7 @@ public class ProjectProperties extends PropertyPage implements IWorkbenchPropert
 			}
 		}
 
-		IEclipsePreferences projectPreferences = project.getProjectPreferences();
+		final IEclipsePreferences projectPreferences = project.getProjectPreferences();
 		if (null == projectPreferences)
 			return false;
 
@@ -555,7 +555,7 @@ public class ProjectProperties extends PropertyPage implements IWorkbenchPropert
 		// Dump changes
 		try {
 			projectPreferences.flush();
-		} catch (BackingStoreException e) {
+		} catch (final BackingStoreException e) {
 			// problem with pref store - quietly ignore
 		}
 
@@ -575,20 +575,20 @@ public class ProjectProperties extends PropertyPage implements IWorkbenchPropert
 	 * 
 	 * @see org.eclipse.jdt.internal.ui.wizards.IStatusChangeListener#statusChanged(org.eclipse.core.runtime.IStatus)
 	 */
-	public void statusChanged(IStatus status) {
+	public void statusChanged(final IStatus status) {
 		setValid(!status.matches(IStatus.ERROR));
 		StatusUtil.applyToStatusLine(this, status);
 	}
 
 	private void updateButtonEnabledState() {
-		boolean itemSelected = modulesListDialogField.getSelectedElements().size() > 0;
+		final boolean itemSelected = modulesListDialogField.getSelectedElements().size() > 0;
 		modulesListDialogField.enableButton(IDX_BUTTON_ML_REMOVE, itemSelected);
 	}
 
 	private void updateDeploymentLocationStatus() {
 		deploymentPath = null;
 
-		String text = deploymentPathDialogField.getText();
+		final String text = deploymentPathDialogField.getText();
 		if (text.startsWith(" ") || text.endsWith(" ")) {
 			deploymentPathStatus.setError("The deployment path cannot start or end with a white space.");
 			return;
@@ -601,14 +601,14 @@ public class ProjectProperties extends PropertyPage implements IWorkbenchPropert
 	private void updateOutputLocationStatus() {
 		outputLocationPath = null;
 
-		String text = outputLocationDialogField.getText();
+		final String text = outputLocationDialogField.getText();
 		if ("".equals(text)) { //$NON-NLS-1$
 			outputLocationStatus.setError(NewWizardMessages.BuildPathsBlock_error_EnterBuildPath);
 			return;
 		}
 
 		outputLocationPath = getOutputLocation();
-		IResource res = getProject().getProjectResource().findMember(outputLocationPath);
+		final IResource res = getProject().getProjectResource().findMember(outputLocationPath);
 		if (res != null) {
 			// if exists, must be a folder or project
 			if (res.getType() == IResource.FILE) {
@@ -626,7 +626,7 @@ public class ProjectProperties extends PropertyPage implements IWorkbenchPropert
 		outputLocationStatus.setOK();
 
 		String pathStr = outputLocationDialogField.getText();
-		Path outputPath = (new Path(pathStr));
+		final Path outputPath = (new Path(pathStr));
 		pathStr = outputPath.lastSegment();
 		if (null != pathStr) {
 			if (pathStr.equals(".settings") && (outputPath.segmentCount() == 2))
@@ -647,16 +647,16 @@ public class ProjectProperties extends PropertyPage implements IWorkbenchPropert
 		vmArgsStatus.setOK();
 	}
 
-	private void vmArgsChangeControlPressed(DialogField field) {
+	private void vmArgsChangeControlPressed(final DialogField field) {
 		if (field == vmArgsDialogField) {
-			StringVariableSelectionDialog dialog = new StringVariableSelectionDialog(getShell());
+			final StringVariableSelectionDialog dialog = new StringVariableSelectionDialog(getShell());
 			dialog.open();
-			String variableExpression = dialog.getVariableExpression();
+			final String variableExpression = dialog.getVariableExpression();
 			if (variableExpression == null)
 				return;
-			int startSel = vmArgsDialogField.getTextControl(null).getSelection().x;
-			int lenSel = vmArgsDialogField.getTextControl(null).getSelectionCount();
-			String currentText = getCompilerVmArgs();
+			final int startSel = vmArgsDialogField.getTextControl(null).getSelection().x;
+			final int lenSel = vmArgsDialogField.getTextControl(null).getSelectionCount();
+			final String currentText = getCompilerVmArgs();
 			String newText = "";
 			if (startSel > 0)
 				newText += currentText.substring(0, startSel);
@@ -665,7 +665,7 @@ public class ProjectProperties extends PropertyPage implements IWorkbenchPropert
 		}
 	}
 
-	private void vmArgsDialogFieldChanged(DialogField field) {
+	private void vmArgsDialogFieldChanged(final DialogField field) {
 		if (field == vmArgsDialogField) {
 			updateVmArgsStatus();
 			isRebuildNecessary = true;

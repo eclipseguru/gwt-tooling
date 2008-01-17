@@ -11,12 +11,13 @@
  **************************************************************************************************/
 package org.eclipseguru.gwt.ui.actions;
 
+import org.eclipseguru.gwt.core.classpath.GwtClasspathUtil;
+import org.eclipseguru.gwt.core.utils.ProgressUtil;
+
 import org.eclipse.core.resources.IProject;
 import org.eclipse.core.resources.IWorkspaceRunnable;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IProgressMonitor;
-import org.eclipseguru.gwt.core.classpath.GwtClasspathUtil;
-import org.eclipseguru.gwt.core.utils.ProgressUtil;
 
 /**
  * Updates the access rules of the JRE container.

@@ -11,8 +11,9 @@
  **************************************************************************************************/
 package org.eclipseguru.gwt.core.runtimes;
 
-import java.util.ArrayList;
-import java.util.List;
+import org.eclipseguru.gwt.core.GwtCore;
+import org.eclipseguru.gwt.core.classpath.GwtContainer;
+import org.eclipseguru.gwt.core.preferences.GwtCorePreferenceConstants;
 
 import org.eclipse.core.resources.IWorkspaceRoot;
 import org.eclipse.core.resources.ResourcesPlugin;
@@ -26,9 +27,9 @@ import org.eclipse.jdt.core.IClasspathContainer;
 import org.eclipse.jdt.core.IClasspathEntry;
 import org.eclipse.jdt.core.IJavaProject;
 import org.eclipse.jdt.core.JavaCore;
-import org.eclipseguru.gwt.core.GwtCore;
-import org.eclipseguru.gwt.core.classpath.GwtContainer;
-import org.eclipseguru.gwt.core.preferences.GwtCorePreferenceConstants;
+
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  * A manager for GWT runtimes.
@@ -62,7 +63,7 @@ public class GwtRuntimeManager implements GwtCorePreferenceConstants {
 	 */
 	public static GwtRuntime[] getInstalledRuntimes() {
 		if (null == installedRuntimes) {
-			Preferences pluginPreferences = GwtCore.getGwtCore().getPluginPreferences();
+			final Preferences pluginPreferences = GwtCore.getGwtCore().getPluginPreferences();
 			pluginPreferences.addPropertyChangeListener(listener);
 			installedRuntimes = new GwtRuntime[] { new GwtRuntime(Path.fromPortableString(pluginPreferences.getString(GwtCorePreferenceConstants.PREF_GWT_HOME))) };
 		}
@@ -70,30 +71,29 @@ public class GwtRuntimeManager implements GwtCorePreferenceConstants {
 	}
 
 	private static void rebindClasspathEntries() throws CoreException {
-		IWorkspaceRoot root = ResourcesPlugin.getWorkspace().getRoot();
-		IJavaProject[] projects = JavaCore.create(root).getJavaProjects();
-		IPath containerPath = new Path(GwtCore.GWT_CONTAINER);
+		final IWorkspaceRoot root = ResourcesPlugin.getWorkspace().getRoot();
+		final IJavaProject[] projects = JavaCore.create(root).getJavaProjects();
+		final IPath containerPath = new Path(GwtCore.GWT_CONTAINER);
 
-		List<IJavaProject> affectedProjects = new ArrayList<IJavaProject>();
-		List<IClasspathContainer> newContainers = new ArrayList<IClasspathContainer>();
+		final List<IJavaProject> affectedProjects = new ArrayList<IJavaProject>();
+		final List<IClasspathContainer> newContainers = new ArrayList<IClasspathContainer>();
 
-		GwtRuntime runtime = getInstalledRuntimes()[0];
-		GwtContainer container = new GwtContainer(runtime, containerPath);
+		final GwtRuntime runtime = getInstalledRuntimes()[0];
+		final GwtContainer container = new GwtContainer(runtime, containerPath);
 
-		for (IJavaProject project : projects) {
-			IClasspathEntry[] entries = project.getRawClasspath();
-			for (IClasspathEntry curr : entries) {
+		for (final IJavaProject project : projects) {
+			final IClasspathEntry[] entries = project.getRawClasspath();
+			for (final IClasspathEntry curr : entries)
 				if (curr.getEntryKind() == IClasspathEntry.CPE_CONTAINER)
 					if (containerPath.equals(curr.getPath())) {
 						affectedProjects.add(project);
 						newContainers.add(container);
 						break;
 					}
-			}
 		}
 		if (!affectedProjects.isEmpty()) {
-			IJavaProject[] affected = affectedProjects.toArray(new IJavaProject[affectedProjects.size()]);
-			IClasspathContainer[] containers = newContainers.toArray(new IClasspathContainer[newContainers.size()]);
+			final IJavaProject[] affected = affectedProjects.toArray(new IJavaProject[affectedProjects.size()]);
+			final IClasspathContainer[] containers = newContainers.toArray(new IClasspathContainer[newContainers.size()]);
 			JavaCore.setClasspathContainer(containerPath, affected, containers, null);
 
 		}

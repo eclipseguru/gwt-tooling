@@ -11,6 +11,14 @@
  **************************************************************************************************/
 package org.eclipseguru.gwt.core.internal.classpath;
 
+import org.eclipseguru.gwt.core.GwtCore;
+
+import org.eclipse.core.runtime.FileLocator;
+import org.eclipse.core.runtime.IPath;
+import org.eclipse.core.runtime.Path;
+import org.eclipse.jdt.core.IAccessRule;
+import org.eclipse.jdt.core.JavaCore;
+
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.ArrayList;
@@ -19,13 +27,6 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Properties;
-
-import org.eclipse.core.runtime.FileLocator;
-import org.eclipse.core.runtime.IPath;
-import org.eclipse.core.runtime.Path;
-import org.eclipse.jdt.core.IAccessRule;
-import org.eclipse.jdt.core.JavaCore;
-import org.eclipseguru.gwt.core.GwtCore;
 
 /**
  * A util for generating access rules.
@@ -53,27 +54,27 @@ public class AccessRulesUtil {
 		if (null != accessibleJRETypes)
 			return accessibleJRETypes;
 
-		Properties properties = new Properties();
+		final Properties properties = new Properties();
 		InputStream stream = null;
 		try {
 			stream = FileLocator.openStream(GwtCore.getGwtCore().getBundle(), new Path(ACCESSIBLE_JRE_TYPES_RESOURCE), false);
 			if (null != stream)
 				properties.load(stream);
-		} catch (IOException e) {
+		} catch (final IOException e) {
 			GwtCore.logError("Error while reading JRE access rules", e);
 		} finally {
 			if (null != stream)
 				try {
 					stream.close();
-				} catch (IOException e) {
+				} catch (final IOException e) {
 					// ignore
 				}
 		}
 
-		List<IPath> types = new ArrayList<IPath>();
-		Enumeration<?> names = properties.propertyNames();
+		final List<IPath> types = new ArrayList<IPath>();
+		final Enumeration<?> names = properties.propertyNames();
 		while (names.hasMoreElements()) {
-			String name = (String) names.nextElement();
+			final String name = (String) names.nextElement();
 			types.add(new Path(name.replace('.', '/')));
 		}
 
@@ -81,7 +82,7 @@ public class AccessRulesUtil {
 		return accessibleJRETypes;
 	}
 
-	private static synchronized IAccessRule getAccessibleRule(IPath path) {
+	private static synchronized IAccessRule getAccessibleRule(final IPath path) {
 		IAccessRule rule = ACCESSIBLE_RULES_CACHE.get(path);
 		if (rule == null) {
 			rule = JavaCore.newAccessRule(path, IAccessRule.K_ACCESSIBLE);
@@ -91,10 +92,10 @@ public class AccessRulesUtil {
 	}
 
 	public static IAccessRule[] getJREAccessRules() {
-		IPath[] types = getAccessibleJRETypes();
-		IAccessRule[] accessRules = new IAccessRule[types.length + 1];
+		final IPath[] types = getAccessibleJRETypes();
+		final IAccessRule[] accessRules = new IAccessRule[types.length + 1];
 		for (int i = 0; i < types.length; i++) {
-			IPath typePath = types[i];
+			final IPath typePath = types[i];
 			accessRules[i] = getAccessibleRule(typePath);
 		}
 		accessRules[types.length] = EXCLUDE_ALL_RULE;

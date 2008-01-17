@@ -11,6 +11,9 @@
  **************************************************************************************************/
 package org.eclipseguru.gwt.internal.core.refactoring;
 
+import org.eclipseguru.gwt.core.GwtModule;
+import org.eclipseguru.gwt.ui.GwtUi;
+
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.OperationCanceledException;
@@ -20,8 +23,6 @@ import org.eclipse.ltk.core.refactoring.Change;
 import org.eclipse.ltk.core.refactoring.RefactoringStatus;
 import org.eclipse.ltk.core.refactoring.participants.CheckConditionsContext;
 import org.eclipse.ltk.core.refactoring.participants.RenameParticipant;
-import org.eclipseguru.gwt.core.GwtModule;
-import org.eclipseguru.gwt.ui.GwtUi;
 
 /**
  * Rename participant for the entry point.
@@ -38,7 +39,7 @@ public class ModuleEntryPointITypeRenameParticipant extends RenameParticipant {
 	 *      org.eclipse.ltk.core.refactoring.participants.CheckConditionsContext)
 	 */
 	@Override
-	public RefactoringStatus checkConditions(IProgressMonitor pm, CheckConditionsContext context) throws OperationCanceledException {
+	public RefactoringStatus checkConditions(final IProgressMonitor pm, final CheckConditionsContext context) throws OperationCanceledException {
 		return new RefactoringStatus();
 	}
 
@@ -48,7 +49,7 @@ public class ModuleEntryPointITypeRenameParticipant extends RenameParticipant {
 	 * @see org.eclipse.ltk.core.refactoring.participants.RefactoringParticipant#createChange(org.eclipse.core.runtime.IProgressMonitor)
 	 */
 	@Override
-	public Change createChange(IProgressMonitor pm) throws CoreException, OperationCanceledException {
+	public Change createChange(final IProgressMonitor pm) throws CoreException, OperationCanceledException {
 		if (null == type)
 			return null;
 
@@ -71,12 +72,12 @@ public class ModuleEntryPointITypeRenameParticipant extends RenameParticipant {
 	 * @see org.eclipse.ltk.core.refactoring.participants.RefactoringParticipant#initialize(java.lang.Object)
 	 */
 	@Override
-	protected boolean initialize(Object element) {
+	protected boolean initialize(final Object element) {
 		type = (IType) element;
 		try {
 			if (GwtModule.isEntryPoint(type))
 				return true;
-		} catch (JavaModelException e) {
+		} catch (final JavaModelException e) {
 			GwtUi.logError("Error while testing for entry point", e);
 		}
 

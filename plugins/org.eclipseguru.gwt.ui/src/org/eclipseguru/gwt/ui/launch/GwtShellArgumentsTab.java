@@ -11,6 +11,8 @@
  **************************************************************************************************/
 package org.eclipseguru.gwt.ui.launch;
 
+import org.eclipseguru.gwt.core.launch.GwtLaunchConstants;
+
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.debug.core.ILaunchConfiguration;
 import org.eclipse.debug.core.ILaunchConfigurationWorkingCopy;
@@ -23,7 +25,6 @@ import org.eclipse.swt.SWT;
 import org.eclipse.swt.layout.GridData;
 import org.eclipse.swt.layout.GridLayout;
 import org.eclipse.swt.widgets.Composite;
-import org.eclipseguru.gwt.core.launch.GwtLaunchConstants;
 
 /**
  * 
@@ -33,8 +34,8 @@ public class GwtShellArgumentsTab extends JavaArgumentsTab implements GwtLaunchC
 	private static final String[] logLevelButtonNames = new String[] { "Error", "Warnings", "Info", "Trace", "Debug", "Spam", "All" };
 	private static final String[] styleButtonNames = new String[] { "Obfuscated", "Pretty", "Detailed" };
 
-	private SelectionButtonDialogFieldGroup javascriptStyleDialogFieldGroup;
-	private SelectionButtonDialogFieldGroup logLevelsDialogFieldGroup;
+	private final SelectionButtonDialogFieldGroup javascriptStyleDialogFieldGroup;
+	private final SelectionButtonDialogFieldGroup logLevelsDialogFieldGroup;
 
 	/**
 	 * Creates a new instance.
@@ -53,11 +54,11 @@ public class GwtShellArgumentsTab extends JavaArgumentsTab implements GwtLaunchC
 	 * @see org.eclipse.debug.ui.ILaunchConfigurationTab#createControl(org.eclipse.swt.widgets.Composite)
 	 */
 	@Override
-	public void createControl(Composite parent) {
-		Composite result = new Composite(parent, SWT.NONE);
+	public void createControl(final Composite parent) {
+		final Composite result = new Composite(parent, SWT.NONE);
 		result.setLayoutData(new GridData(SWT.FILL, SWT.FILL, true, true));
 
-		GridLayout layout = new GridLayout(2, false);
+		final GridLayout layout = new GridLayout(2, false);
 		layout.marginHeight = 5;
 		layout.marginWidth = 5;
 		result.setLayout(layout);
@@ -91,7 +92,7 @@ public class GwtShellArgumentsTab extends JavaArgumentsTab implements GwtLaunchC
 	 * @see org.eclipse.debug.ui.ILaunchConfigurationTab#initializeFrom(org.eclipse.debug.core.ILaunchConfiguration)
 	 */
 	@Override
-	public void initializeFrom(ILaunchConfiguration configuration) {
+	public void initializeFrom(final ILaunchConfiguration configuration) {
 		updateStyleFromConfig(configuration);
 		updateLogLevelFromConfig(configuration);
 		fVMArgumentsBlock.initializeFrom(configuration);
@@ -104,7 +105,7 @@ public class GwtShellArgumentsTab extends JavaArgumentsTab implements GwtLaunchC
 	 * @see org.eclipse.debug.ui.ILaunchConfigurationTab#performApply(org.eclipse.debug.core.ILaunchConfigurationWorkingCopy)
 	 */
 	@Override
-	public void performApply(ILaunchConfigurationWorkingCopy configuration) {
+	public void performApply(final ILaunchConfigurationWorkingCopy configuration) {
 		for (int i = 0; i < LOG_LEVELS.length; i++)
 			if (logLevelsDialogFieldGroup.isSelected(i)) {
 				configuration.setAttribute(ATTR_LOG_LEVEL, LOG_LEVELS[i]);
@@ -125,29 +126,29 @@ public class GwtShellArgumentsTab extends JavaArgumentsTab implements GwtLaunchC
 	 * @see org.eclipse.debug.ui.ILaunchConfigurationTab#setDefaults(org.eclipse.debug.core.ILaunchConfigurationWorkingCopy)
 	 */
 	@Override
-	public void setDefaults(ILaunchConfigurationWorkingCopy configuration) {
+	public void setDefaults(final ILaunchConfigurationWorkingCopy configuration) {
 		configuration.setAttribute(ATTR_LOG_LEVEL, LOG_LEVELS[2]);
 		configuration.setAttribute(ATTR_STYLE, JAVSCRIPT_STYLES[1]);
 		fVMArgumentsBlock.setDefaults(configuration);
 		fWorkingDirectoryBlock.setDefaults(configuration);
 	}
 
-	protected void updateLogLevelFromConfig(ILaunchConfiguration configuration) {
+	protected void updateLogLevelFromConfig(final ILaunchConfiguration configuration) {
 		String logLevel;
 		try {
 			logLevel = configuration.getAttribute(ATTR_LOG_LEVEL, LOG_LEVELS[2]);
-		} catch (CoreException e) {
+		} catch (final CoreException e) {
 			logLevel = LOG_LEVELS[2];
 		}
 		for (int i = 0; i < LOG_LEVELS.length; i++)
 			logLevelsDialogFieldGroup.setSelection(i, LOG_LEVELS[i].equals(logLevel));
 	}
 
-	protected void updateStyleFromConfig(ILaunchConfiguration configuration) {
+	protected void updateStyleFromConfig(final ILaunchConfiguration configuration) {
 		String style;
 		try {
 			style = configuration.getAttribute(ATTR_STYLE, JAVSCRIPT_STYLES[1]);
-		} catch (CoreException e) {
+		} catch (final CoreException e) {
 			style = JAVSCRIPT_STYLES[1];
 		}
 		for (int i = 0; i < JAVSCRIPT_STYLES.length; i++)

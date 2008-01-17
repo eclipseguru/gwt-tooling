@@ -11,8 +11,7 @@
  **************************************************************************************************/
 package org.eclipseguru.gwt.core;
 
-import java.util.ArrayList;
-import java.util.List;
+import org.eclipseguru.gwt.core.internal.codegen.AsyncServiceCodeGenerator;
 
 import org.eclipse.core.resources.IFile;
 import org.eclipse.core.resources.IFolder;
@@ -25,7 +24,9 @@ import org.eclipse.jdt.core.IType;
 import org.eclipse.jdt.core.JavaCore;
 import org.eclipse.jdt.core.JavaModelException;
 import org.eclipse.jdt.core.Signature;
-import org.eclipseguru.gwt.core.internal.codegen.AsyncServiceCodeGenerator;
+
+import java.util.ArrayList;
+import java.util.List;
 
 import com.googlipse.gwt.common.Constants;
 
@@ -45,7 +46,7 @@ public class GwtRemoteService extends GwtElement {
 	 * @return a list of all found interfaces
 	 * @throws CoreException
 	 */
-	public static List<IType> findRemoteServices(GwtModule[] projectModules) throws CoreException {
+	public static List<IType> findRemoteServices(final GwtModule[] projectModules) throws CoreException {
 		final List<IType> remoteServiceFiles = new ArrayList<IType>();
 		for (final GwtModule module : projectModules) {
 			// skip modules without a java package
@@ -53,28 +54,28 @@ public class GwtRemoteService extends GwtElement {
 				continue;
 
 			// get the "client" folder
-			IFolder folder = ((IFolder) module.getModulePackage().getResource()).getFolder(Constants.CLIENT_PACKAGE);
+			final IFolder folder = ((IFolder) module.getModulePackage().getResource()).getFolder(Constants.CLIENT_PACKAGE);
 			if (!folder.exists())
 				continue;
 
 			// check for service definitions
 			folder.accept(new IResourceProxyVisitor() {
-				public boolean visit(IResourceProxy proxy) throws CoreException {
+				public boolean visit(final IResourceProxy proxy) throws CoreException {
 					switch (proxy.getType()) {
-					case IResource.FOLDER:
-						return true;
+						case IResource.FOLDER:
+							return true;
 
-					case IResource.FILE:
-						if (!JavaCore.isJavaLikeFileName(proxy.getName()))
-							return false;
+						case IResource.FILE:
+							if (!JavaCore.isJavaLikeFileName(proxy.getName()))
+								return false;
 
-						IFile file = (IFile) proxy.requestResource();
-						if (!module.isModuleResource(file))
-							return false;
+							final IFile file = (IFile) proxy.requestResource();
+							if (!module.isModuleResource(file))
+								return false;
 
-						ICompilationUnit cu = JavaCore.createCompilationUnitFrom(file);
-						if ((null != cu) && module.getModulePackage().getJavaProject().isOnClasspath(cu))
-							GwtRemoteService.findRemoteServices(cu, remoteServiceFiles);
+							final ICompilationUnit cu = JavaCore.createCompilationUnitFrom(file);
+							if ((null != cu) && module.getModulePackage().getJavaProject().isOnClasspath(cu))
+								GwtRemoteService.findRemoteServices(cu, remoteServiceFiles);
 					}
 					return false;
 				}
@@ -91,15 +92,15 @@ public class GwtRemoteService extends GwtElement {
 	 * @param remoteServiceFiles
 	 * @throws JavaModelException
 	 */
-	public static void findRemoteServices(ICompilationUnit cu, List<IType> remoteServiceFiles) throws JavaModelException {
+	public static void findRemoteServices(final ICompilationUnit cu, final List<IType> remoteServiceFiles) throws JavaModelException {
 		// for every type declared in the java file
-		for (IType someType : cu.getTypes()) {
+		for (final IType someType : cu.getTypes()) {
 			// ignore binary types and non-interfaces
 			if (!someType.isInterface() || someType.isBinary())
 				continue;
 			// for every interface implemented by that type
-			for (String aSuperInterfaceSignature : someType.getSuperInterfaceTypeSignatures()) {
-				String simpleName = GwtUtil.getTypeNameWithoutParameters(Signature.getSignatureSimpleName(aSuperInterfaceSignature));
+			for (final String aSuperInterfaceSignature : someType.getSuperInterfaceTypeSignatures()) {
+				final String simpleName = GwtUtil.getTypeNameWithoutParameters(Signature.getSignatureSimpleName(aSuperInterfaceSignature));
 				if (simpleName.equals(GwtRemoteService.REMOTE_SERVICE_CLASS_SIMPLE_NAME) && !remoteServiceFiles.contains(someType))
 					remoteServiceFiles.add(someType);
 			}
@@ -117,14 +118,14 @@ public class GwtRemoteService extends GwtElement {
 	 *         interface, <code>false</code> otherwise
 	 * @throws JavaModelException
 	 */
-	public static boolean isRemoteService(IType someType) throws JavaModelException {
+	public static boolean isRemoteService(final IType someType) throws JavaModelException {
 		// ignore non-interfaces
 		if (!someType.isInterface())
 			return false;
 
 		// for every interface implemented by that type
-		for (String aSuperInterfaceSignature : someType.getSuperInterfaceTypeSignatures()) {
-			String simpleName = GwtUtil.getTypeNameWithoutParameters(Signature.getSignatureSimpleName(aSuperInterfaceSignature));
+		for (final String aSuperInterfaceSignature : someType.getSuperInterfaceTypeSignatures()) {
+			final String simpleName = GwtUtil.getTypeNameWithoutParameters(Signature.getSignatureSimpleName(aSuperInterfaceSignature));
 			if (simpleName.equals(GwtRemoteService.REMOTE_SERVICE_CLASS_SIMPLE_NAME))
 				return true;
 		}
@@ -144,7 +145,7 @@ public class GwtRemoteService extends GwtElement {
 	 * @param type
 	 * @param parent
 	 */
-	GwtRemoteService(IType type, GwtModule parent) {
+	GwtRemoteService(final IType type, final GwtModule parent) {
 		super(parent);
 		this.type = type;
 	}

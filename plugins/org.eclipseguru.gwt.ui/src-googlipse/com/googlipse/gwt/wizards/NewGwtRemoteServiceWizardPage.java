@@ -17,11 +17,13 @@
  */
 package com.googlipse.gwt.wizards;
 
-import java.io.IOException;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import org.eclipseguru.gwt.core.GwtCore;
+import org.eclipseguru.gwt.core.GwtModule;
+import org.eclipseguru.gwt.core.GwtUtil;
+import org.eclipseguru.gwt.core.utils.ProgressUtil;
+import org.eclipseguru.gwt.core.utils.ResourceUtil;
+import org.eclipseguru.gwt.ui.GwtUi;
+import org.eclipseguru.gwt.ui.dialogs.ModuleSelectionDialog;
 
 import org.eclipse.core.resources.IContainer;
 import org.eclipse.core.resources.IFile;
@@ -55,13 +57,12 @@ import org.eclipse.swt.layout.GridLayout;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Control;
 import org.eclipse.ui.PlatformUI;
-import org.eclipseguru.gwt.core.GwtCore;
-import org.eclipseguru.gwt.core.GwtModule;
-import org.eclipseguru.gwt.core.GwtUtil;
-import org.eclipseguru.gwt.core.utils.ProgressUtil;
-import org.eclipseguru.gwt.core.utils.ResourceUtil;
-import org.eclipseguru.gwt.ui.GwtUi;
-import org.eclipseguru.gwt.ui.dialogs.ModuleSelectionDialog;
+
+import java.io.IOException;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 import com.googlipse.gwt.common.Constants;
 import com.googlipse.gwt.common.Util;
@@ -79,7 +80,7 @@ public class NewGwtRemoteServiceWizardPage extends NewTypeWizardPage {
 		 * 
 		 * @see org.eclipse.jdt.internal.ui.wizards.dialogfields.IStringButtonAdapter#changeControlPressed(org.eclipse.jdt.internal.ui.wizards.dialogfields.DialogField)
 		 */
-		public void changeControlPressed(DialogField field) {
+		public void changeControlPressed(final DialogField field) {
 			if (field == moduleDialogField)
 				handleModuleDialogFieldSearchButtonPressed();
 
@@ -90,7 +91,7 @@ public class NewGwtRemoteServiceWizardPage extends NewTypeWizardPage {
 		 * 
 		 * @see org.eclipse.jdt.internal.ui.wizards.dialogfields.IDialogFieldListener#dialogFieldChanged(org.eclipse.jdt.internal.ui.wizards.dialogfields.DialogField)
 		 */
-		public void dialogFieldChanged(DialogField field) {
+		public void dialogFieldChanged(final DialogField field) {
 			if (field == moduleDialogField)
 				handleModuleDialogFieldChanged();
 			else if (field == serviceUriDialogField)
@@ -117,16 +118,16 @@ public class NewGwtRemoteServiceWizardPage extends NewTypeWizardPage {
 	protected IStatus moduleStatus;
 	protected IStatus serviceUriStatus;
 
-	private SelectionButtonDialogFieldGroup serviceStubsButtons;
-	private StringDialogField serviceUriDialogField;
-	private StringButtonDialogField moduleDialogField;
+	private final SelectionButtonDialogFieldGroup serviceStubsButtons;
+	private final StringDialogField serviceUriDialogField;
+	private final StringButtonDialogField moduleDialogField;
 
 	public NewGwtRemoteServiceWizardPage() {
 		super(false, PAGE_NAME);
 		setTitle("GWT Remote Service");
 		setDescription("Create a new RemoteService along with corresponding Async and Impl files");
 
-		DialogFieldAdapter adapter = new DialogFieldAdapter();
+		final DialogFieldAdapter adapter = new DialogFieldAdapter();
 
 		moduleDialogField = new StringButtonDialogField(adapter);
 		moduleDialogField.setLabelText("Module Location:");
@@ -137,14 +138,14 @@ public class NewGwtRemoteServiceWizardPage extends NewTypeWizardPage {
 		serviceUriDialogField.setLabelText("Service URI:");
 		serviceUriDialogField.setDialogFieldListener(adapter);
 
-		String[] buttonNames = new String[] { "Servlet &Implementation" };
+		final String[] buttonNames = new String[] { "Servlet &Implementation" };
 		serviceStubsButtons = new SelectionButtonDialogFieldGroup(SWT.CHECK, buttonNames, 1);
 		serviceStubsButtons.setLabelText("Which service stubs would you like to create?");
 	}
 
 	// -------- Initialization ---------
 
-	private void addServiceUriToGwtXml(IProgressMonitor monitor) {
+	private void addServiceUriToGwtXml(final IProgressMonitor monitor) {
 		// noops
 	}
 
@@ -159,22 +160,22 @@ public class NewGwtRemoteServiceWizardPage extends NewTypeWizardPage {
 		setPackageFragment(null, false);
 
 		// super interfaces
-		List<String> superInterfaces = new ArrayList<String>(1);
+		final List<String> superInterfaces = new ArrayList<String>(1);
 		setSuperInterfaces(superInterfaces, true);
 	}
 
 	/*
 	 * @see WizardPage#createControl
 	 */
-	public void createControl(Composite parent) {
+	public void createControl(final Composite parent) {
 		initializeDialogUnits(parent);
 
-		Composite composite = new Composite(parent, SWT.NONE);
+		final Composite composite = new Composite(parent, SWT.NONE);
 		composite.setFont(parent.getFont());
 
-		int nColumns = 4;
+		final int nColumns = 4;
 
-		GridLayout layout = new GridLayout();
+		final GridLayout layout = new GridLayout();
 		layout.numColumns = nColumns;
 		composite.setLayout(layout);
 
@@ -229,7 +230,7 @@ public class NewGwtRemoteServiceWizardPage extends NewTypeWizardPage {
 		}
 	}
 
-	private void createModuleControls(Composite parent, int nColumns) {
+	private void createModuleControls(final Composite parent, final int nColumns) {
 		moduleDialogField.doFillIntoGrid(parent, nColumns);
 		LayoutUtil.setWidthHint(moduleDialogField.getTextControl(null), getMaxFieldWidth());
 	}
@@ -240,15 +241,15 @@ public class NewGwtRemoteServiceWizardPage extends NewTypeWizardPage {
 			monitor.beginTask("Monitor message", 2);
 
 			// get base package
-			IContainer basePackage = (IContainer) getPackageFragment().getResource();
+			final IContainer basePackage = (IContainer) getPackageFragment().getResource();
 
 			// create client package
-			IFolder clientPackage = basePackage.getFolder(new Path(Constants.CLIENT_PACKAGE));
+			final IFolder clientPackage = basePackage.getFolder(new Path(Constants.CLIENT_PACKAGE));
 			if (!clientPackage.exists())
 				ResourceUtil.createFolderHierarchy(clientPackage, ProgressUtil.subProgressMonitor(monitor, 1));
 
 			// create file
-			IFile remoteService = clientPackage.getFile(getServiceName() + ".java");
+			final IFile remoteService = clientPackage.getFile(getServiceName() + ".java");
 			Util.writeFileFromTemplate("RemoteService.Service.template", remoteService, templateVars);
 		} finally {
 			monitor.done();
@@ -261,15 +262,15 @@ public class NewGwtRemoteServiceWizardPage extends NewTypeWizardPage {
 			monitor.beginTask("Monitor message", 2);
 
 			// get base package
-			IContainer basePackage = (IContainer) getPackageFragment().getResource();
+			final IContainer basePackage = (IContainer) getPackageFragment().getResource();
 
 			// create server package
-			IFolder serverPackage = basePackage.getFolder(new Path(Constants.SERVER_PACKAGE));
+			final IFolder serverPackage = basePackage.getFolder(new Path(Constants.SERVER_PACKAGE));
 			if (!serverPackage.exists())
 				ResourceUtil.createFolderHierarchy(serverPackage, ProgressUtil.subProgressMonitor(monitor, 1));
 
 			// create file
-			IFile remoteService = serverPackage.getFile(getServiceName() + "Impl.java");
+			final IFile remoteService = serverPackage.getFile(getServiceName() + "Impl.java");
 			Util.writeFileFromTemplate("RemoteService.ServiceImpl.template", remoteService, templateVars);
 		} finally {
 			monitor.done();
@@ -278,17 +279,17 @@ public class NewGwtRemoteServiceWizardPage extends NewTypeWizardPage {
 
 	// ------ UI --------
 
-	private void createServiceStubSelectionControls(Composite parent, int nColumns) {
-		Control labelControl = serviceStubsButtons.getLabelControl(parent);
+	private void createServiceStubSelectionControls(final Composite parent, final int nColumns) {
+		final Control labelControl = serviceStubsButtons.getLabelControl(parent);
 		LayoutUtil.setHorizontalSpan(labelControl, nColumns);
 
 		DialogField.createEmptySpace(parent);
 
-		Control buttonGroup = serviceStubsButtons.getSelectionButtonsGroup(parent);
+		final Control buttonGroup = serviceStubsButtons.getSelectionButtonsGroup(parent);
 		LayoutUtil.setHorizontalSpan(buttonGroup, nColumns - 1);
 	}
 
-	private void createServiceUriControls(Composite parent, int nColumns) {
+	private void createServiceUriControls(final Composite parent, final int nColumns) {
 		serviceUriDialogField.doFillIntoGrid(parent, nColumns);
 		LayoutUtil.setWidthHint(serviceUriDialogField.getTextControl(null), getMaxFieldWidth());
 	}
@@ -303,7 +304,7 @@ public class NewGwtRemoteServiceWizardPage extends NewTypeWizardPage {
 		serviceUriStatus = serviceUriChanged();
 
 		// status of all used components
-		IStatus[] status = new IStatus[] { moduleStatus, fTypeNameStatus, serviceUriStatus };
+		final IStatus[] status = new IStatus[] { moduleStatus, fTypeNameStatus, serviceUriStatus };
 
 		// the most severe status will be displayed and the OK button
 		// enabled/disabled.
@@ -317,9 +318,9 @@ public class NewGwtRemoteServiceWizardPage extends NewTypeWizardPage {
 	 */
 	@Override
 	public IResource getModifiedResource() {
-		IPackageFragment pack = getPackageFragment();
+		final IPackageFragment pack = getPackageFragment();
 		if (pack != null) {
-			IContainer packageFolder = (IContainer) pack.getResource();
+			final IContainer packageFolder = (IContainer) pack.getResource();
 			if (null != packageFolder)
 				return packageFolder.getFile(new Path(Constants.CLIENT_PACKAGE).append(getServiceName() + ".java"));
 		}
@@ -333,10 +334,10 @@ public class NewGwtRemoteServiceWizardPage extends NewTypeWizardPage {
 	 */
 	protected GwtModule getModule() {
 		try {
-			IResource file = ResourcesPlugin.getWorkspace().getRoot().findMember(moduleDialogField.getText());
+			final IResource file = ResourcesPlugin.getWorkspace().getRoot().findMember(moduleDialogField.getText());
 			if (GwtUtil.isModuleDescriptor(file))
 				return GwtCore.create((IFile) file);
-		} catch (Exception e) {
+		} catch (final Exception e) {
 			// fail gracefully
 		}
 		return null;
@@ -364,14 +365,14 @@ public class NewGwtRemoteServiceWizardPage extends NewTypeWizardPage {
 	 * @see NewContainerWizardPage#handleFieldChanged
 	 */
 	@Override
-	protected void handleFieldChanged(String fieldName) {
+	protected void handleFieldChanged(final String fieldName) {
 		super.handleFieldChanged(fieldName);
 
 		doStatusUpdate();
 	}
 
 	private void handleModuleDialogFieldChanged() {
-		GwtModule module = getModule();
+		final GwtModule module = getModule();
 		IPackageFragment modulePackage = null;
 		if (null != module)
 			modulePackage = module.getModulePackage();
@@ -384,12 +385,12 @@ public class NewGwtRemoteServiceWizardPage extends NewTypeWizardPage {
 
 	private void handleModuleDialogFieldSearchButtonPressed() {
 		try {
-			ModuleSelectionDialog dialog = new ModuleSelectionDialog(getShell(), GwtCore.getModel().getProjects());
+			final ModuleSelectionDialog dialog = new ModuleSelectionDialog(getShell(), GwtCore.getModel().getProjects());
 			if (dialog.open() == Window.OK) {
-				GwtModule module = dialog.getSelectedModule();
+				final GwtModule module = dialog.getSelectedModule();
 				setModule(module, true);
 			}
-		} catch (CoreException e) {
+		} catch (final CoreException e) {
 			ErrorDialog.openError(getShell(), "Error", "We are sorry, an unknown error occured.", GwtUi.newErrorStatus(e));
 		}
 	}
@@ -406,16 +407,16 @@ public class NewGwtRemoteServiceWizardPage extends NewTypeWizardPage {
 	 * @param selection
 	 *            used to initialize the fields
 	 */
-	public void init(IStructuredSelection selection) {
-		IJavaElement jelem = getInitialJavaElement(selection);
+	public void init(final IStructuredSelection selection) {
+		final IJavaElement jelem = getInitialJavaElement(selection);
 		initContainerPage(jelem);
 		initModule(jelem);
 		doStatusUpdate();
 
 		boolean createServlet = true;
-		IDialogSettings dialogSettings = getDialogSettings();
+		final IDialogSettings dialogSettings = getDialogSettings();
 		if (dialogSettings != null) {
-			IDialogSettings section = dialogSettings.getSection(PAGE_NAME);
+			final IDialogSettings section = dialogSettings.getSection(PAGE_NAME);
 			if (section != null)
 				createServlet = section.getBoolean(SETTINGS_CREATESERVLET);
 		}
@@ -431,11 +432,11 @@ public class NewGwtRemoteServiceWizardPage extends NewTypeWizardPage {
 	 * null</code>
 	 *            if no selection was available
 	 */
-	protected void initModule(IJavaElement elem) {
+	protected void initModule(final IJavaElement elem) {
 		if (null == elem)
 			return;
 
-		IResource resource = elem.getResource();
+		final IResource resource = elem.getResource();
 		if (null == resource)
 			return;
 
@@ -469,20 +470,20 @@ public class NewGwtRemoteServiceWizardPage extends NewTypeWizardPage {
 	 * @return the status of the validation
 	 */
 	protected IStatus moduleChanged() {
-		StatusInfo status = new StatusInfo();
-		String module = moduleDialogField.getText();
+		final StatusInfo status = new StatusInfo();
+		final String module = moduleDialogField.getText();
 		if (module.trim().length() == 0) {
 			status.setError("Please select a GWT module.");
 			return status;
 		}
 
-		IStatus pathStatus = ResourcesPlugin.getWorkspace().validatePath(module, IResource.FILE);
+		final IStatus pathStatus = ResourcesPlugin.getWorkspace().validatePath(module, IResource.FILE);
 		if (!pathStatus.isOK()) {
 			status.setError(pathStatus.getMessage());
 			return status;
 		}
 
-		IResource moduleDescriptor = ResourcesPlugin.getWorkspace().getRoot().findMember(module);
+		final IResource moduleDescriptor = ResourcesPlugin.getWorkspace().getRoot().findMember(module);
 		if (null == moduleDescriptor) {
 			status.setError("No GWT module found at the location entered.");
 			return status;
@@ -491,7 +492,7 @@ public class NewGwtRemoteServiceWizardPage extends NewTypeWizardPage {
 			return status;
 		}
 
-		GwtModule gwtModule = GwtCore.create((IFile) moduleDescriptor);
+		final GwtModule gwtModule = GwtCore.create((IFile) moduleDescriptor);
 		if (null == gwtModule.getModulePackage()) {
 			status.setError("The selected module is not on the classpath");
 			return status;
@@ -511,8 +512,8 @@ public class NewGwtRemoteServiceWizardPage extends NewTypeWizardPage {
 	 * @return the status of the validation
 	 */
 	protected IStatus serviceUriChanged() {
-		StatusInfo status = new StatusInfo();
-		String uri = getServiceUriText();
+		final StatusInfo status = new StatusInfo();
+		final String uri = getServiceUriText();
 		if (uri.startsWith("/")) {
 			status.setError("The service uri must not start with '/'.");
 			return status;
@@ -531,7 +532,7 @@ public class NewGwtRemoteServiceWizardPage extends NewTypeWizardPage {
 	 *            changed by the user. If <code>false</code> the buttons are
 	 *            "read-only"
 	 */
-	public void setModule(GwtModule module, boolean canBeModified) {
+	public void setModule(final GwtModule module, final boolean canBeModified) {
 		moduleDialogField.setText(module.getModuleDescriptor().getFullPath().toString());
 		moduleDialogField.setEnabled(canBeModified);
 	}
@@ -547,7 +548,7 @@ public class NewGwtRemoteServiceWizardPage extends NewTypeWizardPage {
 	 *            changed by the user. If <code>false</code> the buttons are
 	 *            "read-only"
 	 */
-	public void setServiceStubSelection(boolean createServlet, boolean canBeModified) {
+	public void setServiceStubSelection(final boolean createServlet, final boolean canBeModified) {
 		serviceStubsButtons.setSelection(0, createServlet);
 		serviceStubsButtons.setEnabled(canBeModified);
 	}
@@ -556,12 +557,12 @@ public class NewGwtRemoteServiceWizardPage extends NewTypeWizardPage {
 	 * @see WizardPage#becomesVisible
 	 */
 	@Override
-	public void setVisible(boolean visible) {
+	public void setVisible(final boolean visible) {
 		super.setVisible(visible);
 		if (visible)
 			setFocus();
 		else {
-			IDialogSettings dialogSettings = getDialogSettings();
+			final IDialogSettings dialogSettings = getDialogSettings();
 			if (dialogSettings != null) {
 				IDialogSettings section = dialogSettings.getSection(PAGE_NAME);
 				if (section == null)
@@ -578,12 +579,12 @@ public class NewGwtRemoteServiceWizardPage extends NewTypeWizardPage {
 	 */
 	@Override
 	protected IStatus typeNameChanged() {
-		IStatus typeNameStatus = super.typeNameChanged();
+		final IStatus typeNameStatus = super.typeNameChanged();
 		if (!typeNameStatus.isOK())
 			return typeNameStatus;
 
-		StatusInfo status = new StatusInfo();
-		String typeName = getTypeName();
+		final StatusInfo status = new StatusInfo();
+		final String typeName = getTypeName();
 		if (typeName.indexOf('<') != -1) {
 			status.setError("Parametric types are not supported by GWT.");
 			return status;

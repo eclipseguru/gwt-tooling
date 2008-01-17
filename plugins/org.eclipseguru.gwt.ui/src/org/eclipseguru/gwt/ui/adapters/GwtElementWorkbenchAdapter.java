@@ -11,13 +11,14 @@
  **************************************************************************************************/
 package org.eclipseguru.gwt.ui.adapters;
 
-import org.eclipse.jface.resource.ImageDescriptor;
-import org.eclipse.ui.model.IWorkbenchAdapter;
 import org.eclipseguru.gwt.core.GwtElement;
 import org.eclipseguru.gwt.core.GwtModel;
 import org.eclipseguru.gwt.core.GwtModelException;
 import org.eclipseguru.gwt.core.GwtModule;
 import org.eclipseguru.gwt.core.GwtProject;
+
+import org.eclipse.jface.resource.ImageDescriptor;
+import org.eclipse.ui.model.IWorkbenchAdapter;
 
 /**
  * A workbench adapter for GWT element.
@@ -34,13 +35,13 @@ public class GwtElementWorkbenchAdapter implements IWorkbenchAdapter {
 	 * 
 	 * @see org.eclipse.ui.model.IWorkbenchAdapter#getChildren(java.lang.Object)
 	 */
-	public Object[] getChildren(Object o) {
+	public Object[] getChildren(final Object o) {
 		try {
 			if (o instanceof GwtModel)
 				return ((GwtModel) o).getProjects();
 			else if (o instanceof GwtProject)
 				return ((GwtProject) o).getModules();
-		} catch (GwtModelException e) {
+		} catch (final GwtModelException e) {
 			// ignore
 		}
 		return NO_CHILDREN;
@@ -51,7 +52,7 @@ public class GwtElementWorkbenchAdapter implements IWorkbenchAdapter {
 	 * 
 	 * @see org.eclipse.ui.model.IWorkbenchAdapter#getImageDescriptor(java.lang.Object)
 	 */
-	public ImageDescriptor getImageDescriptor(Object object) {
+	public ImageDescriptor getImageDescriptor(final Object object) {
 		// TODO Auto-generated method stub
 		return null;
 	}
@@ -61,7 +62,7 @@ public class GwtElementWorkbenchAdapter implements IWorkbenchAdapter {
 	 * 
 	 * @see org.eclipse.ui.model.IWorkbenchAdapter#getLabel(java.lang.Object)
 	 */
-	public String getLabel(Object o) {
+	public String getLabel(final Object o) {
 		if (o instanceof GwtModel)
 			return "";
 		else if (o instanceof GwtProject)
@@ -76,7 +77,7 @@ public class GwtElementWorkbenchAdapter implements IWorkbenchAdapter {
 	 * 
 	 * @see org.eclipse.ui.model.IWorkbenchAdapter#getParent(java.lang.Object)
 	 */
-	public Object getParent(Object o) {
+	public Object getParent(final Object o) {
 		if (o instanceof GwtElement)
 			return ((GwtElement) o).getParent();
 		return null;

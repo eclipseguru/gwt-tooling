@@ -11,7 +11,8 @@
  **************************************************************************************************/
 package org.eclipseguru.gwt.ui.actions;
 
-import java.text.MessageFormat;
+import org.eclipseguru.gwt.core.GwtCore;
+import org.eclipseguru.gwt.core.project.GwtProjectNature;
 
 import org.eclipse.core.resources.IProject;
 import org.eclipse.core.resources.IProjectDescription;
@@ -27,8 +28,8 @@ import org.eclipse.ui.IActionDelegate;
 import org.eclipse.ui.IObjectActionDelegate;
 import org.eclipse.ui.IWorkbenchPart;
 import org.eclipse.ui.IWorkbenchWindow;
-import org.eclipseguru.gwt.core.GwtCore;
-import org.eclipseguru.gwt.core.project.GwtProjectNature;
+
+import java.text.MessageFormat;
 
 /**
  * Associates a project with the GWT project nature.
@@ -50,19 +51,19 @@ public class ConnectProjectWithGwtToolingAction implements IObjectActionDelegate
 	/**
 	 * @see IActionDelegate#run(IAction)
 	 */
-	public void run(IAction action) {
+	public void run(final IAction action) {
 		final Shell shell = null != workbenchWindow ? workbenchWindow.getShell() : new Shell();
 		if ((null != selectedProject) && GwtProjectNature.isPossibleGwtProject(getSelectedProject()))
 			try {
-				IProjectDescription description = selectedProject.getDescription();
-				String[] natures = description.getNatureIds();
-				String[] newNatures = new String[natures.length + 1];
+				final IProjectDescription description = selectedProject.getDescription();
+				final String[] natures = description.getNatureIds();
+				final String[] newNatures = new String[natures.length + 1];
 				System.arraycopy(natures, 0, newNatures, 0, natures.length);
 				newNatures[natures.length] = GwtCore.NATURE_ID;
 				description.setNatureIds(newNatures);
 				selectedProject.setDescription(description, null);
 				MessageDialog.openInformation(shell, "GWT Project", MessageFormat.format("Successfully associated project {0} with GWT Tooling.", selectedProject.getName()));
-			} catch (CoreException e) {
+			} catch (final CoreException e) {
 				ErrorDialog.openError(shell, "Error", "An error occured while updating the project information.", e.getStatus());
 			}
 	}
@@ -70,12 +71,12 @@ public class ConnectProjectWithGwtToolingAction implements IObjectActionDelegate
 	/**
 	 * @see IActionDelegate#selectionChanged(IAction, ISelection)
 	 */
-	public void selectionChanged(IAction action, ISelection selection) {
+	public void selectionChanged(final IAction action, final ISelection selection) {
 		selectedProject = null;
 		if (!(selection instanceof IStructuredSelection))
 			return;
 
-		Object element = ((IStructuredSelection) selection).getFirstElement();
+		final Object element = ((IStructuredSelection) selection).getFirstElement();
 		if (element instanceof IProject)
 			selectedProject = (IProject) element;
 
@@ -86,7 +87,7 @@ public class ConnectProjectWithGwtToolingAction implements IObjectActionDelegate
 	/**
 	 * @see IObjectActionDelegate#setActivePart(IAction, IWorkbenchPart)
 	 */
-	public void setActivePart(IAction action, IWorkbenchPart targetPart) {
+	public void setActivePart(final IAction action, final IWorkbenchPart targetPart) {
 		workbenchWindow = targetPart.getSite().getWorkbenchWindow();
 	}
 

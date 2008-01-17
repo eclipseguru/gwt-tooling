@@ -27,13 +27,13 @@ class ModuleSourceModelSynchronizerFactory extends AbstractAdapterFactory {
 	 */
 	ModuleSourceModelSynchronizer refreshAdapter = null;
 
-	public ModuleSourceModelSynchronizerFactory(ModuleSourceWC moduleSource) {
+	public ModuleSourceModelSynchronizerFactory(final ModuleSourceWC moduleSource) {
 		super(ModuleSourceModelSynchronizer.class, true);
 		refreshAdapter = new ModuleSourceModelSynchronizer(moduleSource);
 	}
 
 	@Override
-	protected INodeAdapter createAdapter(INodeNotifier target) {
+	protected INodeAdapter createAdapter(final INodeNotifier target) {
 		// Return a singleton
 		return refreshAdapter;
 	}

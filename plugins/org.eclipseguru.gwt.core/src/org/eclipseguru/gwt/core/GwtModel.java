@@ -11,14 +11,14 @@
  **************************************************************************************************/
 package org.eclipseguru.gwt.core;
 
-import java.util.ArrayList;
-import java.util.List;
-
 import org.eclipse.core.resources.IFile;
 import org.eclipse.core.resources.IFolder;
 import org.eclipse.core.resources.IProject;
 import org.eclipse.core.resources.IResource;
 import org.eclipse.core.resources.ResourcesPlugin;
+
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  * The GWT model element.
@@ -45,19 +45,19 @@ public class GwtModel extends GwtElement {
 	 * @param project
 	 * @return
 	 */
-	GwtProject createProject(IResource resource) {
+	GwtProject createProject(final IResource resource) {
 		if (null == resource)
 			return null;
 
 		switch (resource.getType()) {
-		case IResource.FILE:
-			return new GwtProject(((IFile) resource).getProject(), this);
-		case IResource.FOLDER:
-			return new GwtProject(((IFolder) resource).getProject(), this);
-		case IResource.PROJECT:
-			return new GwtProject(((IProject) resource).getProject(), this);
-		default:
-			throw new IllegalArgumentException("The specified resource could not be resolved to a project!");
+			case IResource.FILE:
+				return new GwtProject(((IFile) resource).getProject(), this);
+			case IResource.FOLDER:
+				return new GwtProject(((IFolder) resource).getProject(), this);
+			case IResource.PROJECT:
+				return new GwtProject(((IProject) resource).getProject(), this);
+			default:
+				throw new IllegalArgumentException("The specified resource could not be resolved to a project!");
 		}
 	}
 
@@ -67,15 +67,14 @@ public class GwtModel extends GwtElement {
 	 * @return the GWT projects
 	 */
 	public GwtProject[] getProjects() {
-		IProject[] projects = ResourcesPlugin.getWorkspace().getRoot().getProjects();
+		final IProject[] projects = ResourcesPlugin.getWorkspace().getRoot().getProjects();
 		if (projects.length == 0)
 			return new GwtProject[0];
 
-		List<GwtProject> gwtProjects = new ArrayList<GwtProject>(projects.length);
-		for (IProject project : projects) {
+		final List<GwtProject> gwtProjects = new ArrayList<GwtProject>(projects.length);
+		for (final IProject project : projects)
 			if (GwtProject.hasGwtNature(project))
 				gwtProjects.add(createProject(project));
-		}
 		return gwtProjects.toArray(new GwtProject[gwtProjects.size()]);
 	}
 

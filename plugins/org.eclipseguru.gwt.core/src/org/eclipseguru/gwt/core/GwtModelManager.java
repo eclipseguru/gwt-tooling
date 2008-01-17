@@ -11,9 +11,6 @@
  **************************************************************************************************/
 package org.eclipseguru.gwt.core;
 
-import java.util.ArrayList;
-import java.util.List;
-
 import org.eclipse.core.resources.IFile;
 import org.eclipse.core.resources.IResource;
 import org.eclipse.core.resources.IStorage;
@@ -22,6 +19,9 @@ import org.eclipse.jdt.core.IJavaProject;
 import org.eclipse.jdt.core.IPackageFragment;
 import org.eclipse.jdt.core.IType;
 import org.eclipse.jdt.core.JavaModelException;
+
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  * A singletong model manager
@@ -41,14 +41,14 @@ class GwtModelManager {
 	 * @param packageFragment
 	 * @return
 	 */
-	public static GwtModule createBinaryModule(IStorage resource, IPackageFragment packageFragment) {
+	public static GwtModule createBinaryModule(final IStorage resource, final IPackageFragment packageFragment) {
 		if (resource == null)
 			return null;
 
 		if (null == GwtUtil.getSimpleName(resource))
 			return null;
 
-		GwtProject project = getModelManager().getModel().createProject(packageFragment.getJavaProject().getProject());
+		final GwtProject project = getModelManager().getModel().createProject(packageFragment.getJavaProject().getProject());
 		if (null == project)
 			return null;
 
@@ -60,7 +60,7 @@ class GwtModelManager {
 	 * the given project. Returns <code>null</code> if unable to associate the
 	 * given file with a GWT module.
 	 */
-	public static GwtModule createModule(IFile file, GwtProject project) {
+	public static GwtModule createModule(final IFile file, GwtProject project) {
 		if (file == null)
 			return null;
 
@@ -78,7 +78,7 @@ class GwtModelManager {
 	 * module being the given module. Returns <code>null</code> if unable to
 	 * associate the given type with a GWT remote service.
 	 */
-	public static GwtRemoteService createRemoteService(IType type, GwtModule module) {
+	public static GwtRemoteService createRemoteService(final IType type, GwtModule module) {
 		if (type == null)
 			return null;
 
@@ -87,19 +87,18 @@ class GwtModelManager {
 				return null;
 
 			if (module == null) {
-				IResource resource = type.getResource();
+				final IResource resource = type.getResource();
 				if (null == resource)
 					// TODO: support types in external archives
 					return null;
 
-				GwtProject project = getModelManager().getModel().createProject(resource);
-				GwtModule[] modules = project.getModules();
-				for (GwtModule module2 : modules) {
+				final GwtProject project = getModelManager().getModel().createProject(resource);
+				final GwtModule[] modules = project.getModules();
+				for (final GwtModule module2 : modules)
 					if (module2.isModuleResource(resource)) {
 						module = module2;
 						break;
 					}
-				}
 
 			}
 
@@ -108,7 +107,7 @@ class GwtModelManager {
 				return null;
 
 			return module.createRemoteService(type);
-		} catch (CoreException e) {
+		} catch (final CoreException e) {
 			// unable to recognize
 			return null;
 		}
@@ -122,20 +121,20 @@ class GwtModelManager {
 	 * @param modules
 	 * @throws JavaModelException
 	 */
-	private static boolean findModuleInPackage(IPackageFragment packageFragment, String moduleId, List<GwtModule> modules) throws JavaModelException {
+	private static boolean findModuleInPackage(final IPackageFragment packageFragment, final String moduleId, final List<GwtModule> modules) throws JavaModelException {
 		// check package first
 		if (!packageFragment.getElementName().equals(GwtUtil.getPackageName(moduleId)))
 			return false;
 
 		// find module source
-		String gwtFileName = GwtUtil.getSimpleName(moduleId).concat(GwtUtil.GWT_MODULE_SOURCE_EXTENSION);
-		Object[] nonJavaResources = packageFragment.getNonJavaResources();
-		for (Object nonJavaResource : nonJavaResources)
+		final String gwtFileName = GwtUtil.getSimpleName(moduleId).concat(GwtUtil.GWT_MODULE_SOURCE_EXTENSION);
+		final Object[] nonJavaResources = packageFragment.getNonJavaResources();
+		for (final Object nonJavaResource : nonJavaResources)
 			// project resource
 			if (nonJavaResource instanceof IResource) {
-				IResource resource = (IResource) nonJavaResource;
+				final IResource resource = (IResource) nonJavaResource;
 				if (GwtUtil.isModuleDescriptor(resource) && resource.getName().equals(gwtFileName)) {
-					GwtModule module = createModule((IFile) resource, getModelManager().getModel().createProject(resource));
+					final GwtModule module = createModule((IFile) resource, getModelManager().getModel().createProject(resource));
 					if (null != module) {
 						modules.add(module);
 						return true;
@@ -145,9 +144,9 @@ class GwtModelManager {
 
 			// jar entry
 			else if (nonJavaResource instanceof IStorage) {
-				IStorage resource = (IStorage) nonJavaResource;
+				final IStorage resource = (IStorage) nonJavaResource;
 				if (gwtFileName.equals(resource.getName())) {
-					GwtModule module = createBinaryModule(resource, packageFragment);
+					final GwtModule module = createBinaryModule(resource, packageFragment);
 					if (null != module) {
 						modules.add(module);
 						return true;
@@ -166,28 +165,28 @@ class GwtModelManager {
 	 * @return
 	 * @throws GwtModelException
 	 */
-	public static GwtModule[] findModules(String[] moduleIds, GwtProject project) throws GwtModelException {
+	public static GwtModule[] findModules(final String[] moduleIds, final GwtProject project) throws GwtModelException {
 		if ((null == moduleIds) || (null == project))
 			return null;
 
 		if (moduleIds.length == 0)
 			return NO_MODULES;
 
-		List<GwtModule> modules = new ArrayList<GwtModule>(moduleIds.length);
-		IJavaProject javaProject = project.getJavaProject();
+		final List<GwtModule> modules = new ArrayList<GwtModule>(moduleIds.length);
+		final IJavaProject javaProject = project.getJavaProject();
 
 		try {
-			IPackageFragment[] packageFragments = javaProject.getPackageFragments();
+			final IPackageFragment[] packageFragments = javaProject.getPackageFragments();
 			if (packageFragments.length > moduleIds.length)
-				for (IPackageFragment fragment : packageFragments)
-					for (String moduleId : moduleIds)
+				for (final IPackageFragment fragment : packageFragments)
+					for (final String moduleId : moduleIds)
 						findModuleInPackage(fragment, moduleId, modules);
 			else
-				for (String moduleId : moduleIds)
-					for (IPackageFragment fragment : packageFragments)
+				for (final String moduleId : moduleIds)
+					for (final IPackageFragment fragment : packageFragments)
 						findModuleInPackage(fragment, moduleId, modules);
 
-		} catch (JavaModelException e) {
+		} catch (final JavaModelException e) {
 			throw new GwtModelException(e.getStatus());
 		}
 
@@ -205,7 +204,7 @@ class GwtModelManager {
 	}
 
 	/** model */
-	private GwtModel model = new GwtModel();
+	private final GwtModel model = new GwtModel();
 
 	/**
 	 * @return the model

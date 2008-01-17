@@ -11,10 +11,9 @@
  **************************************************************************************************/
 package org.eclipseguru.gwt.core.classpath;
 
-import java.text.MessageFormat;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Map;
+import org.eclipseguru.gwt.core.GwtCore;
+import org.eclipseguru.gwt.core.internal.classpath.AccessRulesUtil;
+import org.eclipseguru.gwt.core.utils.ProgressUtil;
 
 import org.eclipse.core.resources.IProject;
 import org.eclipse.core.runtime.CoreException;
@@ -25,9 +24,11 @@ import org.eclipse.jdt.core.IClasspathEntry;
 import org.eclipse.jdt.core.IJavaProject;
 import org.eclipse.jdt.core.JavaCore;
 import org.eclipse.jdt.launching.JavaRuntime;
-import org.eclipseguru.gwt.core.GwtCore;
-import org.eclipseguru.gwt.core.internal.classpath.AccessRulesUtil;
-import org.eclipseguru.gwt.core.utils.ProgressUtil;
+
+import java.text.MessageFormat;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Map;
 
 /**
  * A classpath util.
@@ -43,18 +44,18 @@ public class GwtClasspathUtil {
 	 *            if the project already had a container entry
 	 * @throws CoreException
 	 */
-	public static boolean addGwtContainer(IProject project, IProgressMonitor monitor) throws CoreException {
+	public static boolean addGwtContainer(final IProject project, IProgressMonitor monitor) throws CoreException {
 		monitor = ProgressUtil.monitor(monitor);
 		try {
 			monitor.beginTask(MessageFormat.format("Adding GWT classpath container to project {0}", project.getName()), 20);
 
 			// get current classpath
-			IJavaProject javaProject = JavaCore.create(project);
-			IClasspathEntry[] oldClasspath = javaProject.getRawClasspath();
+			final IJavaProject javaProject = JavaCore.create(project);
+			final IClasspathEntry[] oldClasspath = javaProject.getRawClasspath();
 
 			// check if entry is already present
-			List<IClasspathEntry> newClasspath = new ArrayList<IClasspathEntry>(oldClasspath.length + 1);
-			for (IClasspathEntry entry : oldClasspath) {
+			final List<IClasspathEntry> newClasspath = new ArrayList<IClasspathEntry>(oldClasspath.length + 1);
+			for (final IClasspathEntry entry : oldClasspath) {
 				if (isGwtContainer(entry))
 					return false;
 				newClasspath.add(entry);
@@ -79,7 +80,7 @@ public class GwtClasspathUtil {
 	 * @param containerId
 	 * @return
 	 */
-	private static boolean isContainerEntry(IClasspathEntry entry, String containerId) {
+	private static boolean isContainerEntry(final IClasspathEntry entry, final String containerId) {
 		return (entry.getEntryKind() == IClasspathEntry.CPE_CONTAINER) && (entry.getPath().segmentCount() > 0) && containerId.equals(entry.getPath().segment(0));
 	}
 
@@ -90,7 +91,7 @@ public class GwtClasspathUtil {
 	 * @return <code>true</code> if the specified entry is a GWT container
 	 *         entry, <code>false</code> otherwise
 	 */
-	public static boolean isGwtContainer(IClasspathEntry entry) {
+	public static boolean isGwtContainer(final IClasspathEntry entry) {
 		return isContainerEntry(entry, GwtCore.GWT_CONTAINER);
 	}
 
@@ -101,7 +102,7 @@ public class GwtClasspathUtil {
 	 * @return <code>true</code> if the specified entry is a JRE container
 	 *         entry, <code>false</code> otherwise
 	 */
-	public static boolean isJREContainer(IClasspathEntry entry) {
+	public static boolean isJREContainer(final IClasspathEntry entry) {
 		return isContainerEntry(entry, JavaRuntime.JRE_CONTAINER);
 	}
 
@@ -112,8 +113,8 @@ public class GwtClasspathUtil {
 	 * @param compliance
 	 */
 	@SuppressWarnings("unchecked")
-	private static void setComplianceOptions(IJavaProject project, String compliance) {
-		Map map = project.getOptions(false);
+	private static void setComplianceOptions(final IJavaProject project, final String compliance) {
+		final Map map = project.getOptions(false);
 		if (compliance == null) {
 			if (map.size() > 0) {
 				map.remove(JavaCore.COMPILER_COMPLIANCE);
@@ -159,21 +160,21 @@ public class GwtClasspathUtil {
 	 * @param monitor
 	 * @throws CoreException
 	 */
-	public static void updateJREContainer(IProject project, IProgressMonitor monitor, boolean setAccessRules) throws CoreException {
+	public static void updateJREContainer(final IProject project, IProgressMonitor monitor, final boolean setAccessRules) throws CoreException {
 		monitor = ProgressUtil.monitor(monitor);
 		try {
 			monitor.beginTask(MessageFormat.format("Updateing JRE container of project {0}", project.getName()), 20);
 
 			// get project
-			IJavaProject javaProject = JavaCore.create(project);
+			final IJavaProject javaProject = JavaCore.create(project);
 
 			// set access rules if necessary
 			if (setAccessRules) {
 				// get current classpath
-				IClasspathEntry[] oldClasspath = javaProject.getRawClasspath();
+				final IClasspathEntry[] oldClasspath = javaProject.getRawClasspath();
 
 				// update existing JRE entry
-				List<IClasspathEntry> newClasspath = new ArrayList<IClasspathEntry>(oldClasspath.length + 1);
+				final List<IClasspathEntry> newClasspath = new ArrayList<IClasspathEntry>(oldClasspath.length + 1);
 				for (IClasspathEntry entry : oldClasspath) {
 					if (isJREContainer(entry))
 						entry = JavaCore.newContainerEntry(entry.getPath(), AccessRulesUtil.getJREAccessRules(), new IClasspathAttribute[0], false);

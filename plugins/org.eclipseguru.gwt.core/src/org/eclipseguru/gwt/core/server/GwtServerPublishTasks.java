@@ -11,16 +11,17 @@
  **************************************************************************************************/
 package org.eclipseguru.gwt.core.server;
 
-import java.util.ArrayList;
-import java.util.List;
+import org.eclipseguru.gwt.core.GwtCore;
+import org.eclipseguru.gwt.core.GwtProject;
 
 import org.eclipse.jst.server.core.IWebModule;
 import org.eclipse.wst.server.core.IModule;
 import org.eclipse.wst.server.core.IServer;
 import org.eclipse.wst.server.core.model.PublishOperation;
 import org.eclipse.wst.server.core.model.PublishTaskDelegate;
-import org.eclipseguru.gwt.core.GwtCore;
-import org.eclipseguru.gwt.core.GwtProject;
+
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  * GWT publishing needs.
@@ -34,20 +35,20 @@ public class GwtServerPublishTasks extends PublishTaskDelegate {
 	 *      java.util.List)
 	 */
 	@Override
-	public PublishOperation[] getTasks(IServer server, List modules) {
+	public PublishOperation[] getTasks(final IServer server, final List modules) {
 		if (modules == null)
 			return null;
 
-		List<PublishOperation> tasks = new ArrayList<PublishOperation>();
-		int size = modules.size();
+		final List<PublishOperation> tasks = new ArrayList<PublishOperation>();
+		final int size = modules.size();
 		for (int i = 0; i < size; i++) {
-			IModule[] module = (IModule[]) modules.get(i);
-			IModule m = module[module.length - 1];
-			IWebModule webModule = (IWebModule) m.loadAdapter(IWebModule.class, null);
+			final IModule[] module = (IModule[]) modules.get(i);
+			final IModule m = module[module.length - 1];
+			final IWebModule webModule = (IWebModule) m.loadAdapter(IWebModule.class, null);
 			if ((webModule != null) && GwtProject.hasGwtNature(m.getProject())) {
-				GwtProject project = GwtCore.create(m.getProject());
+				final GwtProject project = GwtCore.create(m.getProject());
 				if (null != project) {
-					GwtProjectServerPublishOperation task = new GwtProjectServerPublishOperation(webModule, project, server, PublishOperation.PREFERRED);
+					final GwtProjectServerPublishOperation task = new GwtProjectServerPublishOperation(webModule, project, server, PublishOperation.PREFERRED);
 					tasks.add(task);
 				}
 			}

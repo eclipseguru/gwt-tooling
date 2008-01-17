@@ -11,9 +11,8 @@
  **************************************************************************************************/
 package org.eclipseguru.gwt.ui.actions;
 
-import java.text.MessageFormat;
-import java.util.ArrayList;
-import java.util.List;
+import org.eclipseguru.gwt.core.GwtCore;
+import org.eclipseguru.gwt.core.project.GwtProjectNature;
 
 import org.eclipse.core.resources.IProject;
 import org.eclipse.core.resources.IProjectDescription;
@@ -29,8 +28,10 @@ import org.eclipse.ui.IActionDelegate;
 import org.eclipse.ui.IObjectActionDelegate;
 import org.eclipse.ui.IWorkbenchPart;
 import org.eclipse.ui.IWorkbenchWindow;
-import org.eclipseguru.gwt.core.GwtCore;
-import org.eclipseguru.gwt.core.project.GwtProjectNature;
+
+import java.text.MessageFormat;
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  * Removes the GWT project nature from a project.
@@ -52,15 +53,15 @@ public class DisconnectProjectFromGwtToolingAction implements IObjectActionDeleg
 	/**
 	 * @see IActionDelegate#run(IAction)
 	 */
-	public void run(IAction action) {
+	public void run(final IAction action) {
 		final Shell shell = null != workbenchWindow ? workbenchWindow.getShell() : new Shell();
 		if ((null != selectedProject) && GwtProjectNature.isPossibleGwtProject(getSelectedProject()))
 			try {
-				IProjectDescription description = selectedProject.getDescription();
-				String[] natures = description.getNatureIds();
-				List<String> newNatures = new ArrayList<String>(natures.length);
+				final IProjectDescription description = selectedProject.getDescription();
+				final String[] natures = description.getNatureIds();
+				final List<String> newNatures = new ArrayList<String>(natures.length);
 				boolean found = false;
-				for (String nature : natures) {
+				for (final String nature : natures) {
 					if (GwtCore.NATURE_ID.equals(nature)) {
 						found = true;
 						continue;
@@ -72,7 +73,7 @@ public class DisconnectProjectFromGwtToolingAction implements IObjectActionDeleg
 					selectedProject.setDescription(description, null);
 					MessageDialog.openInformation(shell, "GWT Project", MessageFormat.format("Successfully disassociated project {0} from GWT Tooling.", selectedProject.getName()));
 				}
-			} catch (CoreException e) {
+			} catch (final CoreException e) {
 				ErrorDialog.openError(shell, "Error", "An error occured while updating the project information.", e.getStatus());
 			}
 	}
@@ -80,12 +81,12 @@ public class DisconnectProjectFromGwtToolingAction implements IObjectActionDeleg
 	/**
 	 * @see IActionDelegate#selectionChanged(IAction, ISelection)
 	 */
-	public void selectionChanged(IAction action, ISelection selection) {
+	public void selectionChanged(final IAction action, final ISelection selection) {
 		selectedProject = null;
 		if (!(selection instanceof IStructuredSelection))
 			return;
 
-		Object element = ((IStructuredSelection) selection).getFirstElement();
+		final Object element = ((IStructuredSelection) selection).getFirstElement();
 		if (element instanceof IProject)
 			selectedProject = (IProject) element;
 
@@ -96,7 +97,7 @@ public class DisconnectProjectFromGwtToolingAction implements IObjectActionDeleg
 	/**
 	 * @see IObjectActionDelegate#setActivePart(IAction, IWorkbenchPart)
 	 */
-	public void setActivePart(IAction action, IWorkbenchPart targetPart) {
+	public void setActivePart(final IAction action, final IWorkbenchPart targetPart) {
 		workbenchWindow = targetPart.getSite().getWorkbenchWindow();
 	}
 

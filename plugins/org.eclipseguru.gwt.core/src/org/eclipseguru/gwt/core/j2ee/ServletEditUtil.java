@@ -37,7 +37,7 @@ public class ServletEditUtil {
 	 * 
 	 * @param webArtifactEdit
 	 */
-	public ServletEditUtil(WebArtifactEdit webArtifactEdit) {
+	public ServletEditUtil(final WebArtifactEdit webArtifactEdit) {
 		this.webArtifactEdit = webArtifactEdit;
 	}
 
@@ -52,26 +52,26 @@ public class ServletEditUtil {
 	 * @return Servlet instance
 	 */
 	@SuppressWarnings("unchecked")
-	public Servlet createServlet(String qualifiedClassName, boolean isServletType, String simpleName, String displayName, String description) {
+	public Servlet createServlet(final String qualifiedClassName, final boolean isServletType, final String simpleName, final String displayName, final String description) {
 		// Create the servlet instance and set up the parameters from data model
-		Servlet servlet = WebapplicationFactory.eINSTANCE.createServlet();
+		final Servlet servlet = WebapplicationFactory.eINSTANCE.createServlet();
 		servlet.setDisplayName(displayName);
 		servlet.setServletName(simpleName);
 		servlet.setDescription(description);
 		// Handle servlet case
 		if (isServletType) {
-			ServletType servletType = WebapplicationFactory.eINSTANCE.createServletType();
+			final ServletType servletType = WebapplicationFactory.eINSTANCE.createServletType();
 			servletType.setClassName(qualifiedClassName);
 			servlet.setWebType(servletType);
 		}
 		// Handle JSP case
 		else {
-			JSPType jspType = WebapplicationFactory.eINSTANCE.createJSPType();
+			final JSPType jspType = WebapplicationFactory.eINSTANCE.createJSPType();
 			jspType.setJspFile(qualifiedClassName);
 			servlet.setWebType(jspType);
 		}
 		// Add the servlet to the web application model
-		WebApp webApp = getWebApp();
+		final WebApp webApp = getWebApp();
 		webApp.getServlets().add(servlet);
 		// Return the servlet instance
 		return servlet;
@@ -84,11 +84,11 @@ public class ServletEditUtil {
 	 * @param urlPattern
 	 */
 	@SuppressWarnings("unchecked")
-	public ServletMapping createURLMappings(Servlet servlet, String urlPattern) {
+	public ServletMapping createURLMappings(final Servlet servlet, final String urlPattern) {
 		// Get the web app modelled object from the data model
-		WebApp webApp = getWebApp();
+		final WebApp webApp = getWebApp();
 		// Create the servlet mapping instance from the web factory
-		ServletMapping mapping = WebapplicationFactory.eINSTANCE.createServletMapping();
+		final ServletMapping mapping = WebapplicationFactory.eINSTANCE.createServletMapping();
 		// Set the servlet and servlet name
 		mapping.setServlet(servlet);
 		mapping.setName(servlet.getServletName());

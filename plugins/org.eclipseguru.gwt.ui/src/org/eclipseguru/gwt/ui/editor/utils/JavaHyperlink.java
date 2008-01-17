@@ -17,10 +17,10 @@ import org.eclipse.jface.text.hyperlink.IHyperlink;
 import org.eclipse.ui.IEditorPart;
 
 public class JavaHyperlink implements IHyperlink {
-	private IRegion fRegion;
-	private IJavaElement fElement;
+	private final IRegion fRegion;
+	private final IJavaElement fElement;
 
-	public JavaHyperlink(IRegion region, IJavaElement element) {
+	public JavaHyperlink(final IRegion region, final IJavaElement element) {
 		fRegion = region;
 		fElement = element;
 	}
@@ -61,10 +61,10 @@ public class JavaHyperlink implements IHyperlink {
 	 */
 	public void open() {
 		try {
-			IEditorPart editor = JavaUI.openInEditor(fElement);
+			final IEditorPart editor = JavaUI.openInEditor(fElement);
 			if (editor != null)
 				JavaUI.revealInEditor(editor, fElement);
-		} catch (Exception e) {
+		} catch (final Exception e) {
 			// problem
 		}
 	}

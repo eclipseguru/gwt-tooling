@@ -11,6 +11,9 @@
  **************************************************************************************************/
 package org.eclipseguru.gwt.internal.core.refactoring;
 
+import org.eclipseguru.gwt.core.GwtModule;
+import org.eclipseguru.gwt.ui.GwtUi;
+
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.OperationCanceledException;
@@ -23,8 +26,6 @@ import org.eclipse.ltk.core.refactoring.Change;
 import org.eclipse.ltk.core.refactoring.RefactoringStatus;
 import org.eclipse.ltk.core.refactoring.participants.CheckConditionsContext;
 import org.eclipse.ltk.core.refactoring.participants.MoveParticipant;
-import org.eclipseguru.gwt.core.GwtModule;
-import org.eclipseguru.gwt.ui.GwtUi;
 
 /**
  * Move participant for the entry point.
@@ -44,7 +45,7 @@ public class ModuleEntryPointITypeMoveParticipant extends MoveParticipant {
 	 *      org.eclipse.ltk.core.refactoring.participants.CheckConditionsContext)
 	 */
 	@Override
-	public RefactoringStatus checkConditions(IProgressMonitor pm, CheckConditionsContext context) throws OperationCanceledException {
+	public RefactoringStatus checkConditions(final IProgressMonitor pm, final CheckConditionsContext context) throws OperationCanceledException {
 		return new RefactoringStatus();
 	}
 
@@ -54,7 +55,7 @@ public class ModuleEntryPointITypeMoveParticipant extends MoveParticipant {
 	 * @see org.eclipse.ltk.core.refactoring.participants.RefactoringParticipant#createChange(org.eclipse.core.runtime.IProgressMonitor)
 	 */
 	@Override
-	public Change createChange(IProgressMonitor pm) throws CoreException, OperationCanceledException {
+	public Change createChange(final IProgressMonitor pm) throws CoreException, OperationCanceledException {
 		if ((null == type) || (null == destination))
 			return null;
 
@@ -77,7 +78,7 @@ public class ModuleEntryPointITypeMoveParticipant extends MoveParticipant {
 	 * @see org.eclipse.ltk.core.refactoring.participants.RefactoringParticipant#initialize(java.lang.Object)
 	 */
 	@Override
-	protected boolean initialize(Object element) {
+	protected boolean initialize(final Object element) {
 		type = (IType) element;
 		try {
 			if (GwtModule.isEntryPoint(type)) {
@@ -92,16 +93,16 @@ public class ModuleEntryPointITypeMoveParticipant extends MoveParticipant {
 						}
 						declaringType = declaringType.getDeclaringType();
 					}
-				} catch (JavaModelException e) {
+				} catch (final JavaModelException e) {
 					JDIDebugUIPlugin.log(e);
 				}
-				Object destination = getArguments().getDestination();
+				final Object destination = getArguments().getDestination();
 				if ((destination instanceof IPackageFragment) || (destination instanceof IType)) {
 					this.destination = (IJavaElement) destination;
 					return true;
 				}
 			}
-		} catch (JavaModelException e) {
+		} catch (final JavaModelException e) {
 			GwtUi.logError("Error while testing for entry point", e);
 		}
 

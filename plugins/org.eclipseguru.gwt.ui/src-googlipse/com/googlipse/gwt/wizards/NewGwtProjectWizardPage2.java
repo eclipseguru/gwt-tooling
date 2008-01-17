@@ -17,12 +17,9 @@
 
 package com.googlipse.gwt.wizards;
 
-import java.io.IOException;
-import java.lang.reflect.InvocationTargetException;
-import java.net.URI;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
+import org.eclipseguru.gwt.core.GwtCore;
+import org.eclipseguru.gwt.core.utils.ProgressUtil;
+import org.eclipseguru.gwt.ui.GwtUi;
 
 import org.eclipse.core.resources.IFolder;
 import org.eclipse.core.resources.IProject;
@@ -44,33 +41,36 @@ import org.eclipse.jface.dialogs.ErrorDialog;
 import org.eclipse.jface.operation.IRunnableWithProgress;
 import org.eclipse.ui.IWorkbench;
 import org.eclipse.ui.actions.WorkspaceModifyDelegatingOperation;
-import org.eclipseguru.gwt.core.GwtCore;
-import org.eclipseguru.gwt.core.utils.ProgressUtil;
-import org.eclipseguru.gwt.ui.GwtUi;
+
+import java.io.IOException;
+import java.lang.reflect.InvocationTargetException;
+import java.net.URI;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
 
 import com.googlipse.gwt.common.Util;
 
 /**
  * @author TG. (techieguy@gmail.com)
- * 
  */
 public class NewGwtProjectWizardPage2 extends JavaCapabilityConfigurationPage {
 
 	public static final String SRC_FOLDER = "src";
 	public static final String BIN_FOLDER = "bin";
-	private NewGwtProjectWizardPage1 firstPage;
+	private final NewGwtProjectWizardPage1 firstPage;
 	private IJavaProject javaProject;
 	private IProject gwtProject;
 
-	public NewGwtProjectWizardPage2(NewGwtProjectWizardPage1 firstPage, IWorkbench workbench) {
+	public NewGwtProjectWizardPage2(final NewGwtProjectWizardPage1 firstPage, final IWorkbench workbench) {
 		this.firstPage = firstPage;
 	}
 
 	private void addGwtNature() throws CoreException {
 
-		IProjectDescription description = gwtProject.getDescription();
-		String[] prevNatures = description.getNatureIds();
-		String[] newNatures = new String[prevNatures.length + 1];
+		final IProjectDescription description = gwtProject.getDescription();
+		final String[] prevNatures = description.getNatureIds();
+		final String[] newNatures = new String[prevNatures.length + 1];
 		System.arraycopy(prevNatures, 0, newNatures, 0, prevNatures.length);
 		newNatures[prevNatures.length] = GwtCore.NATURE_ID;
 		description.setNatureIds(newNatures);
@@ -88,16 +88,16 @@ public class NewGwtProjectWizardPage2 extends JavaCapabilityConfigurationPage {
 
 				gwtProject = ResourcesPlugin.getWorkspace().getRoot().getProject(firstPage.getProjectName());
 				createProject(gwtProject, (URI) null, new SubProgressMonitor(monitor, 1));
-				IPath src = new Path(NewGwtProjectWizardPage2.SRC_FOLDER);
-				IPath bin = new Path(NewGwtProjectWizardPage2.BIN_FOLDER);
-				IFolder srcFolder = gwtProject.getFolder(src);
-				IFolder binFolder = gwtProject.getFolder(bin);
+				final IPath src = new Path(NewGwtProjectWizardPage2.SRC_FOLDER);
+				final IPath bin = new Path(NewGwtProjectWizardPage2.BIN_FOLDER);
+				final IFolder srcFolder = gwtProject.getFolder(src);
+				final IFolder binFolder = gwtProject.getFolder(bin);
 				if (!srcFolder.exists())
 					srcFolder.create(true, true, null);
 				if (!binFolder.exists())
 					binFolder.create(true, true, null);
-				IPath projectPath = gwtProject.getFullPath();
-				IClasspathEntry[] cpEntries = getDefaultClasspathEntry(projectPath.append(src));
+				final IPath projectPath = gwtProject.getFullPath();
+				final IClasspathEntry[] cpEntries = getDefaultClasspathEntry(projectPath.append(src));
 				javaProject = JavaCore.create(gwtProject);
 				init(javaProject, projectPath.append(bin), cpEntries, false);
 
@@ -148,9 +148,9 @@ public class NewGwtProjectWizardPage2 extends JavaCapabilityConfigurationPage {
 		return javaProject;
 	}
 
-	private IClasspathEntry[] getDefaultClasspathEntry(IPath srcPath) {
+	private IClasspathEntry[] getDefaultClasspathEntry(final IPath srcPath) {
 
-		List<IClasspathEntry> cpEntries = new ArrayList<IClasspathEntry>();
+		final List<IClasspathEntry> cpEntries = new ArrayList<IClasspathEntry>();
 
 		cpEntries.add(JavaCore.newSourceEntry(srcPath));
 		cpEntries.add(JavaCore.newLibraryEntry(Util.getGwtUserLibPath(), null, null));
@@ -161,7 +161,7 @@ public class NewGwtProjectWizardPage2 extends JavaCapabilityConfigurationPage {
 
 	public void performCancel() {
 
-		IRunnableWithProgress op = new IRunnableWithProgress() {
+		final IRunnableWithProgress op = new IRunnableWithProgress() {
 			public void run(IProgressMonitor monitor) throws InvocationTargetException, InterruptedException {
 				try {
 					destroy(monitor);
@@ -173,22 +173,22 @@ public class NewGwtProjectWizardPage2 extends JavaCapabilityConfigurationPage {
 
 		try {
 			getContainer().run(true, true, new WorkspaceModifyDelegatingOperation(op));
-		} catch (InvocationTargetException e) {
+		} catch (final InvocationTargetException e) {
 			ErrorDialog.openError(getShell(), "Error", "We are sorry, an error occured while creating the module.", GwtUi.newErrorStatus(e));
-		} catch (InterruptedException e) {
+		} catch (final InterruptedException e) {
 			// cancel pressed
 		}
 	}
 
 	@Override
-	public void setVisible(boolean visible) {
+	public void setVisible(final boolean visible) {
 
 		try {
 			if (visible)
 				createProject(null);
 			else
 				destroy(null);
-		} catch (CoreException e) {
+		} catch (final CoreException e) {
 			ErrorDialog.openError(getShell(), "Error", "We are sorry, an error occured while creating the module.", GwtUi.newErrorStatus(e));
 		}
 		super.setVisible(visible);

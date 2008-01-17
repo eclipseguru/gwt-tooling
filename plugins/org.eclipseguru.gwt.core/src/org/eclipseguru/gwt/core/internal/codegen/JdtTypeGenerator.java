@@ -11,10 +11,10 @@
  **************************************************************************************************/
 package org.eclipseguru.gwt.core.internal.codegen;
 
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Set;
+import org.eclipseguru.gwt.core.GwtCore;
+import org.eclipseguru.gwt.core.GwtUtil;
+import org.eclipseguru.gwt.core.internal.jdtext.ImportsManager;
+import org.eclipseguru.gwt.core.utils.ProgressUtil;
 
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IProgressMonitor;
@@ -43,10 +43,11 @@ import org.eclipse.jdt.internal.corext.util.JavaModelUtil;
 import org.eclipse.jdt.ui.CodeGeneration;
 import org.eclipse.osgi.util.NLS;
 import org.eclipse.text.edits.TextEdit;
-import org.eclipseguru.gwt.core.GwtCore;
-import org.eclipseguru.gwt.core.GwtUtil;
-import org.eclipseguru.gwt.core.internal.jdtext.ImportsManager;
-import org.eclipseguru.gwt.core.utils.ProgressUtil;
+
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Set;
 
 /**
  * Abstract base class for a JDT code generator.
@@ -98,7 +99,7 @@ public abstract class JdtTypeGenerator {
 	 * @param modifiers
 	 *            see {@link Flags}
 	 */
-	public JdtTypeGenerator(String typeName, int typeKind, int modifiers) {
+	public JdtTypeGenerator(final String typeName, final int typeKind, final int modifiers) {
 		this.typeName = typeName;
 		this.typeKind = typeKind;
 		this.modifiers = modifiers;
@@ -118,20 +119,20 @@ public abstract class JdtTypeGenerator {
 	 *         with the given type content.
 	 * @throws CoreException
 	 */
-	protected String constructCUContent(ICompilationUnit cu, String typeContent, String lineDelimiter) throws CoreException {
-		String fileComment = getFileComment(cu, lineDelimiter);
-		String typeComment = getTypeComment(cu, lineDelimiter);
-		IPackageFragment pack = (IPackageFragment) cu.getParent();
-		String content = CodeGeneration.getCompilationUnitContent(cu, fileComment, typeComment, typeContent, lineDelimiter);
+	protected String constructCUContent(final ICompilationUnit cu, final String typeContent, final String lineDelimiter) throws CoreException {
+		final String fileComment = getFileComment(cu, lineDelimiter);
+		final String typeComment = getTypeComment(cu, lineDelimiter);
+		final IPackageFragment pack = (IPackageFragment) cu.getParent();
+		final String content = CodeGeneration.getCompilationUnitContent(cu, fileComment, typeComment, typeContent, lineDelimiter);
 		if (content != null) {
-			ASTParser parser = ASTParser.newParser(AST.JLS3);
+			final ASTParser parser = ASTParser.newParser(AST.JLS3);
 			parser.setProject(cu.getJavaProject());
 			parser.setSource(content.toCharArray());
-			CompilationUnit unit = (CompilationUnit) parser.createAST(null);
+			final CompilationUnit unit = (CompilationUnit) parser.createAST(null);
 			if ((pack.isDefaultPackage() || (unit.getPackage() != null)) && !unit.types().isEmpty())
 				return content;
 		}
-		StringBuffer buf = new StringBuffer();
+		final StringBuffer buf = new StringBuffer();
 		if (!pack.isDefaultPackage())
 			buf.append("package ").append(pack.getElementName()).append(';'); //$NON-NLS-1$
 		buf.append(lineDelimiter).append(lineDelimiter);
@@ -147,7 +148,7 @@ public abstract class JdtTypeGenerator {
 	 * @return the type stub
 	 */
 	private String constructSimpleTypeStub() {
-		StringBuffer buf = new StringBuffer("public class "); //$NON-NLS-1$
+		final StringBuffer buf = new StringBuffer("public class "); //$NON-NLS-1$
 		buf.append(getTypeName());
 		buf.append("{ }"); //$NON-NLS-1$
 		return buf.toString();
@@ -156,8 +157,8 @@ public abstract class JdtTypeGenerator {
 	/*
 	 * Called from createType to construct the source for this type
 	 */
-	private String constructTypeStub(ICompilationUnit parentCU, ImportsManager imports, String lineDelimiter) throws CoreException {
-		StringBuffer buf = new StringBuffer();
+	private String constructTypeStub(final ICompilationUnit parentCU, final ImportsManager imports, final String lineDelimiter) throws CoreException {
+		final StringBuffer buf = new StringBuffer();
 
 		buf.append(Flags.toString(modifiers));
 		if (modifiers != 0)
@@ -165,22 +166,22 @@ public abstract class JdtTypeGenerator {
 		String type = ""; //$NON-NLS-1$
 		String templateID = ""; //$NON-NLS-1$
 		switch (typeKind) {
-		case CLASS_TYPE:
-			type = "class "; //$NON-NLS-1$
-			templateID = CodeGeneration.CLASS_BODY_TEMPLATE_ID;
-			break;
-		case INTERFACE_TYPE:
-			type = "interface "; //$NON-NLS-1$
-			templateID = CodeGeneration.INTERFACE_BODY_TEMPLATE_ID;
-			break;
-		case ENUM_TYPE:
-			type = "enum "; //$NON-NLS-1$
-			templateID = CodeGeneration.ENUM_BODY_TEMPLATE_ID;
-			break;
-		case ANNOTATION_TYPE:
-			type = "@interface "; //$NON-NLS-1$
-			templateID = CodeGeneration.ANNOTATION_BODY_TEMPLATE_ID;
-			break;
+			case CLASS_TYPE:
+				type = "class "; //$NON-NLS-1$
+				templateID = CodeGeneration.CLASS_BODY_TEMPLATE_ID;
+				break;
+			case INTERFACE_TYPE:
+				type = "interface "; //$NON-NLS-1$
+				templateID = CodeGeneration.INTERFACE_BODY_TEMPLATE_ID;
+				break;
+			case ENUM_TYPE:
+				type = "enum "; //$NON-NLS-1$
+				templateID = CodeGeneration.ENUM_BODY_TEMPLATE_ID;
+				break;
+			case ANNOTATION_TYPE:
+				type = "@interface "; //$NON-NLS-1$
+				templateID = CodeGeneration.ANNOTATION_BODY_TEMPLATE_ID;
+				break;
 		}
 		buf.append(type);
 		buf.append(getTypeName());
@@ -188,7 +189,7 @@ public abstract class JdtTypeGenerator {
 		writeSuperInterfaces(buf, imports);
 
 		buf.append(" {").append(lineDelimiter); //$NON-NLS-1$
-		String typeBody = CodeGeneration.getTypeBody(templateID, parentCU, getTypeName(), lineDelimiter);
+		final String typeBody = CodeGeneration.getTypeBody(templateID, parentCU, getTypeName(), lineDelimiter);
 		if (typeBody != null)
 			buf.append(typeBody);
 		else
@@ -214,22 +215,22 @@ public abstract class JdtTypeGenerator {
 	 *             Thrown when the creation failed.
 	 */
 	@SuppressWarnings("unchecked")
-	public void createType(ICompilationUnit parentCU, boolean needsSave, IProgressMonitor monitor) throws CoreException {
+	public void createType(final ICompilationUnit parentCU, final boolean needsSave, IProgressMonitor monitor) throws CoreException {
 		monitor = ProgressUtil.monitor(monitor);
 		try {
-			String lineDelimiter = GwtUtil.getLineSeparator(parentCU.getJavaProject().getProject());
+			final String lineDelimiter = GwtUtil.getLineSeparator(parentCU.getJavaProject().getProject());
 
 			monitor.beginTask(NLS.bind("''{0}''...", getTypeName()), 10);
 
 			currentType = parentCU.getType(getTypeNameWithoutParameters());
 
-			IBuffer buffer = parentCU.getBuffer();
+			final IBuffer buffer = parentCU.getBuffer();
 
-			String cuContent = constructCUContent(parentCU, constructSimpleTypeStub(), lineDelimiter);
+			final String cuContent = constructCUContent(parentCU, constructSimpleTypeStub(), lineDelimiter);
 			buffer.setContents(cuContent);
 
 			CompilationUnit astRoot = ImportsManager.createASTForImports(parentCU);
-			Set<String> existingImports = ImportsManager.getExistingImports(astRoot);
+			final Set<String> existingImports = ImportsManager.getExistingImports(astRoot);
 
 			ProgressUtil.checkCanceled(monitor);
 
@@ -239,15 +240,15 @@ public abstract class JdtTypeGenerator {
 			// solves 14661
 			imports.addImport(JavaModelUtil.concatenateName(parentCU.getParent().getElementName(), getTypeNameWithoutParameters()));
 
-			String typeContent = constructTypeStub(parentCU, imports, lineDelimiter);
+			final String typeContent = constructTypeStub(parentCU, imports, lineDelimiter);
 
-			AbstractTypeDeclaration typeNode = (AbstractTypeDeclaration) astRoot.types().get(0);
-			int start = ((ASTNode) typeNode.modifiers().get(0)).getStartPosition();
-			int end = typeNode.getStartPosition() + typeNode.getLength();
+			final AbstractTypeDeclaration typeNode = (AbstractTypeDeclaration) astRoot.types().get(0);
+			final int start = ((ASTNode) typeNode.modifiers().get(0)).getStartPosition();
+			final int end = typeNode.getStartPosition() + typeNode.getLength();
 
 			buffer.replace(start, end - start, typeContent);
 
-			IType createdType = parentCU.getType(getTypeName());
+			final IType createdType = parentCU.getType(getTypeName());
 
 			ProgressUtil.checkCanceled(monitor);
 
@@ -311,7 +312,6 @@ public abstract class JdtTypeGenerator {
 	 *            <code>null</code>
 	 * @throws CoreException
 	 *             Thrown when the creation failed.
-	 * 
 	 * @see #createType(ICompilationUnit, boolean, IProgressMonitor)
 	 */
 	protected abstract void createTypeMembers(IType createdType, ImportsManager imports, boolean needsSave, IProgressMonitor monitor) throws CoreException;
@@ -329,7 +329,7 @@ public abstract class JdtTypeGenerator {
 	 *         desired
 	 * @throws CoreException
 	 */
-	protected String getFileComment(ICompilationUnit parentCU, String lineDelimiter) throws CoreException {
+	protected String getFileComment(final ICompilationUnit parentCU, final String lineDelimiter) throws CoreException {
 		return CodeGeneration.getFileComment(parentCU, lineDelimiter);
 	}
 
@@ -397,14 +397,14 @@ public abstract class JdtTypeGenerator {
 	 * @return the type comment or <code>null</code> if a type comment is not
 	 *         desired
 	 */
-	protected String getTypeComment(ICompilationUnit parentCU, String lineDelimiter) {
+	protected String getTypeComment(final ICompilationUnit parentCU, final String lineDelimiter) {
 		final String typeName = getTypeNameWithoutParameters();
 		final String[] typeParamNames = new String[0];
 		try {
-			String comment = CodeGeneration.getTypeComment(parentCU, typeName, typeParamNames, lineDelimiter);
+			final String comment = CodeGeneration.getTypeComment(parentCU, typeName, typeParamNames, lineDelimiter);
 			if ((comment != null) && isValidComment(comment))
 				return comment;
-		} catch (CoreException e) {
+		} catch (final CoreException e) {
 			GwtCore.logError(NLS.bind("Error while generating type comment for ''{0}''", typeName), e);
 		}
 		return null;
@@ -428,21 +428,21 @@ public abstract class JdtTypeGenerator {
 		return GwtUtil.getTypeNameWithoutParameters(getTypeName());
 	}
 
-	private boolean isValidComment(String template) {
-		IScanner scanner = ToolFactory.createScanner(true, false, false, false);
+	private boolean isValidComment(final String template) {
+		final IScanner scanner = ToolFactory.createScanner(true, false, false, false);
 		scanner.setSource(template.toCharArray());
 		try {
 			int next = scanner.getNextToken();
 			while (TokenScanner.isComment(next))
 				next = scanner.getNextToken();
 			return next == ITerminalSymbols.TokenNameEOF;
-		} catch (InvalidInputException e) {
+		} catch (final InvalidInputException e) {
 		}
 		return false;
 	}
 
-	private void writeSuperClass(StringBuffer buf, ImportsManager imports) {
-		String superclass = getSuperClass();
+	private void writeSuperClass(final StringBuffer buf, final ImportsManager imports) {
+		final String superclass = getSuperClass();
 		if ((typeKind == CLASS_TYPE) && (null != superclass) && (superclass.length() > 0) && !"java.lang.Object".equals(superclass)) { //$NON-NLS-1$
 			buf.append(" extends "); //$NON-NLS-1$
 
@@ -456,22 +456,22 @@ public abstract class JdtTypeGenerator {
 		}
 	}
 
-	private void writeSuperInterfaces(StringBuffer buf, ImportsManager imports) {
-		List<String> interfaces = getSuperInterfaces();
-		int last = interfaces.size() - 1;
+	private void writeSuperInterfaces(final StringBuffer buf, final ImportsManager imports) {
+		final List<String> interfaces = getSuperInterfaces();
+		final int last = interfaces.size() - 1;
 		if (last >= 0) {
 			if (typeKind != INTERFACE_TYPE)
 				buf.append(" implements "); //$NON-NLS-1$
 			else
 				buf.append(" extends "); //$NON-NLS-1$
-			String[] intfs = interfaces.toArray(new String[interfaces.size()]);
+			final String[] intfs = interfaces.toArray(new String[interfaces.size()]);
 			ITypeBinding[] bindings;
 			if (currentType != null)
 				bindings = TypeContextChecker.resolveSuperInterfaces(intfs, currentType, getSuperInterfacesStubTypeContext());
 			else
 				bindings = new ITypeBinding[intfs.length];
 			for (int i = 0; i <= last; i++) {
-				ITypeBinding binding = bindings[i];
+				final ITypeBinding binding = bindings[i];
 				if (binding != null)
 					buf.append(imports.addImport(binding));
 				else

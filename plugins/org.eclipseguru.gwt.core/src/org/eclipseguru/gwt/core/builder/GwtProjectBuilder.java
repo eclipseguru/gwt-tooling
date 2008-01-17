@@ -11,10 +11,14 @@
  **************************************************************************************************/
 package org.eclipseguru.gwt.core.builder;
 
-import java.text.MessageFormat;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Map;
+import org.eclipseguru.gwt.core.GwtCore;
+import org.eclipseguru.gwt.core.GwtModule;
+import org.eclipseguru.gwt.core.GwtProject;
+import org.eclipseguru.gwt.core.GwtRemoteService;
+import org.eclipseguru.gwt.core.GwtUtil;
+import org.eclipseguru.gwt.core.internal.codegen.AsyncServiceCodeGenerator;
+import org.eclipseguru.gwt.core.utils.ProgressUtil;
+import org.eclipseguru.gwt.core.utils.ResourceUtil;
 
 import org.eclipse.core.resources.IContainer;
 import org.eclipse.core.resources.IFile;
@@ -39,14 +43,11 @@ import org.eclipse.jdt.core.JavaCore;
 import org.eclipse.jdt.core.WorkingCopyOwner;
 import org.eclipse.jdt.internal.corext.util.Resources;
 import org.eclipse.osgi.util.NLS;
-import org.eclipseguru.gwt.core.GwtCore;
-import org.eclipseguru.gwt.core.GwtModule;
-import org.eclipseguru.gwt.core.GwtProject;
-import org.eclipseguru.gwt.core.GwtRemoteService;
-import org.eclipseguru.gwt.core.GwtUtil;
-import org.eclipseguru.gwt.core.internal.codegen.AsyncServiceCodeGenerator;
-import org.eclipseguru.gwt.core.utils.ProgressUtil;
-import org.eclipseguru.gwt.core.utils.ResourceUtil;
+
+import java.text.MessageFormat;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Map;
 
 import com.googlipse.gwt.common.Constants;
 
@@ -70,8 +71,8 @@ public class GwtProjectBuilder extends IncrementalProjectBuilder {
 		/**
 		 * @param remoteServices
 		 */
-		public FindRemoteServicesVisitor(List<IType> remoteServices) {
-			this.changed = remoteServices;
+		public FindRemoteServicesVisitor(final List<IType> remoteServices) {
+			changed = remoteServices;
 		}
 
 		/**
@@ -86,49 +87,49 @@ public class GwtProjectBuilder extends IncrementalProjectBuilder {
 		 * 
 		 * @see org.eclipse.core.resources.IResourceDeltaVisitor#visit(org.eclipse.core.resources.IResourceDelta)
 		 */
-		public boolean visit(IResourceDelta delta) throws CoreException {
+		public boolean visit(final IResourceDelta delta) throws CoreException {
 			// ignore removed resources
 			switch (delta.getKind()) {
-			case IResourceDelta.REMOVED:
-			case IResourceDelta.REMOVED_PHANTOM:
-				return false;
+				case IResourceDelta.REMOVED:
+				case IResourceDelta.REMOVED_PHANTOM:
+					return false;
 			}
 
-			IResource resource = delta.getResource();
+			final IResource resource = delta.getResource();
 
 			switch (resource.getType()) {
-			case IResource.PROJECT:
-				IProject project = (IProject) resource;
-				gwtProject = null;
-				currentProjectModules = null;
+				case IResource.PROJECT:
+					final IProject project = (IProject) resource;
+					gwtProject = null;
+					currentProjectModules = null;
 
-				// check project nature
-				if (!GwtProject.hasGwtNature(project))
+					// check project nature
+					if (!GwtProject.hasGwtNature(project))
+						return false;
+
+					gwtProject = GwtCore.create(project);
+					if (null != gwtProject) {
+						currentProjectModules = gwtProject.getModules();
+						return currentProjectModules.length > 0;
+					}
+
 					return false;
 
-				gwtProject = GwtCore.create(project);
-				if (null != gwtProject) {
-					currentProjectModules = gwtProject.getModules();
-					return currentProjectModules.length > 0;
-				}
+				case IResource.FOLDER:
+					return true;
 
-				return false;
+				case IResource.FILE:
+					if (null == currentProjectModules)
+						return false;
 
-			case IResource.FOLDER:
-				return true;
-
-			case IResource.FILE:
-				if (null == currentProjectModules)
+					if (JavaCore.isJavaLikeFileName(resource.getName()) && gwtProject.getJavaProject().isOnClasspath(resource)) {
+						final ICompilationUnit cu = (ICompilationUnit) JavaCore.create(resource);
+						if ((null != cu) && cu.exists())
+							for (final GwtModule module : currentProjectModules)
+								if (module.isModuleResource(resource))
+									GwtRemoteService.findRemoteServices(cu, changed);
+					}
 					return false;
-
-				if (JavaCore.isJavaLikeFileName(resource.getName()) && gwtProject.getJavaProject().isOnClasspath(resource)) {
-					ICompilationUnit cu = (ICompilationUnit) JavaCore.create(resource);
-					if ((null != cu) && cu.exists())
-						for (GwtModule module : currentProjectModules)
-							if (module.isModuleResource(resource))
-								GwtRemoteService.findRemoteServices(cu, changed);
-				}
-				return false;
 			}
 			return false;
 		}
@@ -145,12 +146,12 @@ public class GwtProjectBuilder extends IncrementalProjectBuilder {
 	 *      java.util.Map, org.eclipse.core.runtime.IProgressMonitor)
 	 */
 	@Override
-	protected IProject[] build(int kind, Map args, IProgressMonitor monitor) throws CoreException {
+	protected IProject[] build(final int kind, final Map args, IProgressMonitor monitor) throws CoreException {
 		monitor = ProgressUtil.monitor(monitor);
 		try {
 			// initialize
 			final boolean isIncrementalBuild = (kind == AUTO_BUILD) || (kind == INCREMENTAL_BUILD);
-			IProject project = getProject();
+			final IProject project = getProject();
 			monitor.beginTask(NLS.bind("Building project{0} ...", project.getName()), 10);
 
 			// check for our nature
@@ -173,11 +174,11 @@ public class GwtProjectBuilder extends IncrementalProjectBuilder {
 			}
 
 			// build list of included projects
-			GwtProject gwtProject = GwtCore.create(project);
-			GwtModule[] includedModules = gwtProject.getIncludedModules();
-			List<IProject> includedModulesProjects = new ArrayList<IProject>(includedModules.length);
-			for (GwtModule module : includedModules) {
-				IProject includedProject = module.getProjectResource();
+			final GwtProject gwtProject = GwtCore.create(project);
+			final GwtModule[] includedModules = gwtProject.getIncludedModules();
+			final List<IProject> includedModulesProjects = new ArrayList<IProject>(includedModules.length);
+			for (final GwtModule module : includedModules) {
+				final IProject includedProject = module.getProjectResource();
 				if (!includedModulesProjects.contains(includedProject))
 					includedModulesProjects.add(includedProject);
 			}
@@ -188,28 +189,27 @@ public class GwtProjectBuilder extends IncrementalProjectBuilder {
 			monitor.subTask("Building Remote services ...");
 
 			// update/generate RemoteServiceAsync interfaces
-			IResourceDelta delta = isIncrementalBuild ? getDelta(project) : null;
-			List<IType> remoteServices = findRemoteServiceFiles(gwtProject, projectModules, delta, ProgressUtil.subProgressMonitor(monitor, 1));
+			final IResourceDelta delta = isIncrementalBuild ? getDelta(project) : null;
+			final List<IType> remoteServices = findRemoteServiceFiles(gwtProject, projectModules, delta, ProgressUtil.subProgressMonitor(monitor, 1));
 			if (!remoteServices.isEmpty())
 				updateAsyncFiles(remoteServices, ProgressUtil.subProgressMonitor(monitor, 1));
 
 			// check modules
-			for (GwtModule gwtModule : projectModules) {
-				IStorage moduleDescriptor = gwtModule.getModuleDescriptor();
+			for (final GwtModule gwtModule : projectModules) {
+				final IStorage moduleDescriptor = gwtModule.getModuleDescriptor();
 				if (moduleDescriptor instanceof IResource) {
-					String entryPointTypeName = gwtModule.getEntryPointTypeName();
+					final String entryPointTypeName = gwtModule.getEntryPointTypeName();
 					if (null != entryPointTypeName) {
-						IType entryPointType = gwtModule.getEntryPointType();
-						if (null == entryPointType) {
+						final IType entryPointType = gwtModule.getEntryPointType();
+						if (null == entryPointType)
 							ResourceUtil.createProblem((IResource) moduleDescriptor, MessageFormat.format("Entry point \"{0}\" could not be found on the project build path.", entryPointTypeName));
-						}
 					}
 				}
 			}
 
 			return includedModulesProjects.toArray(new IProject[includedModulesProjects.size()]);
 
-		} catch (Exception e) {
+		} catch (final Exception e) {
 			forgetLastBuiltState();
 			throw new CoreException(new Status(IStatus.ERROR, Constants.PLUGIN_ID, IResourceStatus.BUILD_FAILED, "An error occured during building: " + e.toString(), e));
 		} finally {
@@ -227,7 +227,7 @@ public class GwtProjectBuilder extends IncrementalProjectBuilder {
 		monitor = ProgressUtil.monitor(monitor);
 		try {
 			// initialize
-			IProject project = getProject();
+			final IProject project = getProject();
 			monitor.beginTask(NLS.bind("Cleaning project{0}", project.getName()), 10);
 
 			// check for our nature
@@ -239,9 +239,9 @@ public class GwtProjectBuilder extends IncrementalProjectBuilder {
 			monitor.worked(1);
 
 			// remove created build output
-			IPath outputLocation = GwtUtil.getOutputLocation(GwtCore.create(project));
+			final IPath outputLocation = GwtUtil.getOutputLocation(GwtCore.create(project));
 			if (!outputLocation.makeRelative().isEmpty()) {
-				IFolder targetFolder = project.getFolder(outputLocation);
+				final IFolder targetFolder = project.getFolder(outputLocation);
 				if (targetFolder.exists())
 					ResourceUtil.removeFolderContent(targetFolder, ProgressUtil.subProgressMonitor(monitor, 1));
 			}
@@ -250,7 +250,7 @@ public class GwtProjectBuilder extends IncrementalProjectBuilder {
 		}
 	}
 
-	private List<IType> findRemoteServiceFiles(GwtProject gwtProject, GwtModule[] projectModules, IResourceDelta delta, IProgressMonitor monitor) throws CoreException {
+	private List<IType> findRemoteServiceFiles(final GwtProject gwtProject, final GwtModule[] projectModules, final IResourceDelta delta, IProgressMonitor monitor) throws CoreException {
 		monitor = ProgressUtil.monitor(monitor);
 		try {
 			monitor.beginTask("Looking for Remote Service Files", 1);
@@ -260,7 +260,7 @@ public class GwtProjectBuilder extends IncrementalProjectBuilder {
 				return GwtRemoteService.findRemoteServices(projectModules);
 			else {
 				// incremental build
-				List<IType> remoteServices = new ArrayList<IType>();
+				final List<IType> remoteServices = new ArrayList<IType>();
 				delta.accept(new FindRemoteServicesVisitor(remoteServices));
 				return remoteServices;
 			}
@@ -275,7 +275,7 @@ public class GwtProjectBuilder extends IncrementalProjectBuilder {
 	 * @param monitor
 	 * @throws CoreException
 	 */
-	private void generateAsynchServiceInterface(IType remoteService, IProgressMonitor monitor) throws CoreException {
+	private void generateAsynchServiceInterface(final IType remoteService, IProgressMonitor monitor) throws CoreException {
 		monitor = ProgressUtil.monitor(monitor);
 		ICompilationUnit asyncServiceCu = null;
 		try {
@@ -288,7 +288,7 @@ public class GwtProjectBuilder extends IncrementalProjectBuilder {
 
 			// check that file is writable
 			final IFile asyncServiceFile = ((IContainer) pack.getResource()).getFile(new Path(asyncServiceCuName));
-			IStatus canWrite = Resources.makeCommittable(asyncServiceFile, null);
+			final IStatus canWrite = Resources.makeCommittable(asyncServiceFile, null);
 			if (!canWrite.isOK())
 				throw new CoreException(canWrite);
 
@@ -320,15 +320,15 @@ public class GwtProjectBuilder extends IncrementalProjectBuilder {
 		}
 	}
 
-	private void updateAsyncFiles(List<IType> remoteServices, IProgressMonitor monitor) throws CoreException {
+	private void updateAsyncFiles(final List<IType> remoteServices, IProgressMonitor monitor) throws CoreException {
 		monitor = ProgressUtil.monitor(monitor);
 		try {
 			monitor.beginTask("Generating Async Remote Service files...", remoteServices.size());
-			for (IType remoteService : remoteServices) {
+			for (final IType remoteService : remoteServices) {
 				ProgressUtil.checkCanceled(monitor);
 				try {
 					generateAsynchServiceInterface(remoteService, ProgressUtil.subProgressMonitor(monitor, 1));
-				} catch (CoreException e) {
+				} catch (final CoreException e) {
 					ResourceUtil.createProblem(remoteService.getResource(), NLS.bind("Could not generate async service interface for ''{0}'': ''{1}''", remoteService.getElementName(), e.getMessage()));
 				}
 			}

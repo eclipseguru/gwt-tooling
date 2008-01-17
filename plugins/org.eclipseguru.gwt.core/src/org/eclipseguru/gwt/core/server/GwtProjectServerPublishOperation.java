@@ -11,7 +11,10 @@
  **************************************************************************************************/
 package org.eclipseguru.gwt.core.server;
 
-import java.text.MessageFormat;
+import org.eclipseguru.gwt.core.GwtProject;
+import org.eclipseguru.gwt.core.builder.GwtProjectPublisher;
+import org.eclipseguru.gwt.core.j2ee.ConfigureWebProjectJob;
+import org.eclipseguru.gwt.core.utils.ProgressUtil;
 
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IAdaptable;
@@ -20,10 +23,8 @@ import org.eclipse.jst.server.core.IWebModule;
 import org.eclipse.wst.server.core.IServer;
 import org.eclipse.wst.server.core.internal.Server;
 import org.eclipse.wst.server.core.model.PublishOperation;
-import org.eclipseguru.gwt.core.GwtProject;
-import org.eclipseguru.gwt.core.builder.GwtProjectPublisher;
-import org.eclipseguru.gwt.core.j2ee.ConfigureWebProjectJob;
-import org.eclipseguru.gwt.core.utils.ProgressUtil;
+
+import java.text.MessageFormat;
 
 /**
  * Publishes a GWT project during server publishing.
@@ -49,7 +50,7 @@ public class GwtProjectServerPublishOperation extends PublishOperation {
 	 * @param server
 	 * @param required
 	 */
-	public GwtProjectServerPublishOperation(IWebModule webModule, GwtProject project, IServer server, int kind) {
+	public GwtProjectServerPublishOperation(final IWebModule webModule, final GwtProject project, final IServer server, final int kind) {
 		super(MessageFormat.format("Publishing GWT modules of project {0}", project.getName()), "This operation compiles and publishes all GWT modules included in the project.");
 		this.webModule = webModule;
 		this.project = project;
@@ -64,17 +65,17 @@ public class GwtProjectServerPublishOperation extends PublishOperation {
 	 *      org.eclipse.core.runtime.IAdaptable)
 	 */
 	@Override
-	public void execute(IProgressMonitor monitor, IAdaptable info) throws CoreException {
+	public void execute(IProgressMonitor monitor, final IAdaptable info) throws CoreException {
 		monitor = ProgressUtil.monitor(monitor);
 		try {
 			monitor.beginTask(MessageFormat.format("Publishing GWT modules of project {0}...", project.getName()), 2);
 
 			// 1. configure the web project
-			ConfigureWebProjectJob configureWebProjectJob = new ConfigureWebProjectJob(project);
+			final ConfigureWebProjectJob configureWebProjectJob = new ConfigureWebProjectJob(project);
 			configureWebProjectJob.runInWorkspace(ProgressUtil.subProgressMonitor(monitor, 1));
 
 			// 2. publish project
-			GwtProjectPublisher publisher = new GwtProjectPublisher(project);
+			final GwtProjectPublisher publisher = new GwtProjectPublisher(project);
 			publisher.runInWorkspace(ProgressUtil.subProgressMonitor(monitor, 1));
 
 			// 3. clear WebTools cache

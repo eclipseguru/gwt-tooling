@@ -21,18 +21,15 @@ import org.eclipse.wst.sse.core.internal.provisional.INodeNotifier;
  * refreshes would be requested more judiciously.
  */
 class ModuleSourceModelSynchronizer extends Object implements INodeAdapter {
-	private ModuleSourceWC fDesignViewer = null;
-
-	ModuleSourceModelSynchronizer(ModuleSourceWC moduleSource) {
+	ModuleSourceModelSynchronizer(final ModuleSourceWC moduleSource) {
 		super();
-		fDesignViewer = moduleSource;
 	}
 
-	public boolean isAdapterForType(Object type) {
+	public boolean isAdapterForType(final Object type) {
 		return type.equals(ModuleSourceModelSynchronizer.class);
 	}
 
-	public void notifyChanged(INodeNotifier notifier, int eventType, Object changedFeature, Object oldValue, Object newValue, int pos) {
+	public void notifyChanged(final INodeNotifier notifier, final int eventType, final Object changedFeature, final Object oldValue, final Object newValue, final int pos) {
 		// Refresh this node
 	}
 }

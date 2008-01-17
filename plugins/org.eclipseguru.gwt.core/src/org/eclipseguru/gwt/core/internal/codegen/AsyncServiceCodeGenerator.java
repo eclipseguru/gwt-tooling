@@ -11,7 +11,9 @@
  **************************************************************************************************/
 package org.eclipseguru.gwt.core.internal.codegen;
 
-import java.util.Iterator;
+import org.eclipseguru.gwt.core.GwtUtil;
+import org.eclipseguru.gwt.core.internal.jdtext.ImportsManager;
+import org.eclipseguru.gwt.core.utils.ProgressUtil;
 
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IProgressMonitor;
@@ -45,9 +47,8 @@ import org.eclipse.jdt.internal.corext.util.Strings;
 import org.eclipse.osgi.util.NLS;
 import org.eclipse.text.edits.TextEdit;
 import org.eclipse.text.edits.TextEditGroup;
-import org.eclipseguru.gwt.core.GwtUtil;
-import org.eclipseguru.gwt.core.internal.jdtext.ImportsManager;
-import org.eclipseguru.gwt.core.utils.ProgressUtil;
+
+import java.util.Iterator;
 
 /**
  * A utility class for generating code
@@ -78,7 +79,7 @@ public class AsyncServiceCodeGenerator extends JdtTypeGenerator {
 	 * @param remoteServiceType
 	 * @return the async service CU name
 	 */
-	public static String getAsyncCUName(IType remoteServiceType) {
+	public static String getAsyncCUName(final IType remoteServiceType) {
 		if (remoteServiceType.isBinary())
 			return getAsyncTypeNameWithoutParameters(remoteServiceType).concat(".class");
 		return getAsyncTypeNameWithoutParameters(remoteServiceType).concat(".java");
@@ -91,7 +92,7 @@ public class AsyncServiceCodeGenerator extends JdtTypeGenerator {
 	 * @param remoteServiceType
 	 * @return the async service type name
 	 */
-	public static String getAsyncTypeNameWithoutParameters(IType remoteServiceType) {
+	public static String getAsyncTypeNameWithoutParameters(final IType remoteServiceType) {
 		return GwtUtil.getTypeNameWithoutParameters(remoteServiceType.getElementName()).concat("Async");
 	}
 
@@ -105,26 +106,25 @@ public class AsyncServiceCodeGenerator extends JdtTypeGenerator {
 	 * <code>&#64;generated</code> tag in its JavaDoc comment.
 	 * </p>
 	 * 
-	 * 
 	 * @param parentCU
 	 * @param asyncServiceTypeName
 	 * @return <code>true</code> if the async generation is allowed,
 	 *         <code>false</code> otherwise
 	 * @throws CoreException
 	 */
-	public static boolean isAllowedToGenerateAsyncServiceType(ICompilationUnit parentCU, String asyncServiceTypeName) throws CoreException {
+	public static boolean isAllowedToGenerateAsyncServiceType(final ICompilationUnit parentCU, final String asyncServiceTypeName) throws CoreException {
 		if (!parentCU.exists())
 			return true;
 
-		IType asyncServiceType = parentCU.getType(asyncServiceTypeName);
+		final IType asyncServiceType = parentCU.getType(asyncServiceTypeName);
 		if (!asyncServiceType.exists())
 			return true;
 
-		ISourceRange javadocRange = asyncServiceType.getJavadocRange();
+		final ISourceRange javadocRange = asyncServiceType.getJavadocRange();
 		if (null == javadocRange)
 			return false;
 
-		String text = parentCU.getBuffer().getText(javadocRange.getOffset(), javadocRange.getLength());
+		final String text = parentCU.getBuffer().getText(javadocRange.getOffset(), javadocRange.getLength());
 		return text.contains("@generated");
 	}
 
@@ -140,7 +140,7 @@ public class AsyncServiceCodeGenerator extends JdtTypeGenerator {
 	 * @throws CoreException
 	 *             if the remote service cannot be accessed
 	 */
-	public AsyncServiceCodeGenerator(IType remoteServiceType) throws CoreException {
+	public AsyncServiceCodeGenerator(final IType remoteServiceType) throws CoreException {
 		super(getAsyncTypeNameWithoutParameters(remoteServiceType), INTERFACE_TYPE, remoteServiceType.getFlags());
 		this.remoteServiceType = remoteServiceType;
 	}
@@ -152,7 +152,7 @@ public class AsyncServiceCodeGenerator extends JdtTypeGenerator {
 	 * @param buffer
 	 * @throws CoreException
 	 */
-	private void appendAsyncCallbackParameter(IMethod method, ImportsManager imports, StringBuffer buffer) throws CoreException {
+	private void appendAsyncCallbackParameter(final IMethod method, final ImportsManager imports, final StringBuffer buffer) throws CoreException {
 		buffer.append(imports.addImport(ASYNC_CALLBACK));
 		buffer.append(' ');
 		buffer.append(CALLBACK);
@@ -166,7 +166,7 @@ public class AsyncServiceCodeGenerator extends JdtTypeGenerator {
 	 * @param buffer
 	 * @throws JavaModelException
 	 */
-	private void appendMethodParameters(IMethod method, StringBuffer buffer) throws CoreException {
+	private void appendMethodParameters(final IMethod method, final StringBuffer buffer) throws CoreException {
 		final String[] parameterTypes = method.getParameterTypes();
 		final String[] parameterNames = method.getRawParameterNames();
 		final int flags = method.getFlags();
@@ -188,20 +188,20 @@ public class AsyncServiceCodeGenerator extends JdtTypeGenerator {
 	}
 
 	@SuppressWarnings("unchecked")
-	private TagElement createGeneratedTagForMethod(ASTRewrite cuRewrite) {
-		TagElement generated = cuRewrite.getAST().newTagElement();
+	private TagElement createGeneratedTagForMethod(final ASTRewrite cuRewrite) {
+		final TagElement generated = cuRewrite.getAST().newTagElement();
 		generated.setTagName("@generated");
-		TextElement element = cuRewrite.getAST().newTextElement();
+		final TextElement element = cuRewrite.getAST().newTextElement();
 		element.setText("generated method with asynchronous callback parameter to be used on the client side");
 		generated.fragments().add(element);
 		return generated;
 	}
 
 	@SuppressWarnings("unchecked")
-	private TagElement createGeneratedTagForType(ASTRewrite cuRewrite) {
-		TagElement generated = cuRewrite.getAST().newTagElement();
+	private TagElement createGeneratedTagForType(final ASTRewrite cuRewrite) {
+		final TagElement generated = cuRewrite.getAST().newTagElement();
 		generated.setTagName("@generated");
-		TextElement element = cuRewrite.getAST().newTextElement();
+		final TextElement element = cuRewrite.getAST().newTextElement();
 		element.setText("generated asynchronous callback interface to be used on the client side");
 		generated.fragments().add(element);
 		return generated;
@@ -212,7 +212,7 @@ public class AsyncServiceCodeGenerator extends JdtTypeGenerator {
 	 * @param bd
 	 * @param textEditGroup
 	 */
-	private Javadoc createJavadocIfNecessary(ASTRewrite cuRewrite, BodyDeclaration bd, TextEditGroup textEditGroup) {
+	private Javadoc createJavadocIfNecessary(final ASTRewrite cuRewrite, final BodyDeclaration bd, final TextEditGroup textEditGroup) {
 		Javadoc javadoc = bd.getJavadoc();
 		if (null == javadoc) {
 			javadoc = cuRewrite.getAST().newJavadoc();
@@ -229,7 +229,7 @@ public class AsyncServiceCodeGenerator extends JdtTypeGenerator {
 	 *      org.eclipse.core.runtime.SubProgressMonitor)
 	 */
 	@Override
-	protected void createTypeMembers(IType createdType, ImportsManager imports, boolean needsSave, IProgressMonitor monitor) throws CoreException {
+	protected void createTypeMembers(final IType createdType, final ImportsManager imports, final boolean needsSave, final IProgressMonitor monitor) throws CoreException {
 		monitor.beginTask(NLS.bind("Generating methods in ''{0}''...", createdType.getElementName()), 10);
 		try {
 
@@ -237,19 +237,19 @@ public class AsyncServiceCodeGenerator extends JdtTypeGenerator {
 			writeImports(imports);
 
 			// add all public methods
-			IMethod[] methods = remoteServiceType.getMethods();
-			for (IMethod method : methods) {
+			final IMethod[] methods = remoteServiceType.getMethods();
+			for (final IMethod method : methods) {
 				// skip contructors and binary, static, private or protected
 				// methods
 				if (method.isConstructor() || method.isBinary() || Flags.isStatic(method.getFlags()) || Flags.isPrivate(method.getFlags()) || Flags.isProtected(method.getFlags()))
 					continue;
 
-				StringBuffer methodContent = new StringBuffer();
+				final StringBuffer methodContent = new StringBuffer();
 
 				// javadoc
-				ISourceRange javadocRange = method.getJavadocRange();
+				final ISourceRange javadocRange = method.getJavadocRange();
 				if (null != javadocRange) {
-					IBuffer buffer = remoteServiceType.getOpenable().getBuffer();
+					final IBuffer buffer = remoteServiceType.getOpenable().getBuffer();
 					if (buffer != null)
 						methodContent.append(buffer.getText(javadocRange.getOffset(), javadocRange.getLength()));
 				}
@@ -289,12 +289,12 @@ public class AsyncServiceCodeGenerator extends JdtTypeGenerator {
 	 *      java.lang.String)
 	 */
 	@Override
-	protected String getFileComment(ICompilationUnit parentCU, String lineDelimiter) throws CoreException {
+	protected String getFileComment(final ICompilationUnit parentCU, final String lineDelimiter) throws CoreException {
 		// take remote service comment if possible
 		try {
-			String source = remoteServiceType.getCompilationUnit().getSource();
-			IScanner scanner = ToolFactory.createScanner(true, false, false, false);
-			StringBuffer buffer = new StringBuffer();
+			final String source = remoteServiceType.getCompilationUnit().getSource();
+			final IScanner scanner = ToolFactory.createScanner(true, false, false, false);
+			final StringBuffer buffer = new StringBuffer();
 			scanner.setSource(source.toCharArray());
 			int next = scanner.getNextToken();
 			while (TokenScanner.isComment(next)) {
@@ -303,7 +303,7 @@ public class AsyncServiceCodeGenerator extends JdtTypeGenerator {
 			}
 			if (buffer.length() > 0)
 				return buffer.toString();
-		} catch (Exception e) {
+		} catch (final Exception e) {
 			// ignore
 		}
 		return super.getFileComment(parentCU, lineDelimiter);
@@ -316,17 +316,17 @@ public class AsyncServiceCodeGenerator extends JdtTypeGenerator {
 	 *      java.lang.String)
 	 */
 	@Override
-	protected String getTypeComment(ICompilationUnit parentCU, String lineDelimiter) {
+	protected String getTypeComment(final ICompilationUnit parentCU, final String lineDelimiter) {
 		// take remote service comment if possible
 		try {
-			ISourceRange javadocRange = remoteServiceType.getJavadocRange();
+			final ISourceRange javadocRange = remoteServiceType.getJavadocRange();
 			if (null != javadocRange) {
-				IBuffer buffer = remoteServiceType.getOpenable().getBuffer();
+				final IBuffer buffer = remoteServiceType.getOpenable().getBuffer();
 				if (buffer != null) {
-					String javadoc = buffer.getText(javadocRange.getOffset(), javadocRange.getLength() - 1);
+					final String javadoc = buffer.getText(javadocRange.getOffset(), javadocRange.getLength() - 1);
 					if ((null != javadoc) && (javadoc.trim().length() > 0)) {
-						String[] lines = Strings.convertIntoLines(javadoc);
-						StringBuffer result = new StringBuffer();
+						final String[] lines = Strings.convertIntoLines(javadoc);
+						final StringBuffer result = new StringBuffer();
 						for (int i = 0; i < lines.length; i++) {
 							result.append(lines[i]);
 							if (i < lines.length - 1)
@@ -336,7 +336,7 @@ public class AsyncServiceCodeGenerator extends JdtTypeGenerator {
 					}
 				}
 			}
-		} catch (JavaModelException e) {
+		} catch (final JavaModelException e) {
 			// ignore
 		}
 		return super.getTypeComment(parentCU, lineDelimiter);
@@ -350,36 +350,36 @@ public class AsyncServiceCodeGenerator extends JdtTypeGenerator {
 	 * @throws CoreException
 	 * @throws ValidateEditException
 	 */
-	private void updateJavadoc(IType createdType, boolean needsSave, IProgressMonitor monitor) throws JavaModelException, CoreException, ValidateEditException {
-		CompilationUnit cu = createdType.getCompilationUnit().reconcile(AST.JLS3, true, null, null);
-		ASTRewrite cuRewrite = ASTRewrite.create(cu.getAST());
-		TextEditGroup textEditGroup = new TextEditGroup("Updating JavaDoc of interface " + createdType.getElementName());
+	private void updateJavadoc(final IType createdType, final boolean needsSave, final IProgressMonitor monitor) throws JavaModelException, CoreException, ValidateEditException {
+		final CompilationUnit cu = createdType.getCompilationUnit().reconcile(AST.JLS3, true, null, null);
+		final ASTRewrite cuRewrite = ASTRewrite.create(cu.getAST());
+		final TextEditGroup textEditGroup = new TextEditGroup("Updating JavaDoc of interface " + createdType.getElementName());
 
 		// find remote service type and rewrite it
-		ListRewrite typeRewrite = cuRewrite.getListRewrite(cu, CompilationUnit.TYPES_PROPERTY);
-		for (Iterator stream = typeRewrite.getOriginalList().iterator(); stream.hasNext();) {
-			TypeDeclaration td = (TypeDeclaration) stream.next();
+		final ListRewrite typeRewrite = cuRewrite.getListRewrite(cu, CompilationUnit.TYPES_PROPERTY);
+		for (final Iterator stream = typeRewrite.getOriginalList().iterator(); stream.hasNext();) {
+			final TypeDeclaration td = (TypeDeclaration) stream.next();
 			if (td.getName().getIdentifier().equals(getTypeNameWithoutParameters()))
 				updateTypeJavaDoc(cuRewrite, td, textEditGroup);
 		}
 
 		// apply edit
-		TextEdit edit = cuRewrite.rewriteAST();
+		final TextEdit edit = cuRewrite.rewriteAST();
 		JavaModelUtil.applyEdit(createdType.getCompilationUnit(), edit, needsSave, ProgressUtil.subProgressMonitor(monitor, 1));
 	}
 
-	private void updateMethodJavadoc(ASTRewrite cuRewrite, MethodDeclaration md, TextEditGroup textEditGroup) {
+	private void updateMethodJavadoc(final ASTRewrite cuRewrite, final MethodDeclaration md, final TextEditGroup textEditGroup) {
 		// create javadoc
-		Javadoc javadoc = createJavadocIfNecessary(cuRewrite, md, textEditGroup);
-		ListRewrite javadocRewrite = cuRewrite.getListRewrite(javadoc, Javadoc.TAGS_PROPERTY);
+		final Javadoc javadoc = createJavadocIfNecessary(cuRewrite, md, textEditGroup);
+		final ListRewrite javadocRewrite = cuRewrite.getListRewrite(javadoc, Javadoc.TAGS_PROPERTY);
 
 		// find last @param tag and remove @throws tags and @gwt.typeArgs tags
 		ASTNode lastParamPos = null;
 		boolean hasReturnTag = false;
-		for (Iterator stream = javadocRewrite.getOriginalList().iterator(); stream.hasNext();) {
-			TagElement element = (TagElement) stream.next();
+		for (final Iterator stream = javadocRewrite.getOriginalList().iterator(); stream.hasNext();) {
+			final TagElement element = (TagElement) stream.next();
 			if (null != element.getTagName()) {
-				String tagName = element.getTagName();
+				final String tagName = element.getTagName();
 				if (tagName.equals(TAG_PARAM))
 					lastParamPos = element;
 				else if (tagName.equals(TAG_RETURN) && !element.fragments().isEmpty()) {
@@ -391,22 +391,22 @@ public class AsyncServiceCodeGenerator extends JdtTypeGenerator {
 		}
 
 		// create @param callback
-		TagElement callbackParamTag = cuRewrite.getAST().newTagElement();
+		final TagElement callbackParamTag = cuRewrite.getAST().newTagElement();
 		if (null != lastParamPos)
 			javadocRewrite.insertAfter(callbackParamTag, lastParamPos, textEditGroup);
 		else
 			javadocRewrite.insertLast(callbackParamTag, textEditGroup);
 		cuRewrite.set(callbackParamTag, TagElement.TAG_NAME_PROPERTY, TAG_PARAM, textEditGroup);
-		ListRewrite tagRewrite = cuRewrite.getListRewrite(callbackParamTag, TagElement.FRAGMENTS_PROPERTY);
-		TextElement space = cuRewrite.getAST().newTextElement();
+		final ListRewrite tagRewrite = cuRewrite.getListRewrite(callbackParamTag, TagElement.FRAGMENTS_PROPERTY);
+		final TextElement space = cuRewrite.getAST().newTextElement();
 		tagRewrite.insertFirst(space, textEditGroup);
-		SimpleName callbackName = cuRewrite.getAST().newSimpleName(CALLBACK);
+		final SimpleName callbackName = cuRewrite.getAST().newSimpleName(CALLBACK);
 		tagRewrite.insertAfter(callbackName, space, textEditGroup);
-		TextElement callbackDescription = cuRewrite.getAST().newTextElement();
+		final TextElement callbackDescription = cuRewrite.getAST().newTextElement();
 		callbackDescription.setText("the callback that will be called to receive the return value");
 		tagRewrite.insertAfter(callbackDescription, callbackName, textEditGroup);
 		if (hasReturnTag) {
-			TextElement text = cuRewrite.getAST().newTextElement();
+			final TextElement text = cuRewrite.getAST().newTextElement();
 			text.setText(NLS.bind("(see <code>{0}</code> tag)", TAG_GWT_CALLBACK_RETURN));
 			tagRewrite.insertAfter(text, callbackDescription, textEditGroup);
 		}
@@ -415,21 +415,21 @@ public class AsyncServiceCodeGenerator extends JdtTypeGenerator {
 		javadocRewrite.insertLast(createGeneratedTagForMethod(cuRewrite), textEditGroup);
 	}
 
-	private void updateTypeJavaDoc(ASTRewrite cuRewrite, TypeDeclaration td, TextEditGroup textEditGroup) {
+	private void updateTypeJavaDoc(final ASTRewrite cuRewrite, final TypeDeclaration td, final TextEditGroup textEditGroup) {
 		// add @generated tag to JavaDoc
-		Javadoc javadoc = createJavadocIfNecessary(cuRewrite, td, textEditGroup);
-		ListRewrite javadocRewrite = cuRewrite.getListRewrite(javadoc, Javadoc.TAGS_PROPERTY);
+		final Javadoc javadoc = createJavadocIfNecessary(cuRewrite, td, textEditGroup);
+		final ListRewrite javadocRewrite = cuRewrite.getListRewrite(javadoc, Javadoc.TAGS_PROPERTY);
 		javadocRewrite.insertLast(createGeneratedTagForType(cuRewrite), textEditGroup);
 
 		// rewrite methods
-		ListRewrite bodyRewrite = cuRewrite.getListRewrite(td, TypeDeclaration.BODY_DECLARATIONS_PROPERTY);
-		for (Iterator stream = bodyRewrite.getOriginalList().iterator(); stream.hasNext();) {
-			ASTNode node = (ASTNode) stream.next();
+		final ListRewrite bodyRewrite = cuRewrite.getListRewrite(td, TypeDeclaration.BODY_DECLARATIONS_PROPERTY);
+		for (final Iterator stream = bodyRewrite.getOriginalList().iterator(); stream.hasNext();) {
+			final ASTNode node = (ASTNode) stream.next();
 			switch (node.getNodeType()) {
-			case ASTNode.METHOD_DECLARATION:
-				// rewrite method
-				updateMethodJavadoc(cuRewrite, (MethodDeclaration) node, textEditGroup);
-				break;
+				case ASTNode.METHOD_DECLARATION:
+					// rewrite method
+					updateMethodJavadoc(cuRewrite, (MethodDeclaration) node, textEditGroup);
+					break;
 			}
 		}
 	}
@@ -440,18 +440,17 @@ public class AsyncServiceCodeGenerator extends JdtTypeGenerator {
 	 * @param imports
 	 * @throws JavaModelException
 	 */
-	private void writeImports(ImportsManager imports) throws JavaModelException {
-		IImportDeclaration[] existingImports = remoteServiceType.getCompilationUnit().getImports();
-		for (IImportDeclaration declaration : existingImports) {
+	private void writeImports(final ImportsManager imports) throws JavaModelException {
+		final IImportDeclaration[] existingImports = remoteServiceType.getCompilationUnit().getImports();
+		for (final IImportDeclaration declaration : existingImports)
 			if (Flags.isStatic(declaration.getFlags())) {
 				String name = Signature.getSimpleName(declaration.getElementName());
 				boolean isField = !name.endsWith("()"); //$NON-NLS-1$
 				if (!isField)
 					name = name.substring(0, name.length() - 2);
-				String qualifier = Signature.getQualifier(declaration.getElementName());
+				final String qualifier = Signature.getQualifier(declaration.getElementName());
 				imports.addStaticImport(qualifier, name, isField);
 			} else
 				imports.addImport(declaration.getElementName());
-		}
 	}
 }

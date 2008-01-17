@@ -11,14 +11,15 @@
  **************************************************************************************************/
 package org.eclipseguru.gwt.ui.decorators;
 
+import org.eclipseguru.gwt.core.GwtUtil;
+import org.eclipseguru.gwt.ui.GwtUiImages;
+
 import org.eclipse.core.resources.IResource;
 import org.eclipse.core.runtime.IAdaptable;
 import org.eclipse.core.runtime.ListenerList;
 import org.eclipse.jface.viewers.IDecoration;
 import org.eclipse.jface.viewers.ILabelProviderListener;
 import org.eclipse.jface.viewers.ILightweightLabelDecorator;
-import org.eclipseguru.gwt.core.GwtUtil;
-import org.eclipseguru.gwt.ui.GwtUiImages;
 
 /**
  * A simple label decorator to decorate GWT files.
@@ -33,7 +34,7 @@ public class GwtLabelDecorator implements ILightweightLabelDecorator {
 	 * 
 	 * @see org.eclipse.jface.viewers.IBaseLabelProvider#addListener(org.eclipse.jface.viewers.ILabelProviderListener)
 	 */
-	public void addListener(ILabelProviderListener listener) {
+	public void addListener(final ILabelProviderListener listener) {
 		if (listeners == null)
 			listeners = new ListenerList();
 
@@ -46,7 +47,7 @@ public class GwtLabelDecorator implements ILightweightLabelDecorator {
 	 * @see org.eclipse.jface.viewers.ILightweightLabelDecorator#decorate(java.lang.Object,
 	 *      org.eclipse.jface.viewers.IDecoration)
 	 */
-	public void decorate(Object element, IDecoration decoration) {
+	public void decorate(final Object element, final IDecoration decoration) {
 		IResource resource = null;
 		if (element instanceof IResource)
 			resource = (IResource) element;
@@ -63,7 +64,7 @@ public class GwtLabelDecorator implements ILightweightLabelDecorator {
 	 * @param resource
 	 * @param decoration
 	 */
-	private void decorateModuleDescriptor(IResource resource, IDecoration decoration) {
+	private void decorateModuleDescriptor(final IResource resource, final IDecoration decoration) {
 		decoration.addOverlay(GwtUiImages.DESC_OVERLAY_MODULE, IDecoration.TOP_RIGHT);
 	}
 
@@ -83,7 +84,7 @@ public class GwtLabelDecorator implements ILightweightLabelDecorator {
 	 * @see org.eclipse.jface.viewers.IBaseLabelProvider#isLabelProperty(java.lang.Object,
 	 *      java.lang.String)
 	 */
-	public boolean isLabelProperty(Object element, String property) {
+	public boolean isLabelProperty(final Object element, final String property) {
 		return true;
 	}
 
@@ -92,7 +93,7 @@ public class GwtLabelDecorator implements ILightweightLabelDecorator {
 	 * 
 	 * @see org.eclipse.jface.viewers.IBaseLabelProvider#removeListener(org.eclipse.jface.viewers.ILabelProviderListener)
 	 */
-	public void removeListener(ILabelProviderListener listener) {
+	public void removeListener(final ILabelProviderListener listener) {
 		if (null != listeners)
 			listeners.remove(listener);
 	}

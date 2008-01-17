@@ -11,8 +11,10 @@
  **************************************************************************************************/
 package org.eclipseguru.gwt.core.j2ee;
 
-import java.util.ArrayList;
-import java.util.List;
+import org.eclipseguru.gwt.core.GwtModule;
+import org.eclipseguru.gwt.core.GwtProject;
+import org.eclipseguru.gwt.core.GwtUtil;
+import org.eclipseguru.gwt.core.utils.ProgressUtil;
 
 import org.eclipse.core.resources.IResource;
 import org.eclipse.core.resources.ResourcesPlugin;
@@ -34,10 +36,9 @@ import org.eclipse.wst.common.componentcore.internal.util.IArtifactEditFactory;
 import org.eclipse.wst.common.componentcore.resources.IVirtualComponent;
 import org.eclipse.wst.common.componentcore.resources.IVirtualFolder;
 import org.eclipse.wst.common.componentcore.resources.IVirtualReference;
-import org.eclipseguru.gwt.core.GwtModule;
-import org.eclipseguru.gwt.core.GwtProject;
-import org.eclipseguru.gwt.core.GwtUtil;
-import org.eclipseguru.gwt.core.utils.ProgressUtil;
+
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  * Job for configuring a WTP web project to GWT specific needs.
@@ -62,7 +63,7 @@ public class ConfigureWebProjectJob extends WorkspaceJob {
 	 * 
 	 * @param project2
 	 */
-	public ConfigureWebProjectJob(GwtProject project) {
+	public ConfigureWebProjectJob(final GwtProject project) {
 		this(project, GwtUtil.getOutputLocation(project), GwtUtil.getDeploymentPath(project), GwtUtil.isHostedDeploymentMode(project));
 	}
 
@@ -74,10 +75,10 @@ public class ConfigureWebProjectJob extends WorkspaceJob {
 	 * @param deploymentPath
 	 * @param isHostedDeploymentMode
 	 */
-	public ConfigureWebProjectJob(GwtProject project, IPath buildOutputPath, IPath deploymentPath, boolean isHostedDeploymentMode) {
+	public ConfigureWebProjectJob(final GwtProject project, final IPath buildOutputPath, final IPath deploymentPath, final boolean isHostedDeploymentMode) {
 		super("Configuring Web Project " + project.getName());
 		this.deploymentPath = deploymentPath;
-		this.outputPath = buildOutputPath;
+		outputPath = buildOutputPath;
 		this.isHostedDeploymentMode = isHostedDeploymentMode;
 		this.project = project;
 
@@ -91,20 +92,20 @@ public class ConfigureWebProjectJob extends WorkspaceJob {
 	 * 
 	 * @param webAppEdit
 	 */
-	private void addGwtHostedServlet(WebArtifactEdit webAppEdit) {
+	private void addGwtHostedServlet(final WebArtifactEdit webAppEdit) {
 		// remove existing definition
 		Servlet gwtHostedServlet = webAppEdit.getWebApp().getServletNamed("gwt-hosted");
 		if (null != gwtHostedServlet) {
 			// remove mappings
-			Object[] mappings = gwtHostedServlet.getMappings().toArray();
-			for (int i = 0; i < mappings.length; i++)
-				webAppEdit.getWebApp().getServletMappings().remove(mappings[i]);
+			final Object[] mappings = gwtHostedServlet.getMappings().toArray();
+			for (final Object element : mappings)
+				webAppEdit.getWebApp().getServletMappings().remove(element);
 			// remove servlet
 			webAppEdit.getWebApp().getServlets().remove(gwtHostedServlet);
 		}
 
 		// create servlet edit
-		ServletEditUtil servletEdit = new ServletEditUtil(webAppEdit);
+		final ServletEditUtil servletEdit = new ServletEditUtil(webAppEdit);
 
 		// register "gwt-hosted.jsp" as servlet
 		gwtHostedServlet = servletEdit.createServlet(deploymentPath.append("gwt-hosted.jsp").toString(), false, "gwt-hosted", "gwt-hosted", "Necessary for GWT hosted mode.");
@@ -117,7 +118,7 @@ public class ConfigureWebProjectJob extends WorkspaceJob {
 	 * @param flexProject
 	 * @param monitor
 	 */
-	private void addModuleJars(final IVirtualComponent flexProject, IProgressMonitor monitor) {
+	private void addModuleJars(final IVirtualComponent flexProject, final IProgressMonitor monitor) {
 		try {
 			monitor.beginTask("Updatings Jars...", 4);
 
@@ -127,22 +128,22 @@ public class ConfigureWebProjectJob extends WorkspaceJob {
 			// get current references
 			boolean foundGwtUserJar = false;
 			boolean changedReferences = false;
-			List<IVirtualReference> references = new ArrayList<IVirtualReference>();
-			IVirtualReference[] currentReferences = flexProject.getReferences();
-			for (IVirtualReference reference : currentReferences) {
+			final List<IVirtualReference> references = new ArrayList<IVirtualReference>();
+			final IVirtualReference[] currentReferences = flexProject.getReferences();
+			for (final IVirtualReference reference : currentReferences) {
 				ProgressUtil.checkCanceled(monitor);
 				references.add(reference);
-				IVirtualComponent referencedComponent = reference.getReferencedComponent();
-				String deployedName = referencedComponent.getDeployedName();
+				final IVirtualComponent referencedComponent = reference.getReferencedComponent();
+				final String deployedName = referencedComponent.getDeployedName();
 				if ((null != deployedName) && !foundGwtUserJar && deployedName.endsWith(gwtUserJarPath.toString()))
 					foundGwtUserJar = true;
 			}
 
 			// gwt-user.jar
 			if (!foundGwtUserJar) {
-				String type = VirtualArchiveComponent.VARARCHIVETYPE + IPath.SEPARATOR;
-				IVirtualComponent gwtUserJar = ComponentCore.createArchiveComponent(project.getProjectResource(), type + gwtUserJarPath.toString());
-				IVirtualReference gwtUserJarReference = ComponentCore.createReference(flexProject, gwtUserJar, new Path("/WEB-INF/lib"));
+				final String type = VirtualArchiveComponent.VARARCHIVETYPE + IPath.SEPARATOR;
+				final IVirtualComponent gwtUserJar = ComponentCore.createArchiveComponent(project.getProjectResource(), type + gwtUserJarPath.toString());
+				final IVirtualReference gwtUserJarReference = ComponentCore.createReference(flexProject, gwtUserJar, new Path("/WEB-INF/lib"));
 				if (!references.contains(gwtUserJarReference)) {
 					references.add(gwtUserJarReference);
 					changedReferences = true;
@@ -164,19 +165,18 @@ public class ConfigureWebProjectJob extends WorkspaceJob {
 	 * @param monitor
 	 * @throws CoreException
 	 */
-	private void createDeploymentFolderForOutputFolder(final IVirtualComponent flexProject, IProgressMonitor monitor) throws CoreException {
+	private void createDeploymentFolderForOutputFolder(final IVirtualComponent flexProject, final IProgressMonitor monitor) throws CoreException {
 		try {
-			GwtModule[] modules = project.getModules();
-			monitor.beginTask("Create Deployment Folder...", modules.length*2);
-			for (int i = 0; i < modules.length; i++) {
-				GwtModule gwtModule = modules[i];
+			final GwtModule[] modules = project.getModules();
+			monitor.beginTask("Create Deployment Folder...", modules.length * 2);
+			for (final GwtModule gwtModule : modules) {
 				final IVirtualFolder gwtDeployFolder = flexProject.getRootFolder().getFolder(deploymentPath.append(gwtModule.getName()));
 				// be aggressive: remove any old resource first
 				if (gwtDeployFolder.exists())
 					gwtDeployFolder.delete(IResource.FORCE, ProgressUtil.subProgressMonitor(monitor, 1));
 				else
 					monitor.worked(1);
-				if(gwtModule.getEntryPointTypeName() != null)
+				if (gwtModule.getEntryPointTypeName() != null)
 					gwtDeployFolder.createLink(outputPath.append(gwtModule.getName()), IResource.FORCE, ProgressUtil.subProgressMonitor(monitor, 1));
 			}
 		} finally {
@@ -230,7 +230,7 @@ public class ConfigureWebProjectJob extends WorkspaceJob {
 	 * @param flexProject
 	 * @param monitor
 	 */
-	private void updateDeploymentDescriptor(final IVirtualComponent flexProject, IProgressMonitor monitor) {
+	private void updateDeploymentDescriptor(final IVirtualComponent flexProject, final IProgressMonitor monitor) {
 		ArtifactEdit edit = null;
 		try {
 			monitor.beginTask("Updating web.xml...", 2);
@@ -239,7 +239,7 @@ public class ConfigureWebProjectJob extends WorkspaceJob {
 				return;
 
 			// get factory
-			IArtifactEditFactory artifactEditFactory = ArtifactEditRegistryReader.instance().getArtifactEdit(project.getProjectResource());
+			final IArtifactEditFactory artifactEditFactory = ArtifactEditRegistryReader.instance().getArtifactEdit(project.getProjectResource());
 			if (null == artifactEditFactory)
 				return;
 
@@ -249,7 +249,7 @@ public class ConfigureWebProjectJob extends WorkspaceJob {
 				return;
 
 			// adapt to web edit
-			WebArtifactEdit webAppEdit = (WebArtifactEdit) edit.getAdapter(WebArtifactEdit.class);
+			final WebArtifactEdit webAppEdit = (WebArtifactEdit) edit.getAdapter(WebArtifactEdit.class);
 			if (null == webAppEdit)
 				return;
 

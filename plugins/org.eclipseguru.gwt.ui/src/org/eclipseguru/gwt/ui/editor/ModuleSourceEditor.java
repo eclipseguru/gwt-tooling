@@ -11,6 +11,9 @@
  **************************************************************************************************/
 package org.eclipseguru.gwt.ui.editor;
 
+import org.eclipseguru.gwt.core.GwtCore;
+import org.eclipseguru.gwt.ui.GwtUi;
+
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.jface.text.IDocument;
 import org.eclipse.ui.IEditorInput;
@@ -25,8 +28,6 @@ import org.eclipse.wst.sse.core.internal.model.FactoryRegistry;
 import org.eclipse.wst.sse.core.internal.provisional.IStructuredModel;
 import org.eclipse.wst.sse.core.internal.provisional.text.IStructuredDocument;
 import org.eclipse.wst.sse.ui.StructuredTextEditor;
-import org.eclipseguru.gwt.core.GwtCore;
-import org.eclipseguru.gwt.ui.GwtUi;
 
 /**
  * The module source editor.
@@ -42,9 +43,6 @@ public class ModuleSourceEditor extends FormEditor {
 
 	/** IDX_SOURCE_PAGE */
 	private int IDX_SOURCE_PAGE = -1;
-
-	/** IDX_OVERVIEW_PAGE */
-	private int IDX_OVERVIEW_PAGE = -1;
 
 	/** the source editor */
 	private StructuredTextEditor sourceEditor = null;
@@ -73,7 +71,7 @@ public class ModuleSourceEditor extends FormEditor {
 			createModelFromInput(getEditorInput());
 
 			setActivePage(IDX_SOURCE_PAGE);
-		} catch (PartInitException e) {
+		} catch (final PartInitException e) {
 			GwtUi.logError("Problem creating sourc editor", e);
 		}
 	}
@@ -86,13 +84,13 @@ public class ModuleSourceEditor extends FormEditor {
 	 * 
 	 * @param newInput
 	 */
-	private void createModelFromInput(IEditorInput newInput) {
+	private void createModelFromInput(final IEditorInput newInput) {
 		// reset model
 		if ((null != structuredModel) || (null != moduleSource))
 			releaseModel();
 
 		if ((newInput != null) && (sourceEditor != null)) {
-			IDocument textDocument = sourceEditor.getDocumentProvider().getDocument(newInput);
+			final IDocument textDocument = sourceEditor.getDocumentProvider().getDocument(newInput);
 			structuredModel = StructuredModelManager.getModelManager().getModelForRead((IStructuredDocument) textDocument);
 
 			if (structuredModel != null) {
@@ -101,7 +99,7 @@ public class ModuleSourceEditor extends FormEditor {
 				moduleSource = new ModuleSourceWC();
 
 				/* Register the synchonizer factory */
-				FactoryRegistry factoryRegistry = structuredModel.getFactoryRegistry();
+				final FactoryRegistry factoryRegistry = structuredModel.getFactoryRegistry();
 				if (factoryRegistry.getFactoryFor(ModuleSourceModelSynchronizer.class) == null)
 					factoryRegistry.addFactory(new ModuleSourceModelSynchronizerFactory(moduleSource));
 			}
@@ -117,7 +115,7 @@ public class ModuleSourceEditor extends FormEditor {
 	 * @see org.eclipse.ui.part.MultiPageEditorPart#createSite(org.eclipse.ui.IEditorPart)
 	 */
 	@Override
-	protected IEditorSite createSite(IEditorPart editor) {
+	protected IEditorSite createSite(final IEditorPart editor) {
 		IEditorSite site = null;
 		if (editor == sourceEditor)
 			site = new MultiPageEditorSite(this, sourceEditor) {
@@ -143,7 +141,7 @@ public class ModuleSourceEditor extends FormEditor {
 	 * @see org.eclipse.ui.part.EditorPart#doSave(org.eclipse.core.runtime.IProgressMonitor)
 	 */
 	@Override
-	public void doSave(IProgressMonitor monitor) {
+	public void doSave(final IProgressMonitor monitor) {
 		sourceEditor.doSave(monitor);
 	}
 
@@ -163,8 +161,8 @@ public class ModuleSourceEditor extends FormEditor {
 	 * @see org.eclipse.ui.part.MultiPageEditorPart#getAdapter(java.lang.Class)
 	 */
 	@Override
-	public Object getAdapter(Class adapter) {
-		Object result = super.getAdapter(adapter);
+	public Object getAdapter(final Class adapter) {
+		final Object result = super.getAdapter(adapter);
 		if (null != result)
 			return result;
 
@@ -180,7 +178,7 @@ public class ModuleSourceEditor extends FormEditor {
 	 * @param input
 	 *            the editor input to be used
 	 */
-	private void initializeTitle(IEditorInput input) {
+	private void initializeTitle(final IEditorInput input) {
 
 		String title = ""; //$NON-NLS-1$
 		String tooltip = ""; //$NON-NLS-1$
@@ -225,7 +223,7 @@ public class ModuleSourceEditor extends FormEditor {
 	 * @see org.eclipse.ui.part.EditorPart#setInput(org.eclipse.ui.IEditorInput)
 	 */
 	@Override
-	protected void setInput(IEditorInput input) {
+	protected void setInput(final IEditorInput input) {
 		super.setInput(input);
 		if (sourceEditor != null) {
 			sourceEditor.setInput(input);

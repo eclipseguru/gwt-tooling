@@ -11,6 +11,9 @@
  **************************************************************************************************/
 package org.eclipseguru.gwt.core;
 
+import org.eclipseguru.gwt.core.runtimes.GwtRuntime;
+import org.eclipseguru.gwt.core.runtimes.GwtRuntimeManager;
+
 import org.eclipse.core.resources.IFile;
 import org.eclipse.core.resources.IProject;
 import org.eclipse.core.resources.IWorkspaceRoot;
@@ -18,8 +21,6 @@ import org.eclipse.core.runtime.IStatus;
 import org.eclipse.core.runtime.Plugin;
 import org.eclipse.core.runtime.Status;
 import org.eclipse.jdt.core.IType;
-import org.eclipseguru.gwt.core.runtimes.GwtRuntime;
-import org.eclipseguru.gwt.core.runtimes.GwtRuntimeManager;
 import org.osgi.framework.BundleContext;
 
 /**
@@ -60,7 +61,7 @@ public class GwtCore extends Plugin {
 	 *            the module descriptor
 	 * @return the module (maybe <code>null</code>)
 	 */
-	public static GwtModule create(IFile moduleDescriptor) {
+	public static GwtModule create(final IFile moduleDescriptor) {
 		if (null == moduleDescriptor)
 			return null;
 
@@ -73,11 +74,11 @@ public class GwtCore extends Plugin {
 	 * @param project
 	 * @return the GWT project
 	 */
-	public static GwtProject create(IProject project) {
+	public static GwtProject create(final IProject project) {
 		if (null == project)
 			return null;
 
-		GwtModel model = GwtModelManager.getModelManager().getModel();
+		final GwtModel model = GwtModelManager.getModelManager().getModel();
 		return model.createProject(project);
 	}
 
@@ -91,7 +92,7 @@ public class GwtCore extends Plugin {
 	 * @return the module (maybe <code>null</code>)
 	 * @param type
 	 */
-	public static GwtRemoteService create(IType type) {
+	public static GwtRemoteService create(final IType type) {
 		if (null == type)
 			return null;
 
@@ -104,7 +105,7 @@ public class GwtCore extends Plugin {
 	 * @param root
 	 * @return the GWT model
 	 */
-	public static GwtModel create(IWorkspaceRoot root) {
+	public static GwtModel create(final IWorkspaceRoot root) {
 		if (null == root)
 			return null;
 
@@ -136,7 +137,7 @@ public class GwtCore extends Plugin {
 	 * @param project
 	 * @return the runtime of the specified project
 	 */
-	public static GwtRuntime getRuntime(GwtProject project) {
+	public static GwtRuntime getRuntime(final GwtProject project) {
 		// for now we don't have project specific runtims
 		return GwtRuntimeManager.getInstalledRuntimes()[0];
 	}
@@ -146,7 +147,7 @@ public class GwtCore extends Plugin {
 	 * 
 	 * @param status
 	 */
-	public static void log(IStatus status) {
+	public static void log(final IStatus status) {
 		getGwtCore().getLog().log(status);
 	}
 
@@ -155,7 +156,7 @@ public class GwtCore extends Plugin {
 	 * 
 	 * @param message
 	 */
-	public static void logError(String message, Throwable cause) {
+	public static void logError(final String message, final Throwable cause) {
 		log(new Status(IStatus.ERROR, PLUGIN_ID, INTERNAL_ERROR, message, cause));
 	}
 
@@ -164,7 +165,7 @@ public class GwtCore extends Plugin {
 	 * 
 	 * @param message
 	 */
-	public static void logErrorMessage(String message) {
+	public static void logErrorMessage(final String message) {
 		log(new Status(IStatus.ERROR, PLUGIN_ID, INTERNAL_ERROR, message, null));
 	}
 
@@ -174,7 +175,7 @@ public class GwtCore extends Plugin {
 	 * @param message
 	 * @return the error status
 	 */
-	public static IStatus newErrorStatus(String message) {
+	public static IStatus newErrorStatus(final String message) {
 		return newErrorStatus(message, null);
 	}
 
@@ -185,7 +186,7 @@ public class GwtCore extends Plugin {
 	 * @param cause
 	 * @return the error status
 	 */
-	public static IStatus newErrorStatus(String message, Throwable cause) {
+	public static IStatus newErrorStatus(final String message, final Throwable cause) {
 		return new Status(IStatus.ERROR, PLUGIN_ID, INTERNAL_ERROR, message, cause);
 	}
 
@@ -203,7 +204,7 @@ public class GwtCore extends Plugin {
 	 * @see org.eclipse.core.runtime.Plugin#start(org.osgi.framework.BundleContext)
 	 */
 	@Override
-	public void start(BundleContext context) throws Exception {
+	public void start(final BundleContext context) throws Exception {
 		// super
 		super.start(context);
 
@@ -217,7 +218,7 @@ public class GwtCore extends Plugin {
 	 * @see org.eclipse.core.runtime.Plugin#stop(org.osgi.framework.BundleContext)
 	 */
 	@Override
-	public void stop(BundleContext context) throws Exception {
+	public void stop(final BundleContext context) throws Exception {
 		// shutdown model manager
 		GwtModelManager.getModelManager().shutdown();
 

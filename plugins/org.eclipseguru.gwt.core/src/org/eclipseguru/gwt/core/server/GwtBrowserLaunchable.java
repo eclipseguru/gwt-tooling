@@ -11,9 +11,9 @@
  **************************************************************************************************/
 package org.eclipseguru.gwt.core.server;
 
-import java.net.URL;
-
 import org.eclipseguru.gwt.core.GwtModule;
+
+import java.net.URL;
 
 /**
  * A launchable for the GWT Browser
@@ -31,9 +31,9 @@ public class GwtBrowserLaunchable {
 	 * @param url
 	 * @param module
 	 */
-	public GwtBrowserLaunchable(URL url, GwtModule module) {
+	public GwtBrowserLaunchable(final URL url, final GwtModule module) {
 		this.url = url;
-		this.gwtModule = module;
+		gwtModule = module;
 	}
 
 	/**

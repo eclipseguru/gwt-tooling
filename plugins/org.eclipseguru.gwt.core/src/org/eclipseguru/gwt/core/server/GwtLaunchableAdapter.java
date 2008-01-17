@@ -11,8 +11,7 @@
  **************************************************************************************************/
 package org.eclipseguru.gwt.core.server;
 
-import java.net.MalformedURLException;
-import java.net.URL;
+import org.eclipseguru.gwt.core.GwtCore;
 
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.NullProgressMonitor;
@@ -20,7 +19,9 @@ import org.eclipse.wst.server.core.IModuleArtifact;
 import org.eclipse.wst.server.core.IServer;
 import org.eclipse.wst.server.core.model.IURLProvider;
 import org.eclipse.wst.server.core.model.LaunchableAdapterDelegate;
-import org.eclipseguru.gwt.core.GwtCore;
+
+import java.net.MalformedURLException;
+import java.net.URL;
 
 /**
  * This is the {@link LaunchableAdapterDelegate} implementation that generates
@@ -35,7 +36,7 @@ public class GwtLaunchableAdapter extends LaunchableAdapterDelegate {
 	 *      org.eclipse.wst.server.core.IModuleArtifact)
 	 */
 	@Override
-	public Object getLaunchable(IServer server, IModuleArtifact moduleArtifact) throws CoreException {
+	public Object getLaunchable(final IServer server, final IModuleArtifact moduleArtifact) throws CoreException {
 		if (!(moduleArtifact instanceof GwtBrowserResource))
 			return null;
 
@@ -50,7 +51,7 @@ public class GwtLaunchableAdapter extends LaunchableAdapterDelegate {
 			if (null == url)
 				return null;
 
-			GwtBrowserResource webResource = (GwtBrowserResource) moduleArtifact;
+			final GwtBrowserResource webResource = (GwtBrowserResource) moduleArtifact;
 			String path = webResource.getPath().toString();
 			if ((path != null) && path.startsWith("/") && (path.length() > 0))
 				path = path.substring(1);
@@ -58,7 +59,7 @@ public class GwtLaunchableAdapter extends LaunchableAdapterDelegate {
 				url = new URL(url, path);
 
 			return new GwtBrowserLaunchable(url, webResource.getGwtModule());
-		} catch (MalformedURLException e) {
+		} catch (final MalformedURLException e) {
 			GwtCore.logError("Error while preparing launchable for GWT Browser.", e);
 			return null;
 		}

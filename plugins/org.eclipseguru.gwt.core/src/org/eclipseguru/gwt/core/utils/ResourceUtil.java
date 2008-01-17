@@ -11,11 +11,7 @@
  **************************************************************************************************/
 package org.eclipseguru.gwt.core.utils;
 
-import java.io.BufferedInputStream;
-import java.io.IOException;
-import java.net.URL;
-import java.util.HashMap;
-import java.util.Map;
+import org.eclipseguru.gwt.core.GwtCore;
 
 import org.eclipse.core.resources.IContainer;
 import org.eclipse.core.resources.IFile;
@@ -29,8 +25,13 @@ import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IPath;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.osgi.util.NLS;
-import org.eclipseguru.gwt.core.GwtCore;
 import org.osgi.framework.Bundle;
+
+import java.io.BufferedInputStream;
+import java.io.IOException;
+import java.net.URL;
+import java.util.HashMap;
+import java.util.Map;
 
 /**
  * Some utility functions for dealing with <code>{@link IResource}</code>s.
@@ -48,17 +49,17 @@ public class ResourceUtil {
 	 * @param monitor
 	 * @throws CoreException
 	 */
-	public static void copyFolderContent(IFolder folder, IPath target, IProgressMonitor monitor) throws CoreException {
+	public static void copyFolderContent(final IFolder folder, final IPath target, final IProgressMonitor monitor) throws CoreException {
 		if (!folder.isAccessible())
 			return;
 		try {
-			IWorkspaceRoot root = ResourcesPlugin.getWorkspace().getRoot();
-			IResource[] resources = folder.members();
+			final IWorkspaceRoot root = ResourcesPlugin.getWorkspace().getRoot();
+			final IResource[] resources = folder.members();
 			monitor.beginTask(NLS.bind("Copying folder {0}", folder.getFullPath()), resources.length);
-			IPath sourcePath = folder.getFullPath();
-			for (IResource toCopy : resources) {
-				IPath relativePath = toCopy.getFullPath().removeFirstSegments(sourcePath.segmentCount());
-				IResource existing = root.findMember(target.append(relativePath));
+			final IPath sourcePath = folder.getFullPath();
+			for (final IResource toCopy : resources) {
+				final IPath relativePath = toCopy.getFullPath().removeFirstSegments(sourcePath.segmentCount());
+				final IResource existing = root.findMember(target.append(relativePath));
 				if (null != existing)
 					existing.delete(IResource.FORCE, ProgressUtil.subProgressMonitor(monitor, 1));
 				else
@@ -78,12 +79,12 @@ public class ResourceUtil {
 	 * @param monitor
 	 * @throws CoreException
 	 */
-	public static void copyResource(IResource toCopy, IPath target, IProgressMonitor monitor) throws CoreException {
+	public static void copyResource(final IResource toCopy, final IPath target, final IProgressMonitor monitor) throws CoreException {
 		if (!toCopy.isAccessible())
 			return;
 		try {
 			monitor.beginTask(NLS.bind("Copying {0}", toCopy.getName()), 2);
-			IResource existing = ResourcesPlugin.getWorkspace().getRoot().findMember(target);
+			final IResource existing = ResourcesPlugin.getWorkspace().getRoot().findMember(target);
 			if (null != existing)
 				existing.delete(IResource.FORCE, ProgressUtil.subProgressMonitor(monitor, 1));
 			toCopy.copy(target, IResource.FORCE | IResource.DERIVED, ProgressUtil.subProgressMonitor(monitor, 1));
@@ -103,11 +104,11 @@ public class ResourceUtil {
 	 * @throws IOException
 	 * @throws CoreException
 	 */
-	public static void copySupportFile(Bundle source, String fileName, IFolder targetFolder, IProgressMonitor monitor) throws IOException, CoreException {
-		IFile file = targetFolder.getFile(fileName);
+	public static void copySupportFile(final Bundle source, final String fileName, final IFolder targetFolder, final IProgressMonitor monitor) throws IOException, CoreException {
+		final IFile file = targetFolder.getFile(fileName);
 		if (!file.exists()) {
-			URL fileUrl = source.getEntry("/supportfiles/" + fileName);
-			BufferedInputStream stream = new BufferedInputStream(fileUrl.openStream());
+			final URL fileUrl = source.getEntry("/supportfiles/" + fileName);
+			final BufferedInputStream stream = new BufferedInputStream(fileUrl.openStream());
 			file.create(stream, IResource.FORCE | IResource.DERIVED, monitor);
 		}
 	}
@@ -119,11 +120,11 @@ public class ResourceUtil {
 	 * @param monitor
 	 * @throws CoreException
 	 */
-	public static void createFolderHierarchy(IFolder folder, IProgressMonitor monitor) throws CoreException {
+	public static void createFolderHierarchy(final IFolder folder, final IProgressMonitor monitor) throws CoreException {
 		while (!folder.exists())
 			try {
 				monitor.beginTask(NLS.bind("Creating folder {0}", folder.getFullPath().toString()), 2);
-				IContainer parent = folder.getParent();
+				final IContainer parent = folder.getParent();
 				if (!parent.exists())
 					if (parent.getType() == IResource.FOLDER)
 						createFolderHierarchy((IFolder) parent, ProgressUtil.subProgressMonitor(monitor, 1));
@@ -140,11 +141,11 @@ public class ResourceUtil {
 	 * @param message
 	 * @throws CoreException
 	 */
-	public static IMarker createProblem(IResource resource, String message) throws CoreException {
+	public static IMarker createProblem(IResource resource, final String message) throws CoreException {
 		if (null == resource)
 			resource = ResourcesPlugin.getWorkspace().getRoot();
-		IMarker marker = resource.createMarker(GwtCore.PROBLEM_MARKER);
-		Map<String, Object> attributes = new HashMap<String, Object>(2);
+		final IMarker marker = resource.createMarker(GwtCore.PROBLEM_MARKER);
+		final Map<String, Object> attributes = new HashMap<String, Object>(2);
 		attributes.put(IMarker.MESSAGE, message);
 		attributes.put(IMarker.SEVERITY, IMarker.SEVERITY_ERROR);
 		marker.setAttributes(attributes);
@@ -157,8 +158,8 @@ public class ResourceUtil {
 	 * @param resource
 	 * @return
 	 */
-	public static boolean isReadOnly(IResource resource) {
-		ResourceAttributes resourceAttributes = resource.getResourceAttributes();
+	public static boolean isReadOnly(final IResource resource) {
+		final ResourceAttributes resourceAttributes = resource.getResourceAttributes();
 		if (resourceAttributes == null) // not supported on this platform for
 			// this resource
 			return false;
@@ -172,13 +173,13 @@ public class ResourceUtil {
 	 * @param monitor
 	 * @throws CoreException
 	 */
-	public static void removeFolderContent(IFolder folder, IProgressMonitor monitor) throws CoreException {
+	public static void removeFolderContent(final IFolder folder, final IProgressMonitor monitor) throws CoreException {
 		if (!folder.isAccessible())
 			return;
 		try {
-			IResource[] resources = folder.members();
+			final IResource[] resources = folder.members();
 			monitor.beginTask(NLS.bind("Cleaning folder {0}", folder.getFullPath()), resources.length);
-			for (IResource toDelete : resources)
+			for (final IResource toDelete : resources)
 				toDelete.delete(true, ProgressUtil.subProgressMonitor(monitor, 1));
 		} finally {
 			monitor.done();

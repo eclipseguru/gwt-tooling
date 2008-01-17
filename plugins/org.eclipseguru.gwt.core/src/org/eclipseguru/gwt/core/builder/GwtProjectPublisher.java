@@ -92,7 +92,7 @@ public class GwtProjectPublisher extends WorkspaceJob {
 		private void analyzeOutput() {
 			compileErrors.clear();
 			try {
-				BufferedReader reader = new BufferedReader(new StringReader(collectedOutput.toString()));
+				final BufferedReader reader = new BufferedReader(new StringReader(collectedOutput.toString()));
 				String text = null;
 				while ((text = reader.readLine()) != null)
 					if (text.trim().startsWith("[ERROR] ")) {
@@ -101,7 +101,7 @@ public class GwtProjectPublisher extends WorkspaceJob {
 						if (!ignoreError(errorMsg))
 							compileErrors.add(errorMsg);
 					}
-			} catch (IOException e) {
+			} catch (final IOException e) {
 				compileErrors.add("Internal error while analyzing compile output: " + e.getMessage());
 			}
 
@@ -117,7 +117,7 @@ public class GwtProjectPublisher extends WorkspaceJob {
 			return Collections.unmodifiableList(compileErrors);
 		}
 
-		private boolean ignoreError(String errorMsg) {
+		private boolean ignoreError(final String errorMsg) {
 			if (errorMsg.equals("Build failed"))
 				return true;
 			if (errorMsg.equals("Failure while parsing XML"))
@@ -133,11 +133,11 @@ public class GwtProjectPublisher extends WorkspaceJob {
 		 * @see org.eclipse.debug.core.IStreamListener#streamAppended(java.lang.String,
 		 *      org.eclipse.debug.core.model.IStreamMonitor)
 		 */
-		public void streamAppended(String text, IStreamMonitor monitor) {
+		public void streamAppended(final String text, final IStreamMonitor monitor) {
 			collectedOutput.append(text);
 		}
 
-		private String stripNewlines(String errorMsg) {
+		private String stripNewlines(final String errorMsg) {
 			return errorMsg.replace('\r', ' ').replace('\n', ' ').trim();
 		}
 	}
@@ -148,7 +148,7 @@ public class GwtProjectPublisher extends WorkspaceJob {
 	/**
 	 * @param name
 	 */
-	public GwtProjectPublisher(GwtProject project) {
+	public GwtProjectPublisher(final GwtProject project) {
 		super(MessageFormat.format("GWT Compiling and Publishing {0}", project.getName()));
 		this.project = project;
 
@@ -166,21 +166,21 @@ public class GwtProjectPublisher extends WorkspaceJob {
 	 * @throws CoreException
 	 */
 	@SuppressWarnings("unchecked")
-	private void compileModule(GwtProject gwtProject, GwtModule module, final IFolder targetFolder, IProgressMonitor monitor) throws CoreException {
+	private void compileModule(final GwtProject gwtProject, final GwtModule module, final IFolder targetFolder, final IProgressMonitor monitor) throws CoreException {
 		// check for local install
 		if (null == targetFolder.getLocation())
 			throw new CoreException(GwtCore.newErrorStatus("Target Folder must be on the local filesystem!"));
 
 		// determine the marker resource
-		IResource markerResource = (module.getModuleDescriptor() instanceof IResource) ? (IResource) module.getModuleDescriptor() : module.getProjectResource();
+		final IResource markerResource = (module.getModuleDescriptor() instanceof IResource) ? (IResource) module.getModuleDescriptor() : module.getProjectResource();
 
 		// remove module descriptor markers
 		markerResource.deleteMarkers(GwtCore.PROBLEM_MARKER, true, IResource.DEPTH_ZERO);
 
 		// we don't compile modules without an entry point
 		if (null == module.getEntryPointTypeName()) {
-			IMarker marker = markerResource.createMarker(GwtCore.PROBLEM_MARKER);
-			Map<String, Object> attributes = new HashMap<String, Object>(2);
+			final IMarker marker = markerResource.createMarker(GwtCore.PROBLEM_MARKER);
+			final Map<String, Object> attributes = new HashMap<String, Object>(2);
 			attributes.put(IMarker.MESSAGE, NLS.bind("Module {0} could not be compiled because it does not specify a module entry point.", module.getModuleId()));
 			attributes.put(IMarker.SEVERITY, IMarker.SEVERITY_INFO);
 			marker.setAttributes(attributes);
@@ -205,14 +205,14 @@ public class GwtProjectPublisher extends WorkspaceJob {
 		}
 
 		// get VM runner for executing the compiler
-		IVMRunner vmRunner = vmInstall.getVMRunner(ILaunchManager.RUN_MODE);
+		final IVMRunner vmRunner = vmInstall.getVMRunner(ILaunchManager.RUN_MODE);
 		if (vmRunner == null) {
 			ResourceUtil.createProblem(gwtProject.getProjectResource(), NLS.bind("JRE \"{0}\" does not support launching external Java applications.", vmInstall.getName()));
 			return;
 		}
 
 		// setup classpath
-		List<String> classpath = new ArrayList<String>();
+		final List<String> classpath = new ArrayList<String>();
 		try {
 			// source folders
 			GwtLaunchUtil.addSourceFolderToClasspath(gwtProject, classpath, true);
@@ -221,15 +221,15 @@ public class GwtProjectPublisher extends WorkspaceJob {
 			// http://code.google.com/p/gwt-tooling/issues/detail?id=31
 
 			// GWT libraries
-			GwtRuntime runtime = GwtCore.getRuntime(gwtProject);
-			String[] gwtRuntimeClasspath = runtime.getGwtRuntimeClasspath();
-			for (String element : gwtRuntimeClasspath)
+			final GwtRuntime runtime = GwtCore.getRuntime(gwtProject);
+			final String[] gwtRuntimeClasspath = runtime.getGwtRuntimeClasspath();
+			for (final String element : gwtRuntimeClasspath)
 				classpath.add(element);
 
 			// regular classpath
-			String[] projectClassPath = JavaRuntime.computeDefaultRuntimeClassPath(gwtProject.getJavaProject());
+			final String[] projectClassPath = JavaRuntime.computeDefaultRuntimeClassPath(gwtProject.getJavaProject());
 			classpath.addAll(Arrays.asList(projectClassPath));
-		} catch (CoreException e) {
+		} catch (final CoreException e) {
 			// unable to compute classpath
 			ResourceUtil.createProblem(markerResource, NLS.bind("Unable to compile module {0}: {1}", module.getSimpleName(), e.toString()));
 			return;
@@ -240,19 +240,19 @@ public class GwtProjectPublisher extends WorkspaceJob {
 
 		// launch
 		if (!classpath.isEmpty()) {
-			VMRunnerConfiguration vmConfig = new VMRunnerConfiguration(Constants.GWT_COMPILER_CLASS, classpath.toArray(new String[classpath.size()]));
+			final VMRunnerConfiguration vmConfig = new VMRunnerConfiguration(Constants.GWT_COMPILER_CLASS, classpath.toArray(new String[classpath.size()]));
 			vmConfig.setWorkingDirectory(targetFolder.getLocation().toOSString());
 			vmConfig.setProgramArguments(prepareGwtCompileArguments(module, targetFolder));
 			vmConfig.setVMArguments(prepareGwtCompilerVmArguments(module));
 			final ILaunch gwtLaunch = new Launch(null, ILaunchManager.RUN_MODE, null);
 			DebugPlugin.getDefault().getLaunchManager().addLaunch(gwtLaunch);
 			DebugPlugin.getDefault().addDebugEventListener(new IDebugEventSetListener() {
-				public void handleDebugEvents(DebugEvent[] events) {
-					for (DebugEvent event : events) {
-						Object source = event.getSource();
+				public void handleDebugEvents(final DebugEvent[] events) {
+					for (final DebugEvent event : events) {
+						final Object source = event.getSource();
 						if ((source instanceof IProcess)) {
-							IProcess process = (IProcess) source;
-							ILaunch launch = process.getLaunch();
+							final IProcess process = (IProcess) source;
+							final ILaunch launch = process.getLaunch();
 							if ((launch != null) && (launch == gwtLaunch))
 								if (event.getKind() == DebugEvent.CREATE)
 									process.getStreamsProxy().getOutputStreamMonitor().addListener(compileErrorLogger);
@@ -287,7 +287,7 @@ public class GwtProjectPublisher extends WorkspaceJob {
 					try {
 						compilerLaunchFinishes.await(1, TimeUnit.SECONDS);
 						i++;
-					} catch (InterruptedException e) {
+					} catch (final InterruptedException e) {
 						// ok;
 						Thread.interrupted();
 					}
@@ -301,7 +301,7 @@ public class GwtProjectPublisher extends WorkspaceJob {
 			// create marker for error message
 			final List<String> compileErrors = compileErrorLogger.getCompileErrors();
 			if (compileErrors.size() > 0)
-				for (String error : compileErrors)
+				for (final String error : compileErrors)
 					if (module.getModuleDescriptor() instanceof IResource)
 						ResourceUtil.createProblem(markerResource, NLS.bind("GWT Compiler: {0}", error));
 					else
@@ -333,9 +333,9 @@ public class GwtProjectPublisher extends WorkspaceJob {
 	 * @return the program arguments
 	 * @throws CoreException
 	 */
-	private String[] prepareGwtCompileArguments(GwtModule module, IFolder targetFolder) throws CoreException {
+	private String[] prepareGwtCompileArguments(final GwtModule module, final IFolder targetFolder) throws CoreException {
 
-		List<String> args = new ArrayList<String>();
+		final List<String> args = new ArrayList<String>();
 
 		args.add("-logLevel");
 		args.add("INFO");
@@ -363,8 +363,8 @@ public class GwtProjectPublisher extends WorkspaceJob {
 	 * @return the VM arguments
 	 * @throws CoreException
 	 */
-	private String[] prepareGwtCompilerVmArguments(GwtModule module) throws CoreException {
-		String vmArgs = VariablesPlugin.getDefault().getStringVariableManager().performStringSubstitution(GwtUtil.getCompilerVmArgs(module.getProject()));
+	private String[] prepareGwtCompilerVmArguments(final GwtModule module) throws CoreException {
+		final String vmArgs = VariablesPlugin.getDefault().getStringVariableManager().performStringSubstitution(GwtUtil.getCompilerVmArgs(module.getProject()));
 		return vmArgs.split(" ");
 	}
 
@@ -377,25 +377,25 @@ public class GwtProjectPublisher extends WorkspaceJob {
 	 * @param monitor
 	 * @throws CoreException
 	 */
-	private void publishAndCompileModules(GwtProject gwtProject, IFolder targetFolder, GwtModule[] modules, IProgressMonitor monitor) throws CoreException {
+	private void publishAndCompileModules(final GwtProject gwtProject, final IFolder targetFolder, final GwtModule[] modules, final IProgressMonitor monitor) throws CoreException {
 		try {
 			monitor.beginTask("Publishing GWT modules ...", modules.length);
 
 			// make sure that we can modify all resources in the target folder
 			final List<IResource> resources = new ArrayList<IResource>();
 			targetFolder.accept(new IResourceVisitor() {
-				public boolean visit(IResource resource) throws CoreException {
+				public boolean visit(final IResource resource) throws CoreException {
 					resources.add(resource);
 					return true;
 				}
 			});
-			IStatus canWrite = makeEditable(resources);
+			final IStatus canWrite = makeEditable(resources);
 			if (!canWrite.isOK())
 				throw new CoreException(canWrite);
 
 			// compile the modules
-			for (GwtModule module : modules) {
-				IPackageFragment modulePackage = module.getModulePackage();
+			for (final GwtModule module : modules) {
+				final IPackageFragment modulePackage = module.getModulePackage();
 				if (null != modulePackage) {
 					monitor.subTask(module.getModuleId());
 					// TODO: things changed in GWT 1.1
@@ -414,29 +414,29 @@ public class GwtProjectPublisher extends WorkspaceJob {
 			// mark all generated resources as derived
 			final String lineSeparator = GwtUtil.getLineSeparator(gwtProject.getProjectResource());
 			targetFolder.accept(new IResourceVisitor() {
-				public boolean visit(IResource resource) throws CoreException {
+				public boolean visit(final IResource resource) throws CoreException {
 
 					// mark derived
 					resource.setDerived(true);
 
 					// fix the line endings
 					if (resource.getType() == IResource.FILE) {
-						IFile file = (IFile) resource;
-						String name = file.getName().toLowerCase();
+						final IFile file = (IFile) resource;
+						final String name = file.getName().toLowerCase();
 						if (name.endsWith(".cache.html") || name.endsWith(".cache.xml") || name.endsWith(".nocache.html")) {
-							InputStream contents = file.getContents();
+							final InputStream contents = file.getContents();
 							try {
-								BufferedReader reader = new BufferedReader(new InputStreamReader(contents, file.getCharset()));
-								StringBuilder newContents = new StringBuilder(50000);
+								final BufferedReader reader = new BufferedReader(new InputStreamReader(contents, file.getCharset()));
+								final StringBuilder newContents = new StringBuilder(50000);
 								while (reader.ready())
 									newContents.append(reader.readLine()).append(lineSeparator);
 								file.setContents(new ByteArrayInputStream(newContents.toString().getBytes(file.getCharset())), IResource.NONE, null);
-							} catch (IOException e) {
+							} catch (final IOException e) {
 								// ignore, we don't care if there is such a problem
 							} finally {
 								try {
 									contents.close();
-								} catch (IOException e) {
+								} catch (final IOException e) {
 									//  ignore
 								}
 							}
@@ -462,7 +462,7 @@ public class GwtProjectPublisher extends WorkspaceJob {
 	 * @deprecated this is no longer in use (it's much simpler now in GWT 1.4)
 	 */
 	@Deprecated
-	private void publishHostedModuleFull(GwtModule module, IFolder targetFolder, IProgressMonitor monitor) throws CoreException {
+	private void publishHostedModuleFull(final GwtModule module, final IFolder targetFolder, final IProgressMonitor monitor) throws CoreException {
 		// we need a "smart" publish that just generates
 		// the (module.nocache.html)
 		// http://groups.google.com/group/Google-Web-Toolkit/browse_thread/thread/aa3a8d942e493c26/69a1a5689cb56e2b#69a1a5689cb56e2b
@@ -471,9 +471,9 @@ public class GwtProjectPublisher extends WorkspaceJob {
 
 		try {
 			monitor.beginTask(NLS.bind("Publishing {0}", module.getSimpleName()), 10);
-			IResource resource = ((IFile) module.getModuleDescriptor()).getParent();
+			final IResource resource = ((IFile) module.getModuleDescriptor()).getParent();
 			if ((null != resource) && (resource.getType() == IResource.FOLDER)) {
-				IFolder publicFolder = ((IFolder) resource).getFolder(Constants.PUBLIC_FOLDER);
+				final IFolder publicFolder = ((IFolder) resource).getFolder(Constants.PUBLIC_FOLDER);
 				ResourceUtil.copyFolderContent(publicFolder, targetFolder.getFullPath(), ProgressUtil.subProgressMonitor(monitor, 1));
 			} else
 				ResourceUtil.createProblem(targetFolder.getProject(), NLS.bind("Could not publish module ''{0}'' (invalid workspace resource).", module.getSimpleName()));
@@ -493,10 +493,10 @@ public class GwtProjectPublisher extends WorkspaceJob {
 		try {
 			monitor.beginTask("Publishing GWT project " + project.getName(), 10);
 			// initialize
-			GwtModule[] includedModules = project.getIncludedModules();
-			List<IProject> includedModulesProjects = new ArrayList<IProject>(includedModules.length);
-			for (GwtModule module : includedModules) {
-				IProject includedProject = module.getProjectResource();
+			final GwtModule[] includedModules = project.getIncludedModules();
+			final List<IProject> includedModulesProjects = new ArrayList<IProject>(includedModules.length);
+			for (final GwtModule module : includedModules) {
+				final IProject includedProject = module.getProjectResource();
 				if (!includedModulesProjects.contains(includedProject))
 					includedModulesProjects.add(includedProject);
 			}
@@ -510,12 +510,12 @@ public class GwtProjectPublisher extends WorkspaceJob {
 			// publish modules
 			if ((projectModules.length > 0) || (includedModules.length > 0)) {
 				// check output folder
-				IPath outputLocation = GwtUtil.getOutputLocation(project);
+				final IPath outputLocation = GwtUtil.getOutputLocation(project);
 				if (outputLocation.makeRelative().isEmpty())
 					ResourceUtil.createProblem(project.getProjectResource(), "The GWT build output folder is mapped to the project root which is not yet supported!");
 				else {
 					// initialize output folder
-					IFolder targetFolder = project.getProjectResource().getFolder(outputLocation);
+					final IFolder targetFolder = project.getProjectResource().getFolder(outputLocation);
 					if (!targetFolder.exists())
 						ResourceUtil.createFolderHierarchy(targetFolder, ProgressUtil.subProgressMonitor(monitor, 1));
 
@@ -545,11 +545,11 @@ public class GwtProjectPublisher extends WorkspaceJob {
 
 			return Status.OK_STATUS;
 
-		} catch (CoreException e) {
+		} catch (final CoreException e) {
 			return new MultiStatus(GwtCore.PLUGIN_ID, IResourceStatus.BUILD_FAILED, new IStatus[] { e.getStatus() }, MessageFormat.format("An error occured during publishing of project {0}.", project.getName()), null);
-		} catch (OperationCanceledException e) {
+		} catch (final OperationCanceledException e) {
 			return Status.CANCEL_STATUS;
-		} catch (Exception e) {
+		} catch (final Exception e) {
 			return new Status(IStatus.ERROR, Constants.PLUGIN_ID, IResourceStatus.BUILD_FAILED, MessageFormat.format("An error occured during publishing of project {0}.", project.getName()), e);
 		} finally {
 			monitor.done();

@@ -11,10 +11,10 @@
  **************************************************************************************************/
 package org.eclipseguru.gwt.core;
 
-import java.text.MessageFormat;
-
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.PlatformObject;
+
+import java.text.MessageFormat;
 
 /**
  * This is the base class for all GWT model elements.
@@ -31,7 +31,7 @@ public abstract class GwtElement extends PlatformObject implements GwtModelConst
 	 * @param hashCode2
 	 * @return combined hash code
 	 */
-	protected static int combineHashCodes(int hashCode1, int hashCode2) {
+	protected static int combineHashCodes(final int hashCode1, final int hashCode2) {
 		return (hashCode1 * 17 + hashCode2) * 31;
 	}
 
@@ -44,7 +44,7 @@ public abstract class GwtElement extends PlatformObject implements GwtModelConst
 	 * @param parent
 	 *            the parent (maybe <code>null</code>)
 	 */
-	protected GwtElement(GwtElement parent) {
+	protected GwtElement(final GwtElement parent) {
 		this.parent = parent;
 	}
 
@@ -63,7 +63,7 @@ public abstract class GwtElement extends PlatformObject implements GwtModelConst
 	 * @return the parent
 	 */
 	public GwtElement getParent() {
-		return this.parent;
+		return parent;
 	}
 
 	/**
@@ -82,9 +82,9 @@ public abstract class GwtElement extends PlatformObject implements GwtModelConst
 	 */
 	@Override
 	public int hashCode() {
-		if (this.parent == null)
+		if (parent == null)
 			return super.hashCode();
-		return combineHashCodes(getName().hashCode(), this.parent.hashCode());
+		return combineHashCodes(getName().hashCode(), parent.hashCode());
 	}
 
 	/**
@@ -93,7 +93,7 @@ public abstract class GwtElement extends PlatformObject implements GwtModelConst
 	 * @param cause
 	 * @return a new model exception
 	 */
-	protected GwtModelException newGwtModelException(CoreException cause) {
+	protected GwtModelException newGwtModelException(final CoreException cause) {
 		return new GwtModelException(cause.getStatus());
 	}
 
@@ -103,6 +103,6 @@ public abstract class GwtElement extends PlatformObject implements GwtModelConst
 	 * @return new not present exception
 	 */
 	protected GwtModelException newNotPresentException() {
-		return new GwtModelException(GwtCore.newErrorStatus(MessageFormat.format("The element {0} does not exist!", this.getName())));
+		return new GwtModelException(GwtCore.newErrorStatus(MessageFormat.format("The element {0} does not exist!", getName())));
 	}
 }

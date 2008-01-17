@@ -11,10 +11,6 @@
  **************************************************************************************************/
 package org.eclipseguru.gwt.core.internal.jdtext;
 
-import java.util.HashSet;
-import java.util.List;
-import java.util.Set;
-
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.jdt.core.ICompilationUnit;
@@ -31,6 +27,10 @@ import org.eclipse.jdt.internal.corext.util.JavaModelUtil;
 import org.eclipse.jdt.ui.CodeStyleConfiguration;
 import org.eclipse.text.edits.TextEdit;
 
+import java.util.HashSet;
+import java.util.List;
+import java.util.Set;
+
 /**
  * Class used in rewrite routines to add and remove needed imports to a
  * compilation unit.
@@ -45,8 +45,8 @@ public class ImportsManager {
 	 * @param cu
 	 * @return the AST
 	 */
-	public static CompilationUnit createASTForImports(ICompilationUnit cu) {
-		ASTParser parser = ASTParser.newParser(AST.JLS3);
+	public static CompilationUnit createASTForImports(final ICompilationUnit cu) {
+		final ASTParser parser = ASTParser.newParser(AST.JLS3);
 		parser.setSource(cu);
 		parser.setResolveBindings(false);
 		parser.setFocalPosition(0);
@@ -59,9 +59,9 @@ public class ImportsManager {
 	 * @param root
 	 * @return
 	 */
-	public static Set<String> getExistingImports(CompilationUnit root) {
-		List imports = root.imports();
-		Set<String> res = new HashSet<String>(imports.size());
+	public static Set<String> getExistingImports(final CompilationUnit root) {
+		final List imports = root.imports();
+		final Set<String> res = new HashSet<String>(imports.size());
 		for (int i = 0; i < imports.size(); i++)
 			res.add(ASTNodes.asString((ImportDeclaration) imports.get(i)));
 		return res;
@@ -83,30 +83,30 @@ public class ImportsManager {
 	 * @throws CoreException
 	 *             if an error occured
 	 */
-	public static void removeUnusedImports(ICompilationUnit cu, Set existingImports, boolean needsSave) throws CoreException {
-		ASTParser parser = ASTParser.newParser(AST.JLS3);
+	public static void removeUnusedImports(final ICompilationUnit cu, final Set existingImports, final boolean needsSave) throws CoreException {
+		final ASTParser parser = ASTParser.newParser(AST.JLS3);
 		parser.setSource(cu);
 		parser.setResolveBindings(true);
 
-		CompilationUnit root = (CompilationUnit) parser.createAST(null);
+		final CompilationUnit root = (CompilationUnit) parser.createAST(null);
 		if (root.getProblems().length == 0)
 			return;
 
-		List importsDecls = root.imports();
+		final List importsDecls = root.imports();
 		if (importsDecls.isEmpty())
 			return;
-		ImportsManager imports = new ImportsManager(root);
+		final ImportsManager imports = new ImportsManager(root);
 
-		int importsEnd = ASTNodes.getExclusiveEnd((ASTNode) importsDecls.get(importsDecls.size() - 1));
-		IProblem[] problems = root.getProblems();
-		for (IProblem curr : problems) {
+		final int importsEnd = ASTNodes.getExclusiveEnd((ASTNode) importsDecls.get(importsDecls.size() - 1));
+		final IProblem[] problems = root.getProblems();
+		for (final IProblem curr : problems)
 			if (curr.getSourceEnd() < importsEnd) {
-				int id = curr.getID();
+				final int id = curr.getID();
 				// not visible problems hide unused -> remove both
 				if ((id == IProblem.UnusedImport) || (id == IProblem.NotVisibleType)) {
-					int pos = curr.getSourceStart();
+					final int pos = curr.getSourceStart();
 					for (int k = 0; k < importsDecls.size(); k++) {
-						ImportDeclaration decl = (ImportDeclaration) importsDecls.get(k);
+						final ImportDeclaration decl = (ImportDeclaration) importsDecls.get(k);
 						if ((decl.getStartPosition() <= pos) && (pos < decl.getStartPosition() + decl.getLength())) {
 							if (existingImports.isEmpty() || !existingImports.contains(ASTNodes.asString(decl))) {
 								String name = decl.getName().getFullyQualifiedName();
@@ -122,14 +122,13 @@ public class ImportsManager {
 					}
 				}
 			}
-		}
 		imports.create(needsSave, null);
 	}
 
 	/** importsRewrite */
-	private ImportRewrite importsRewrite;
+	private final ImportRewrite importsRewrite;
 
-	public ImportsManager(CompilationUnit astRoot) throws CoreException {
+	public ImportsManager(final CompilationUnit astRoot) throws CoreException {
 		importsRewrite = CodeStyleConfiguration.createImportRewrite(astRoot, true);
 	}
 
@@ -140,12 +139,11 @@ public class ImportsManager {
 	 * 
 	 * @param typeBinding
 	 *            the binding of the type to import
-	 * 
 	 * @return Returns the simple type name that can be used in the code or the
 	 *         fully qualified type name if an import conflict prevented the
 	 *         import.
 	 */
-	public String addImport(ITypeBinding typeBinding) {
+	public String addImport(final ITypeBinding typeBinding) {
 		return importsRewrite.addImport(typeBinding);
 	}
 
@@ -161,7 +159,7 @@ public class ImportsManager {
 	 *         fully qualified type name if an import conflict prevented the
 	 *         import.
 	 */
-	public String addImport(String qualifiedTypeName) {
+	public String addImport(final String qualifiedTypeName) {
 		return importsRewrite.addImport(qualifiedTypeName);
 	}
 
@@ -182,10 +180,9 @@ public class ImportsManager {
 	 * @return returns either the simple member name if the import was
 	 *         successful or else the qualified name if an import conflict
 	 *         prevented the import.
-	 * 
 	 * @since 3.2
 	 */
-	public String addStaticImport(String declaringTypeName, String simpleName, boolean isField) {
+	public String addStaticImport(final String declaringTypeName, final String simpleName, final boolean isField) {
 		return importsRewrite.addStaticImport(declaringTypeName, simpleName, isField);
 	}
 
@@ -196,8 +193,8 @@ public class ImportsManager {
 	 * @param monitor
 	 * @throws CoreException
 	 */
-	public void create(boolean needsSave, IProgressMonitor monitor) throws CoreException {
-		TextEdit edit = importsRewrite.rewriteImports(monitor);
+	public void create(final boolean needsSave, final IProgressMonitor monitor) throws CoreException {
+		final TextEdit edit = importsRewrite.rewriteImports(monitor);
 		JavaModelUtil.applyEdit(importsRewrite.getCompilationUnit(), edit, needsSave, null);
 	}
 
@@ -211,7 +208,7 @@ public class ImportsManager {
 	 * @param qualifiedName
 	 * @see ImportRewrite#removeImport(String)
 	 */
-	public void removeImport(String qualifiedName) {
+	public void removeImport(final String qualifiedName) {
 		importsRewrite.removeImport(qualifiedName);
 	}
 
@@ -221,7 +218,7 @@ public class ImportsManager {
 	 * @param qualifiedName
 	 * @see ImportRewrite#removeStaticImport(String)
 	 */
-	public void removeStaticImport(String qualifiedName) {
+	public void removeStaticImport(final String qualifiedName) {
 		importsRewrite.removeStaticImport(qualifiedName);
 	}
 }

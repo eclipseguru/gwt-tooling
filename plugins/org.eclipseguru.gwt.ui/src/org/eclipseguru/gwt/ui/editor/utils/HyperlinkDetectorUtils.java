@@ -11,8 +11,6 @@
  **************************************************************************************************/
 package org.eclipseguru.gwt.ui.editor.utils;
 
-import java.util.List;
-
 import org.eclipse.core.resources.IProject;
 import org.eclipse.core.resources.IWorkspaceRoot;
 import org.eclipse.core.resources.ResourcesPlugin;
@@ -31,6 +29,8 @@ import org.eclipse.wst.sse.core.internal.provisional.IndexedRegion;
 import org.eclipse.wst.xml.core.internal.provisional.document.IDOMAttr;
 import org.eclipse.wst.xml.core.internal.provisional.document.IDOMNode;
 
+import java.util.List;
+
 public class HyperlinkDetectorUtils {
 	/**
 	 * Detecteds if the value of the specified attribute links to an
@@ -40,19 +40,19 @@ public class HyperlinkDetectorUtils {
 	 * @param document
 	 * @param hyperlinks
 	 */
-	public static void detectHyperlinkInAttributeValue(IDOMAttr attributeNode, IDocument document, List<IHyperlink> hyperlinks) {
-		IJavaElement javaElement = getJavaElement(document, attributeNode.getValue());
+	public static void detectHyperlinkInAttributeValue(final IDOMAttr attributeNode, final IDocument document, final List<IHyperlink> hyperlinks) {
+		final IJavaElement javaElement = getJavaElement(document, attributeNode.getValue());
 		if (javaElement != null) {
 			int start = attributeNode.getValueRegionStartOffset();
 			int length = attributeNode.getValueRegionText().length();
 
 			// remove quotes from link region
-			String text = attributeNode.getValueRegionText();
+			final String text = attributeNode.getValueRegionText();
 			if (text.startsWith("\"") || text.startsWith("'")) {
 				start += 1;
 				length -= 2;
 			}
-			IHyperlink link = new JavaHyperlink(new Region(start, length), javaElement);
+			final IHyperlink link = new JavaHyperlink(new Region(start, length), javaElement);
 			hyperlinks.add(link);
 		}
 	}
@@ -64,7 +64,7 @@ public class HyperlinkDetectorUtils {
 	 * @param offset
 	 * @return IDOMNode
 	 */
-	public static IDOMNode getCurrentNode(IDocument document, int offset) {
+	public static IDOMNode getCurrentNode(final IDocument document, final int offset) {
 		// get the current node at the offset (returns either: element,
 		// doctype, text)
 		IndexedRegion inode = null;
@@ -94,16 +94,16 @@ public class HyperlinkDetectorUtils {
 	 * @param name
 	 * @return IJavaElement or null
 	 */
-	public static IJavaElement getJavaElement(IDocument document, String name) {
+	public static IJavaElement getJavaElement(final IDocument document, final String name) {
 		if ((null == name) || (name.trim().length() == 0))
 			return null;
 
 		IJavaElement element = null;
-		IJavaProject project = getJavaProject(document);
+		final IJavaProject project = getJavaProject(document);
 		if (project != null)
 			try {
 				element = project.findType(name);
-			} catch (JavaModelException e) {
+			} catch (final JavaModelException e) {
 				e.printStackTrace();
 			}
 		return element;
@@ -116,7 +116,7 @@ public class HyperlinkDetectorUtils {
 	 * @param document
 	 * @return IJavaProject
 	 */
-	private static IJavaProject getJavaProject(IDocument document) {
+	private static IJavaProject getJavaProject(final IDocument document) {
 		IJavaProject project = null;
 		String baselocation = null;
 
@@ -131,10 +131,10 @@ public class HyperlinkDetectorUtils {
 		}
 
 		if (baselocation != null) {
-			IWorkspaceRoot root = ResourcesPlugin.getWorkspace().getRoot();
-			IPath filePath = new Path(baselocation);
+			final IWorkspaceRoot root = ResourcesPlugin.getWorkspace().getRoot();
+			final IPath filePath = new Path(baselocation);
 			if (filePath.segmentCount() > 0) {
-				IProject proj = root.getProject(filePath.segment(0));
+				final IProject proj = root.getProject(filePath.segment(0));
 				if (proj != null)
 					project = JavaCore.create(proj);
 			}

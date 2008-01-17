@@ -11,12 +11,10 @@
  **************************************************************************************************/
 package org.eclipseguru.gwt.core.launch;
 
-import java.io.File;
-import java.text.MessageFormat;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
-import java.util.Map;
+import org.eclipseguru.gwt.core.GwtCore;
+import org.eclipseguru.gwt.core.GwtProject;
+import org.eclipseguru.gwt.core.runtimes.GwtRuntime;
+import org.eclipseguru.gwt.core.utils.ProgressUtil;
 
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IProgressMonitor;
@@ -27,10 +25,13 @@ import org.eclipse.jdt.launching.AbstractJavaLaunchConfigurationDelegate;
 import org.eclipse.jdt.launching.ExecutionArguments;
 import org.eclipse.jdt.launching.IVMRunner;
 import org.eclipse.jdt.launching.VMRunnerConfiguration;
-import org.eclipseguru.gwt.core.GwtCore;
-import org.eclipseguru.gwt.core.GwtProject;
-import org.eclipseguru.gwt.core.runtimes.GwtRuntime;
-import org.eclipseguru.gwt.core.utils.ProgressUtil;
+
+import java.io.File;
+import java.text.MessageFormat;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
+import java.util.Map;
 
 /**
  * A launch delegate for launchin the GWT browser.
@@ -48,15 +49,15 @@ public class GwtBrowserLaunchDelegate extends AbstractJavaLaunchConfigurationDel
 	 * @return
 	 * @throws CoreException
 	 */
-	private String[] computeClasspath(GwtProject project, ILaunchConfiguration configuration) throws CoreException {
-		List<String> classpath = new ArrayList<String>();
+	private String[] computeClasspath(final GwtProject project, final ILaunchConfiguration configuration) throws CoreException {
+		final List<String> classpath = new ArrayList<String>();
 
 		// add the source folder to the classpath
 		GwtLaunchUtil.addSourceFolderToClasspath(project, classpath, true);
 
 		// GWT runtime entries
-		GwtRuntime runtime = GwtCore.getRuntime(project);
-		String[] entries = runtime.getGwtRuntimeClasspath();
+		final GwtRuntime runtime = GwtCore.getRuntime(project);
+		final String[] entries = runtime.getGwtRuntimeClasspath();
 		classpath.addAll(Arrays.asList(entries));
 
 		// launch config classpath
@@ -72,7 +73,7 @@ public class GwtBrowserLaunchDelegate extends AbstractJavaLaunchConfigurationDel
 	 *      java.lang.String, org.eclipse.debug.core.ILaunch,
 	 *      org.eclipse.core.runtime.IProgressMonitor)
 	 */
-	public void launch(ILaunchConfiguration configuration, String mode, ILaunch launch, IProgressMonitor monitor) throws CoreException {
+	public void launch(final ILaunchConfiguration configuration, final String mode, final ILaunch launch, IProgressMonitor monitor) throws CoreException {
 
 		monitor = ProgressUtil.monitor(monitor);
 		try {
@@ -86,31 +87,31 @@ public class GwtBrowserLaunchDelegate extends AbstractJavaLaunchConfigurationDel
 			monitor.subTask("Verifying launch attributes...");
 
 			// verify project
-			GwtProject project = GwtLaunchUtil.verifyProject(configuration);
-			IVMRunner runner = getVMRunner(configuration, mode);
+			final GwtProject project = GwtLaunchUtil.verifyProject(configuration);
+			final IVMRunner runner = getVMRunner(configuration, mode);
 
 			// working directory
-			File workingDir = verifyWorkingDirectory(configuration);
+			final File workingDir = verifyWorkingDirectory(configuration);
 			String workingDirName = null;
 			if (workingDir != null)
 				workingDirName = workingDir.getAbsolutePath();
 
 			// Environment variables
-			String[] envp = getEnvironment(configuration);
+			final String[] envp = getEnvironment(configuration);
 
 			// Program & VM arguments
-			String[] pgmArgs = GwtLaunchUtil.getGwtShellArguments(configuration);
-			String vmArgs = getVMArguments(configuration);
-			ExecutionArguments execArgs = new ExecutionArguments(vmArgs, "");
+			final String[] pgmArgs = GwtLaunchUtil.getGwtShellArguments(configuration);
+			final String vmArgs = getVMArguments(configuration);
+			final ExecutionArguments execArgs = new ExecutionArguments(vmArgs, "");
 
 			// VM-specific attributes
-			Map vmAttributesMap = getVMSpecificAttributesMap(configuration);
+			final Map vmAttributesMap = getVMSpecificAttributesMap(configuration);
 
 			// Classpath
-			String[] classpath = computeClasspath(project, configuration);
+			final String[] classpath = computeClasspath(project, configuration);
 
 			// Create VM config
-			VMRunnerConfiguration runConfig = new VMRunnerConfiguration(CLASS_NAME_GWTSHELL, classpath);
+			final VMRunnerConfiguration runConfig = new VMRunnerConfiguration(CLASS_NAME_GWTSHELL, classpath);
 			runConfig.setProgramArguments(pgmArgs);
 			runConfig.setEnvironment(envp);
 			runConfig.setVMArguments(execArgs.getVMArgumentsArray());

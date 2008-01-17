@@ -28,7 +28,7 @@ public class GwtBrowserLaunchConfigurationTabGroup extends AbstractLaunchConfigu
 	 * @see org.eclipse.debug.ui.ILaunchConfigurationTabGroup#createTabs(org.eclipse.debug.ui.ILaunchConfigurationDialog,
 	 *      java.lang.String)
 	 */
-	public void createTabs(ILaunchConfigurationDialog dialog, String mode) {
+	public void createTabs(final ILaunchConfigurationDialog dialog, final String mode) {
 		setTabs(new ILaunchConfigurationTab[] { new GwtMainTab(), new GwtShellArgumentsTab(), new JavaJRETab(), new CommonTab() });
 	}
 

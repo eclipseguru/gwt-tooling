@@ -11,16 +11,17 @@
  **************************************************************************************************/
 package org.eclipseguru.gwt.ui.dialogs;
 
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
+import org.eclipseguru.gwt.core.GwtModule;
+import org.eclipseguru.gwt.core.GwtProject;
 
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.swt.widgets.Shell;
 import org.eclipse.ui.dialogs.ElementListSelectionDialog;
 import org.eclipse.ui.model.WorkbenchLabelProvider;
-import org.eclipseguru.gwt.core.GwtModule;
-import org.eclipseguru.gwt.core.GwtProject;
+
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
 
 /**
  * A dialog for selecting a module from a project.
@@ -36,7 +37,7 @@ public class ModuleSelectionDialog extends ElementListSelectionDialog {
 	 * @param project
 	 * @throws CoreException
 	 */
-	public ModuleSelectionDialog(Shell parent, GwtProject project) throws CoreException {
+	public ModuleSelectionDialog(final Shell parent, final GwtProject project) throws CoreException {
 		this(parent, new GwtProject[] { project });
 	}
 
@@ -47,12 +48,12 @@ public class ModuleSelectionDialog extends ElementListSelectionDialog {
 	 * @param projects
 	 * @throws CoreException
 	 */
-	public ModuleSelectionDialog(Shell parent, GwtProject[] projects) throws CoreException {
+	public ModuleSelectionDialog(final Shell parent, final GwtProject[] projects) throws CoreException {
 		super(parent, new WorkbenchLabelProvider());
 		setTitle("GWT Module");
 		setMessage("Select a GWT module:");
-		List<GwtModule> modules = new ArrayList<GwtModule>();
-		for (GwtProject project : projects)
+		final List<GwtModule> modules = new ArrayList<GwtModule>();
+		for (final GwtProject project : projects)
 			modules.addAll(Arrays.asList(project.getModules()));
 		setElements(modules.toArray(new GwtModule[modules.size()]));
 	}
@@ -62,7 +63,7 @@ public class ModuleSelectionDialog extends ElementListSelectionDialog {
 	}
 
 	public String getSelectedModuleName() {
-		GwtModule selectedModule = getSelectedModule();
+		final GwtModule selectedModule = getSelectedModule();
 		return selectedModule.getModuleId();
 	}
 

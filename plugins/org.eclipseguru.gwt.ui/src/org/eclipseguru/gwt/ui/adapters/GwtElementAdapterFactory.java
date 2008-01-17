@@ -11,9 +11,10 @@
  **************************************************************************************************/
 package org.eclipseguru.gwt.ui.adapters;
 
+import org.eclipseguru.gwt.core.GwtElement;
+
 import org.eclipse.core.runtime.IAdapterFactory;
 import org.eclipse.ui.model.IWorkbenchAdapter;
-import org.eclipseguru.gwt.core.GwtElement;
 
 /**
  * The adapter factory for GWT element.
@@ -26,7 +27,7 @@ public class GwtElementAdapterFactory implements IAdapterFactory {
 	 * @see org.eclipse.core.runtime.IAdapterFactory#getAdapter(java.lang.Object,
 	 *      java.lang.Class)
 	 */
-	public Object getAdapter(Object adaptableObject, Class adapterType) {
+	public Object getAdapter(final Object adaptableObject, final Class adapterType) {
 		if (adaptableObject instanceof GwtElement)
 			return GwtElementWorkbenchAdapter.SHARED_INSTANCE;
 		return null;

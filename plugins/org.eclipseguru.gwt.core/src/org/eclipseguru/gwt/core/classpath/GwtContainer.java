@@ -11,12 +11,13 @@
  **************************************************************************************************/
 package org.eclipseguru.gwt.core.classpath;
 
-import java.text.MessageFormat;
+import org.eclipseguru.gwt.core.runtimes.GwtRuntime;
 
 import org.eclipse.core.runtime.IPath;
 import org.eclipse.jdt.core.IClasspathContainer;
 import org.eclipse.jdt.core.IClasspathEntry;
-import org.eclipseguru.gwt.core.runtimes.GwtRuntime;
+
+import java.text.MessageFormat;
 
 /**
  * The GWT classpath container
@@ -29,7 +30,7 @@ public class GwtContainer implements IClasspathContainer {
 	 * @param gwtRuntime
 	 * @return the classpath entries
 	 */
-	private static IClasspathEntry[] computeClasspathEntries(GwtRuntime gwtRuntime) {
+	private static IClasspathEntry[] computeClasspathEntries(final GwtRuntime gwtRuntime) {
 		return gwtRuntime.computeClasspathEntries();
 	}
 
@@ -50,7 +51,7 @@ public class GwtContainer implements IClasspathContainer {
 	 * @param gwtRuntime
 	 * @param containerPath
 	 */
-	public GwtContainer(GwtRuntime gwtRuntime, IPath containerPath) {
+	public GwtContainer(final GwtRuntime gwtRuntime, final IPath containerPath) {
 		this.gwtRuntime = gwtRuntime;
 		this.containerPath = containerPath;
 	}

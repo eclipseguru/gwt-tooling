@@ -11,8 +11,7 @@
  **************************************************************************************************/
 package org.eclipseguru.gwt.ui.java;
 
-import java.util.ArrayList;
-import java.util.List;
+import org.eclipseguru.gwt.ui.GwtUi;
 
 import org.eclipse.core.resources.IProject;
 import org.eclipse.core.resources.IResource;
@@ -30,7 +29,9 @@ import org.eclipse.jdt.ui.JavaUI;
 import org.eclipse.jface.window.Window;
 import org.eclipse.ui.PlatformUI;
 import org.eclipse.ui.dialogs.SelectionDialog;
-import org.eclipseguru.gwt.ui.GwtUi;
+
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  * 
@@ -43,14 +44,14 @@ public class GwtJavaUtil {
 	 * @param project
 	 * @return
 	 */
-	public static IPackageFragmentRoot[] getNonJRERoots(IJavaProject project) {
-		List<IPackageFragmentRoot> result = new ArrayList<IPackageFragmentRoot>();
+	public static IPackageFragmentRoot[] getNonJRERoots(final IJavaProject project) {
+		final List<IPackageFragmentRoot> result = new ArrayList<IPackageFragmentRoot>();
 		try {
-			IPackageFragmentRoot[] roots = project.getPackageFragmentRoots();
+			final IPackageFragmentRoot[] roots = project.getPackageFragmentRoots();
 			for (int i = 0; i < roots.length; i++)
 				if (!isJRELibrary(roots[i]))
 					result.add(roots[i]);
-		} catch (JavaModelException e) {
+		} catch (final JavaModelException e) {
 		}
 		return result.toArray(new IPackageFragmentRoot[result.size()]);
 	}
@@ -61,7 +62,7 @@ public class GwtJavaUtil {
 	 * @param project
 	 * @return
 	 */
-	public static IJavaSearchScope getSearchScope(IProject project) {
+	public static IJavaSearchScope getSearchScope(final IProject project) {
 		return SearchEngine.createJavaSearchScope(getNonJRERoots(JavaCore.create(project)));
 	}
 
@@ -71,12 +72,12 @@ public class GwtJavaUtil {
 	 * @param root
 	 * @return
 	 */
-	public static boolean isJRELibrary(IPackageFragmentRoot root) {
+	public static boolean isJRELibrary(final IPackageFragmentRoot root) {
 		try {
-			IPath path = root.getRawClasspathEntry().getPath();
+			final IPath path = root.getRawClasspathEntry().getPath();
 			if (path.equals(new Path(JavaRuntime.JRE_CONTAINER)) || path.equals(new Path(JavaRuntime.JRELIB_VARIABLE)))
 				return true;
-		} catch (JavaModelException e) {
+		} catch (final JavaModelException e) {
 		}
 		return false;
 	}
@@ -88,18 +89,18 @@ public class GwtJavaUtil {
 	 * @param scope
 	 * @return
 	 */
-	public static String selectType(IResource resource, int scope) {
+	public static String selectType(final IResource resource, final int scope) {
 		if (resource == null)
 			return null;
-		IProject project = resource.getProject();
+		final IProject project = resource.getProject();
 		try {
-			SelectionDialog dialog = JavaUI.createTypeDialog(GwtUi.getActiveWorkbenchShell(), PlatformUI.getWorkbench().getProgressService(), getSearchScope(project), scope, false, ""); //$NON-NLS-1$
+			final SelectionDialog dialog = JavaUI.createTypeDialog(GwtUi.getActiveWorkbenchShell(), PlatformUI.getWorkbench().getProgressService(), getSearchScope(project), scope, false, ""); //$NON-NLS-1$
 			dialog.setTitle("Select Type");
 			if (dialog.open() == Window.OK) {
-				IType type = (IType) dialog.getResult()[0];
+				final IType type = (IType) dialog.getResult()[0];
 				return type.getFullyQualifiedName('$');
 			}
-		} catch (JavaModelException e) {
+		} catch (final JavaModelException e) {
 		}
 		return null;
 	}

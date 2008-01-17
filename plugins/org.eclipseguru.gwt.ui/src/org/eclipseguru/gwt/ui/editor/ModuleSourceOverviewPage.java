@@ -23,14 +23,14 @@ public class ModuleSourceOverviewPage extends FormPage {
 	 * 
 	 * @param editor
 	 */
-	public ModuleSourceOverviewPage(ModuleSourceEditor editor) {
+	public ModuleSourceOverviewPage(final ModuleSourceEditor editor) {
 		super(editor, "overview", "Overview");
 	}
 
 	/**
 	 * @param moduleSource
 	 */
-	public void setModel(ModuleSourceWC moduleSource) {
+	public void setModel(final ModuleSourceWC moduleSource) {
 		// TODO Auto-generated method stub
 
 	}

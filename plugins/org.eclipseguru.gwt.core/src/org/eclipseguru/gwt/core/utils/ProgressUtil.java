@@ -26,7 +26,7 @@ public class ProgressUtil {
 	 * 
 	 * @param monitor
 	 */
-	public static void checkCanceled(IProgressMonitor monitor) throws OperationCanceledException {
+	public static void checkCanceled(final IProgressMonitor monitor) throws OperationCanceledException {
 		if ((null != monitor) && monitor.isCanceled())
 			throw new OperationCanceledException();
 	}
@@ -43,7 +43,7 @@ public class ProgressUtil {
 	 * @param ticks
 	 * @return
 	 */
-	public static IProgressMonitor subProgressMonitor(IProgressMonitor monitor, int ticks) {
+	public static IProgressMonitor subProgressMonitor(final IProgressMonitor monitor, final int ticks) {
 		if (null == monitor)
 			return new NullProgressMonitor();
 

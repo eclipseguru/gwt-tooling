@@ -25,7 +25,7 @@ public class GwtWebUninstallActionConfigFactory extends FacetInstallDataModelPro
 	 * @see org.eclipse.wst.common.componentcore.datamodel.FacetInstallDataModelProvider#getDefaultProperty(java.lang.String)
 	 */
 	@Override
-	public Object getDefaultProperty(String propertyName) {
+	public Object getDefaultProperty(final String propertyName) {
 		if (propertyName.equals(FACET_ID))
 			return getFacetId();
 		return super.getDefaultProperty(propertyName);

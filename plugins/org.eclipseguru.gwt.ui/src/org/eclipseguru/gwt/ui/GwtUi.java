@@ -38,7 +38,7 @@ public class GwtUi extends AbstractUIPlugin {
 	 * @return the active workbench page (maybe <code>null</code>)
 	 */
 	public static IWorkbenchPage getActiveWorkbenchPage() {
-		IWorkbenchWindow activeWorkbenchWindow = getPlugin().getWorkbench().getActiveWorkbenchWindow();
+		final IWorkbenchWindow activeWorkbenchWindow = getPlugin().getWorkbench().getActiveWorkbenchWindow();
 		if (null != activeWorkbenchWindow)
 			return activeWorkbenchWindow.getActivePage();
 
@@ -52,7 +52,7 @@ public class GwtUi extends AbstractUIPlugin {
 	 */
 	public static Shell getActiveWorkbenchShell() {
 		// TODO Auto-generated method stub
-		IWorkbenchWindow activeWorkbenchWindow = getPlugin().getWorkbench().getActiveWorkbenchWindow();
+		final IWorkbenchWindow activeWorkbenchWindow = getPlugin().getWorkbench().getActiveWorkbenchWindow();
 		if (null != activeWorkbenchWindow)
 			return activeWorkbenchWindow.getShell();
 
@@ -67,7 +67,7 @@ public class GwtUi extends AbstractUIPlugin {
 	 *            the path
 	 * @return the image descriptor
 	 */
-	public static ImageDescriptor getImageDescriptor(String path) {
+	public static ImageDescriptor getImageDescriptor(final String path) {
 		return AbstractUIPlugin.imageDescriptorFromPlugin(PLUGIN_ID, path);
 	}
 
@@ -85,7 +85,7 @@ public class GwtUi extends AbstractUIPlugin {
 	 * 
 	 * @param status
 	 */
-	public static void log(IStatus status) {
+	public static void log(final IStatus status) {
 		getPlugin().getLog().log(status);
 	}
 
@@ -94,7 +94,7 @@ public class GwtUi extends AbstractUIPlugin {
 	 * 
 	 * @param message
 	 */
-	public static void logError(String message, Throwable cause) {
+	public static void logError(final String message, final Throwable cause) {
 		log(new Status(IStatus.ERROR, PLUGIN_ID, -1, message, cause));
 	}
 
@@ -103,7 +103,7 @@ public class GwtUi extends AbstractUIPlugin {
 	 * 
 	 * @param message
 	 */
-	public static void logErrorMessage(String message) {
+	public static void logErrorMessage(final String message) {
 		log(new Status(IStatus.ERROR, PLUGIN_ID, -1, message, null));
 	}
 
@@ -113,7 +113,7 @@ public class GwtUi extends AbstractUIPlugin {
 	 * @param message
 	 * @return the error status
 	 */
-	public static IStatus newErrorStatus(String message) {
+	public static IStatus newErrorStatus(final String message) {
 		return new Status(IStatus.ERROR, PLUGIN_ID, -1, message, null);
 	}
 

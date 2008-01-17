@@ -11,6 +11,11 @@
  **************************************************************************************************/
 package org.eclipseguru.gwt.ui.actions;
 
+import org.eclipseguru.gwt.core.GwtCore;
+import org.eclipseguru.gwt.core.builder.GwtProjectPublisher;
+import org.eclipseguru.gwt.core.project.GwtProjectNature;
+import org.eclipseguru.gwt.ui.GwtUi;
+
 import org.eclipse.core.resources.IProject;
 import org.eclipse.core.runtime.IAdaptable;
 import org.eclipse.jface.action.IAction;
@@ -22,10 +27,6 @@ import org.eclipse.ui.IActionDelegate;
 import org.eclipse.ui.IObjectActionDelegate;
 import org.eclipse.ui.IWorkbenchPart;
 import org.eclipse.ui.IWorkbenchWindow;
-import org.eclipseguru.gwt.core.GwtCore;
-import org.eclipseguru.gwt.core.builder.GwtProjectPublisher;
-import org.eclipseguru.gwt.core.project.GwtProjectNature;
-import org.eclipseguru.gwt.ui.GwtUi;
 
 /**
  * Compiles and publishes all project and included modules in the project.
@@ -47,12 +48,12 @@ public class PublishProjectAction implements IObjectActionDelegate {
 	/**
 	 * @see IActionDelegate#run(IAction)
 	 */
-	public void run(IAction action) {
+	public void run(final IAction action) {
 		final Shell shell = null != workbenchWindow ? workbenchWindow.getShell() : new Shell();
 		if ((null != selectedProject) && GwtProjectNature.isPossibleGwtProject(getSelectedProject()))
 			try {
 				new GwtProjectPublisher(GwtCore.create(getSelectedProject())).schedule();
-			} catch (Exception e) {
+			} catch (final Exception e) {
 				ErrorDialog.openError(shell, "Error", "An error occured while initilizing the project publishing process.", GwtUi.newErrorStatus(e));
 			}
 	}
@@ -60,12 +61,12 @@ public class PublishProjectAction implements IObjectActionDelegate {
 	/**
 	 * @see IActionDelegate#selectionChanged(IAction, ISelection)
 	 */
-	public void selectionChanged(IAction action, ISelection selection) {
+	public void selectionChanged(final IAction action, final ISelection selection) {
 		selectedProject = null;
 		if (!(selection instanceof IStructuredSelection))
 			return;
 
-		Object element = ((IStructuredSelection) selection).getFirstElement();
+		final Object element = ((IStructuredSelection) selection).getFirstElement();
 		if (element instanceof IProject)
 			selectedProject = (IProject) element;
 
@@ -76,7 +77,7 @@ public class PublishProjectAction implements IObjectActionDelegate {
 	/**
 	 * @see IObjectActionDelegate#setActivePart(IAction, IWorkbenchPart)
 	 */
-	public void setActivePart(IAction action, IWorkbenchPart targetPart) {
+	public void setActivePart(final IAction action, final IWorkbenchPart targetPart) {
 		workbenchWindow = targetPart.getSite().getWorkbenchWindow();
 	}
 

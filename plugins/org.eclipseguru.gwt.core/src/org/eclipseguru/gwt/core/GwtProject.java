@@ -11,9 +11,8 @@
  **************************************************************************************************/
 package org.eclipseguru.gwt.core;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.StringTokenizer;
+import org.eclipseguru.gwt.core.facet.GwtFacetConstants;
+import org.eclipseguru.gwt.core.preferences.GwtCorePreferenceConstants;
 
 import org.eclipse.core.resources.IFile;
 import org.eclipse.core.resources.IProject;
@@ -33,8 +32,10 @@ import org.eclipse.jdt.core.IJavaProject;
 import org.eclipse.jdt.core.IPackageFragment;
 import org.eclipse.jdt.core.IPackageFragmentRoot;
 import org.eclipse.jdt.core.JavaCore;
-import org.eclipseguru.gwt.core.facet.GwtFacetConstants;
-import org.eclipseguru.gwt.core.preferences.GwtCorePreferenceConstants;
+
+import java.util.ArrayList;
+import java.util.List;
+import java.util.StringTokenizer;
 
 import com.googlipse.gwt.common.Constants;
 
@@ -51,13 +52,13 @@ public class GwtProject extends GwtElement {
 	 * @param monitor
 	 *            the progress monitor
 	 */
-	public static void addGwtNature(IProject project, IProgressMonitor monitor) throws CoreException {
+	public static void addGwtNature(final IProject project, final IProgressMonitor monitor) throws CoreException {
 		// get description and old natures
-		IProjectDescription description = project.getDescription();
-		String[] prevNatures = description.getNatureIds();
+		final IProjectDescription description = project.getDescription();
+		final String[] prevNatures = description.getNatureIds();
 
 		// create array for new natures
-		String[] newNatures = new String[prevNatures.length + 1];
+		final String[] newNatures = new String[prevNatures.length + 1];
 		System.arraycopy(prevNatures, 0, newNatures, 0, prevNatures.length);
 
 		// add GWT nature
@@ -83,7 +84,7 @@ public class GwtProject extends GwtElement {
 	 *         {@value GwtFacetConstants#FACET_ID_GWT_MODULE} facet assigned,
 	 *         <code>false</code> otherwise
 	 */
-	public static boolean hasGwtModuleFacet(IProject project) {
+	public static boolean hasGwtModuleFacet(final IProject project) {
 		return GwtUtil.hasFacet(project, GwtFacetConstants.FACET_ID_GWT_MODULE);
 	}
 
@@ -95,12 +96,12 @@ public class GwtProject extends GwtElement {
 	 * @return <code>true</code> if the project nature is attached an enabled,
 	 *         <code>false</code> otherwise
 	 */
-	public static boolean hasGwtNature(IProject project) {
+	public static boolean hasGwtNature(final IProject project) {
 		if (!project.isAccessible())
 			return false;
 		try {
 			return project.isNatureEnabled(GwtCore.NATURE_ID);
-		} catch (CoreException e) {
+		} catch (final CoreException e) {
 			// project is closed or does not exists
 			return false;
 		}
@@ -115,15 +116,15 @@ public class GwtProject extends GwtElement {
 	 *         {@value GwtFacetConstants#FACET_ID_GWT_WEB} facet assigned,
 	 *         <code>false</code> otherwise
 	 */
-	public static boolean hasGwtWebFacet(IProject project) {
+	public static boolean hasGwtWebFacet(final IProject project) {
 		return GwtUtil.hasFacet(project, GwtFacetConstants.FACET_ID_GWT_WEB);
 	}
 
 	/** project */
-	private IProject project;
+	private final IProject project;
 
 	/** javaProject */
-	private IJavaProject javaProject;
+	private final IJavaProject javaProject;
 
 	/** modules */
 	private GwtModule[] modules;
@@ -136,12 +137,12 @@ public class GwtProject extends GwtElement {
 	 * 
 	 * @param parent
 	 */
-	GwtProject(IProject project, GwtModel parent) {
+	GwtProject(final IProject project, final GwtModel parent) {
 		super(parent);
 		if (null == project)
 			throw new IllegalArgumentException("project cannot be null");
 		this.project = project;
-		this.javaProject = JavaCore.create(project);
+		javaProject = JavaCore.create(project);
 	}
 
 	/**
@@ -151,7 +152,7 @@ public class GwtProject extends GwtElement {
 	 * @param packageFragment
 	 * @return
 	 */
-	GwtModule createBinaryModule(IStorage moduleDescriptor, IPackageFragment packageFragment) {
+	GwtModule createBinaryModule(final IStorage moduleDescriptor, final IPackageFragment packageFragment) {
 		return new GwtModule(moduleDescriptor, packageFragment, this);
 	}
 
@@ -161,7 +162,7 @@ public class GwtProject extends GwtElement {
 	 * @param file
 	 * @return
 	 */
-	GwtModule createModule(IFile moduleDescriptor) {
+	GwtModule createModule(final IFile moduleDescriptor) {
 		return new GwtModule(moduleDescriptor, this);
 	}
 
@@ -180,20 +181,20 @@ public class GwtProject extends GwtElement {
 	 * @return
 	 */
 	protected GwtModule[] findIncludedModules() {
-		IWorkspaceRoot root = ResourcesPlugin.getWorkspace().getRoot();
-		GwtModel model = (GwtModel) getParent();
-		IEclipsePreferences preferences = new ProjectScope(project).getNode(Constants.PLUGIN_ID);
-		List<GwtModule> modules = new ArrayList<GwtModule>(5);
-		String includedModulesString = preferences.get(GwtCorePreferenceConstants.PREF_INCLUDED_MODULES, null);
+		final IWorkspaceRoot root = ResourcesPlugin.getWorkspace().getRoot();
+		final GwtModel model = (GwtModel) getParent();
+		final IEclipsePreferences preferences = new ProjectScope(project).getNode(Constants.PLUGIN_ID);
+		final List<GwtModule> modules = new ArrayList<GwtModule>(5);
+		final String includedModulesString = preferences.get(GwtCorePreferenceConstants.PREF_INCLUDED_MODULES, null);
 		if (null != includedModulesString) {
-			StringTokenizer includedModulesTokenizer = new StringTokenizer(includedModulesString, ";");
+			final StringTokenizer includedModulesTokenizer = new StringTokenizer(includedModulesString, ";");
 			while (includedModulesTokenizer.hasMoreTokens()) {
-				String token = includedModulesTokenizer.nextToken();
-				IPath path = Path.fromPortableString(token);
+				final String token = includedModulesTokenizer.nextToken();
+				final IPath path = Path.fromPortableString(token);
 				if (root.getWorkspace().validatePath(path.toString(), IResource.FILE).isOK()) {
-					IFile file = root.getFile(path);
+					final IFile file = root.getFile(path);
 					if (file.isAccessible() && GwtUtil.isModuleDescriptor(file)) {
-						GwtProject project = model.createProject(file);
+						final GwtProject project = model.createProject(file);
 						modules.add(project.createModule(file));
 					}
 				}
@@ -208,23 +209,23 @@ public class GwtProject extends GwtElement {
 	 * @throws CoreException
 	 */
 	protected GwtModule[] findModules() throws CoreException {
-		IJavaProject javaProject = getJavaProject();
-		List<GwtModule> moduleFiles = new ArrayList<GwtModule>();
-		for (IPackageFragmentRoot aRoot : javaProject.getPackageFragmentRoots()) {
+		final IJavaProject javaProject = getJavaProject();
+		final List<GwtModule> moduleFiles = new ArrayList<GwtModule>();
+		for (final IPackageFragmentRoot aRoot : javaProject.getPackageFragmentRoots()) {
 			// check only in source folders. Skip others
 			if (aRoot.getKind() != IPackageFragmentRoot.K_SOURCE)
 				continue;
-			for (IJavaElement aPackage : aRoot.getChildren()) {
+			for (final IJavaElement aPackage : aRoot.getChildren()) {
 				// look only for packages. Skip others
 				if (aPackage.getElementType() != IJavaElement.PACKAGE_FRAGMENT)
 					continue;
 
-				for (Object aResource : ((IPackageFragment) aPackage).getNonJavaResources()) {
+				for (final Object aResource : ((IPackageFragment) aPackage).getNonJavaResources()) {
 					// look only files. Skip others
 					if (!(aResource instanceof IFile))
 						continue;
 
-					IFile aFile = (IFile) aResource;
+					final IFile aFile = (IFile) aResource;
 					if (GwtUtil.isModuleDescriptor(aFile))
 						moduleFiles.add(createModule(aFile));
 				}
@@ -265,12 +266,11 @@ public class GwtProject extends GwtElement {
 	 * @throws GwtModelException
 	 *             if an error occured while accessing the project
 	 */
-	public GwtModule getModule(String moduleId) throws GwtModelException {
-		GwtModule[] modules = getModules();
-		for (GwtModule module : modules) {
+	public GwtModule getModule(final String moduleId) throws GwtModelException {
+		final GwtModule[] modules = getModules();
+		for (final GwtModule module : modules)
 			if (module.getModuleId().equals(moduleId))
 				return module;
-		}
 		return null;
 	}
 
@@ -285,7 +285,7 @@ public class GwtProject extends GwtElement {
 		if (null == modules)
 			try {
 				modules = findModules();
-			} catch (CoreException e) {
+			} catch (final CoreException e) {
 				throw newGwtModelException(e);
 			}
 		return modules;
@@ -339,11 +339,11 @@ public class GwtProject extends GwtElement {
 	 * 
 	 * @param project
 	 */
-	public void setIncludedModules(List modules) {
-		IEclipsePreferences projectPreferences = new ProjectScope(project).getNode(Constants.PLUGIN_ID);
-		StringBuilder builder = new StringBuilder();
+	public void setIncludedModules(final List modules) {
+		final IEclipsePreferences projectPreferences = new ProjectScope(project).getNode(Constants.PLUGIN_ID);
+		final StringBuilder builder = new StringBuilder();
 		for (int i = 0; i < modules.size(); i++) {
-			GwtModule module = (GwtModule) modules.get(i);
+			final GwtModule module = (GwtModule) modules.get(i);
 			if (i > 0)
 				builder.append(';');
 			builder.append(module.getModuleDescriptor().getFullPath().toPortableString());

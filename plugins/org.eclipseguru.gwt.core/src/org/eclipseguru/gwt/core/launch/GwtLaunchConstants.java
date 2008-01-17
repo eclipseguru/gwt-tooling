@@ -11,8 +11,9 @@
  **************************************************************************************************/
 package org.eclipseguru.gwt.core.launch;
 
-import org.eclipse.jdt.launching.IJavaLaunchConfigurationConstants;
 import org.eclipseguru.gwt.core.GwtCore;
+
+import org.eclipse.jdt.launching.IJavaLaunchConfigurationConstants;
 
 /**
  * Shared launch constants.

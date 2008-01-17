@@ -11,8 +11,7 @@
  **************************************************************************************************/
 package org.eclipseguru.gwt.core.project;
 
-import java.util.ArrayList;
-import java.util.List;
+import org.eclipseguru.gwt.core.GwtCore;
 
 import org.eclipse.core.resources.ICommand;
 import org.eclipse.core.resources.IProject;
@@ -20,7 +19,9 @@ import org.eclipse.core.resources.IProjectDescription;
 import org.eclipse.core.resources.IProjectNature;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.jdt.core.JavaCore;
-import org.eclipseguru.gwt.core.GwtCore;
+
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  * The project nature for GWT projects.
@@ -35,12 +36,12 @@ public class GwtProjectNature implements IProjectNature {
 	 * @return <code>true</code> if the project is a possible GWT project,
 	 *         <code>false</code> otherwise
 	 */
-	public static boolean isPossibleGwtProject(IProject project) {
+	public static boolean isPossibleGwtProject(final IProject project) {
 		if (!project.isAccessible())
 			return false;
 		try {
 			return project.isNatureEnabled(JavaCore.NATURE_ID);
-		} catch (CoreException e) {
+		} catch (final CoreException e) {
 			// project is closed or does not exists
 			return false;
 		}
@@ -58,8 +59,8 @@ public class GwtProjectNature implements IProjectNature {
 		if (!isPossibleGwtProject(getProject()))
 			throw new CoreException(GwtCore.newErrorStatus("Project must be a Java project!"));
 
-		IProjectDescription desc = getProject().getDescription();
-		ICommand[] commands = desc.getBuildSpec();
+		final IProjectDescription desc = getProject().getDescription();
+		final ICommand[] commands = desc.getBuildSpec();
 		boolean found = false;
 
 		for (int i = 0; i < commands.length; ++i)
@@ -69,13 +70,13 @@ public class GwtProjectNature implements IProjectNature {
 			}
 		if (!found) {
 			// add builder to project
-			ICommand gwtBuildCommand = desc.newCommand();
+			final ICommand gwtBuildCommand = desc.newCommand();
 			gwtBuildCommand.setBuilderName(GwtCore.BUILDER_ID);
 
 			// Add it after the Java builder.
-			ICommand[] oldBuilders = desc.getBuildSpec();
-			List<ICommand> newBuilders = new ArrayList<ICommand>(oldBuilders.length + 1);
-			for (ICommand command : oldBuilders) {
+			final ICommand[] oldBuilders = desc.getBuildSpec();
+			final List<ICommand> newBuilders = new ArrayList<ICommand>(oldBuilders.length + 1);
+			for (final ICommand command : oldBuilders) {
 				newBuilders.add(command);
 				if (command.getBuilderName().equals(JavaCore.BUILDER_ID) && !newBuilders.contains(gwtBuildCommand))
 					newBuilders.add(gwtBuildCommand);
@@ -91,8 +92,8 @@ public class GwtProjectNature implements IProjectNature {
 	 * @see org.eclipse.core.resources.IProjectNature#deconfigure()
 	 */
 	public void deconfigure() throws CoreException {
-		IProjectDescription desc = getProject().getDescription();
-		ICommand[] commands = desc.getBuildSpec();
+		final IProjectDescription desc = getProject().getDescription();
+		final ICommand[] commands = desc.getBuildSpec();
 		boolean found = false;
 
 		for (int i = 0; i < commands.length; ++i)
@@ -102,9 +103,9 @@ public class GwtProjectNature implements IProjectNature {
 			}
 		if (found) {
 			// remove builder from project
-			ICommand[] newCommands = new ICommand[commands.length - 1];
+			final ICommand[] newCommands = new ICommand[commands.length - 1];
 			int j = 0;
-			for (ICommand element : commands) {
+			for (final ICommand element : commands) {
 				if (element.getBuilderName().equals(GwtCore.BUILDER_ID))
 					continue;
 				newCommands[j] = element;
@@ -122,7 +123,7 @@ public class GwtProjectNature implements IProjectNature {
 	 * @see org.eclipse.core.resources.IProjectNature#getProject()
 	 */
 	public IProject getProject() {
-		return this.project;
+		return project;
 	}
 
 	/*
@@ -130,7 +131,7 @@ public class GwtProjectNature implements IProjectNature {
 	 * 
 	 * @see org.eclipse.core.resources.IProjectNature#setProject(org.eclipse.core.resources.IProject)
 	 */
-	public void setProject(IProject project) {
+	public void setProject(final IProject project) {
 		this.project = project;
 	}
 

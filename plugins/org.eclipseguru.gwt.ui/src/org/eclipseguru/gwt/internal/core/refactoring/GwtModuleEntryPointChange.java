@@ -11,9 +11,10 @@
  **************************************************************************************************/
 package org.eclipseguru.gwt.internal.core.refactoring;
 
-import java.io.ByteArrayInputStream;
-import java.io.UnsupportedEncodingException;
-import java.text.MessageFormat;
+import org.eclipseguru.gwt.core.GwtCore;
+import org.eclipseguru.gwt.core.GwtModelException;
+import org.eclipseguru.gwt.core.GwtModule;
+import org.eclipseguru.gwt.ui.GwtUi;
 
 import org.eclipse.core.resources.IFile;
 import org.eclipse.core.resources.IResource;
@@ -24,10 +25,10 @@ import org.eclipse.jdt.core.compiler.CharOperation;
 import org.eclipse.jdt.internal.core.util.Util;
 import org.eclipse.ltk.core.refactoring.Change;
 import org.eclipse.ltk.core.refactoring.RefactoringStatus;
-import org.eclipseguru.gwt.core.GwtCore;
-import org.eclipseguru.gwt.core.GwtModelException;
-import org.eclipseguru.gwt.core.GwtModule;
-import org.eclipseguru.gwt.ui.GwtUi;
+
+import java.io.ByteArrayInputStream;
+import java.io.UnsupportedEncodingException;
+import java.text.MessageFormat;
 
 /**
  * The change for the GWT module entry point type name.
@@ -47,16 +48,16 @@ public class GwtModuleEntryPointChange extends Change {
 	 *            the name of the new main type, or <code>null</code> if not
 	 *            modified.
 	 */
-	public GwtModuleEntryPointChange(GwtModule gwtModule, String newEntryPointTypeName) {
+	public GwtModuleEntryPointChange(final GwtModule gwtModule, final String newEntryPointTypeName) {
 		this.gwtModule = gwtModule;
 		this.newEntryPointTypeName = newEntryPointTypeName;
 		String currentTypeName;
 		try {
 			currentTypeName = gwtModule.getEntryPointTypeName();
-		} catch (GwtModelException e) {
+		} catch (final GwtModelException e) {
 			currentTypeName = null;
 		}
-		this.oldEntryPointTypeName = currentTypeName;
+		oldEntryPointTypeName = currentTypeName;
 	}
 
 	/*
@@ -85,7 +86,7 @@ public class GwtModuleEntryPointChange extends Change {
 	 * @see org.eclipse.ltk.core.refactoring.Change#initializeValidationData(org.eclipse.core.runtime.IProgressMonitor)
 	 */
 	@Override
-	public void initializeValidationData(IProgressMonitor pm) {
+	public void initializeValidationData(final IProgressMonitor pm) {
 	}
 
 	/*
@@ -94,11 +95,11 @@ public class GwtModuleEntryPointChange extends Change {
 	 * @see org.eclipse.ltk.core.refactoring.Change#isValid(org.eclipse.core.runtime.IProgressMonitor)
 	 */
 	@Override
-	public RefactoringStatus isValid(IProgressMonitor pm) throws CoreException, OperationCanceledException {
+	public RefactoringStatus isValid(final IProgressMonitor pm) throws CoreException, OperationCanceledException {
 		if (!gwtModule.isBinary()) {
-			IFile moduleDescriptor = (IFile) gwtModule.getModuleDescriptor();
+			final IFile moduleDescriptor = (IFile) gwtModule.getModuleDescriptor();
 			if (moduleDescriptor.exists()) {
-				GwtModule module = GwtCore.create(moduleDescriptor);
+				final GwtModule module = GwtCore.create(moduleDescriptor);
 				if ((null != oldEntryPointTypeName) && oldEntryPointTypeName.equals(module.getEntryPointTypeName()))
 					return new RefactoringStatus();
 				else
@@ -115,16 +116,16 @@ public class GwtModuleEntryPointChange extends Change {
 	 * @see org.eclipse.ltk.core.refactoring.Change#perform(org.eclipse.core.runtime.IProgressMonitor)
 	 */
 	@Override
-	public Change perform(IProgressMonitor pm) throws CoreException {
-		IFile moduleDescriptor = (IFile) gwtModule.getModuleDescriptor();
+	public Change perform(final IProgressMonitor pm) throws CoreException {
+		final IFile moduleDescriptor = (IFile) gwtModule.getModuleDescriptor();
 		try {
-			char[] content = Util.getResourceContentsAsCharArray(moduleDescriptor);
-			char[] newContent = CharOperation.replace(content, oldEntryPointTypeName.toCharArray(), newEntryPointTypeName.toCharArray());
+			final char[] content = Util.getResourceContentsAsCharArray(moduleDescriptor);
+			final char[] newContent = CharOperation.replace(content, oldEntryPointTypeName.toCharArray(), newEntryPointTypeName.toCharArray());
 			if (CharOperation.equals(content, newContent))
 				return null;
 
 			moduleDescriptor.setContents(new ByteArrayInputStream(new String(newContent).getBytes(moduleDescriptor.getCharset())), IResource.KEEP_HISTORY, pm);
-		} catch (UnsupportedEncodingException e) {
+		} catch (final UnsupportedEncodingException e) {
 			throw new CoreException(GwtUi.newErrorStatus(e));
 		}
 

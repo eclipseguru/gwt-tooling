@@ -11,9 +11,8 @@
  **************************************************************************************************/
 package org.eclipseguru.gwt.ui.editor.contentassist;
 
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.List;
+import org.eclipseguru.gwt.ui.GwtUiImages;
+import org.eclipseguru.gwt.ui.java.GwtJavaUtil;
 
 import org.eclipse.core.resources.IProject;
 import org.eclipse.core.resources.IResource;
@@ -38,8 +37,10 @@ import org.eclipse.wst.xml.core.internal.provisional.document.IDOMNode;
 import org.eclipse.wst.xml.core.internal.regions.DOMRegionContext;
 import org.eclipse.wst.xml.ui.internal.contentassist.ContentAssistRequest;
 import org.eclipse.wst.xml.ui.internal.contentassist.XMLContentAssistProcessor;
-import org.eclipseguru.gwt.ui.GwtUiImages;
-import org.eclipseguru.gwt.ui.java.GwtJavaUtil;
+
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.List;
 
 /**
  * The content assist processor for the GWT module descriptor.
@@ -54,13 +55,13 @@ public class ModuleSourceContentAssistProcessor extends XMLContentAssistProcesso
 	 * @see org.eclipse.wst.xml.ui.internal.contentassist.XMLContentAssistProcessor#addAttributeValueProposals(org.eclipse.wst.xml.ui.internal.contentassist.ContentAssistRequest)
 	 */
 	@Override
-	protected void addAttributeValueProposals(ContentAssistRequest contentAssistRequest) {
-		IDOMNode node = (IDOMNode) contentAssistRequest.getNode();
+	protected void addAttributeValueProposals(final ContentAssistRequest contentAssistRequest) {
+		final IDOMNode node = (IDOMNode) contentAssistRequest.getNode();
 
 		// Find the attribute region and name for which this position should
 		// have a value proposed
-		IStructuredDocumentRegion open = node.getFirstStructuredDocumentRegion();
-		ITextRegionList openRegions = open.getRegions();
+		final IStructuredDocumentRegion open = node.getFirstStructuredDocumentRegion();
+		final ITextRegionList openRegions = open.getRegions();
 		int i = openRegions.indexOf(contentAssistRequest.getRegion());
 		if (i < 0)
 			return;
@@ -80,7 +81,7 @@ public class ModuleSourceContentAssistProcessor extends XMLContentAssistProcesso
 
 		// the name region is REQUIRED to do anything useful
 		if (nameRegion != null) {
-			String attributeName = open.getText(nameRegion);
+			final String attributeName = open.getText(nameRegion);
 			generateAttributeValueProposals(contentAssistRequest, node, attributeName, prefix);
 			super.addAttributeValueProposals(contentAssistRequest);
 		}
@@ -94,18 +95,18 @@ public class ModuleSourceContentAssistProcessor extends XMLContentAssistProcesso
 	 * @param attributeName
 	 * @param prefix
 	 */
-	private void generateAttributeValueProposals(ContentAssistRequest contentAssistRequest, IDOMNode node, String attributeName, String prefix) {
-		IResource resource = ContentAssistUtils.getResource(contentAssistRequest);
-		List<ICompletionProposal> proposals = new ArrayList<ICompletionProposal>();
+	private void generateAttributeValueProposals(final ContentAssistRequest contentAssistRequest, final IDOMNode node, final String attributeName, final String prefix) {
+		final IResource resource = ContentAssistUtils.getResource(contentAssistRequest);
+		final List<ICompletionProposal> proposals = new ArrayList<ICompletionProposal>();
 
 		// we need to adjust the replacement position
 		// (because we do not replace quotes)
-		int startOffset = contentAssistRequest.getReplacementBeginPosition() + 1;
-		int length = contentAssistRequest.getReplacementLength() > 1 ? contentAssistRequest.getReplacementLength() - 2 : 0;
+		final int startOffset = contentAssistRequest.getReplacementBeginPosition() + 1;
+		final int length = contentAssistRequest.getReplacementLength() > 1 ? contentAssistRequest.getReplacementLength() - 2 : 0;
 
 		if ("class".equals(attributeName))
 			if (null != resource) {
-				String errorMessage = generateTypeAndPackageProposals(prefix, resource.getProject(), proposals, startOffset, length, IJavaSearchConstants.CLASS);
+				final String errorMessage = generateTypeAndPackageProposals(prefix, resource.getProject(), proposals, startOffset, length, IJavaSearchConstants.CLASS);
 				if (null != errorMessage) {
 					setErrorMessage(errorMessage);
 					return;
@@ -118,7 +119,7 @@ public class ModuleSourceContentAssistProcessor extends XMLContentAssistProcesso
 					generateModuleProposals(contentAssistRequest, prefix, resource.getProject());
 
 		// add proposals
-		for (ICompletionProposal proposal : proposals)
+		for (final ICompletionProposal proposal : proposals)
 			contentAssistRequest.addProposal(proposal);
 	}
 
@@ -129,7 +130,7 @@ public class ModuleSourceContentAssistProcessor extends XMLContentAssistProcesso
 	 * @param prefix
 	 * @param project
 	 */
-	protected void generateModuleProposals(ContentAssistRequest contentAssistRequest, String prefix, IProject project) {
+	protected void generateModuleProposals(final ContentAssistRequest contentAssistRequest, final String prefix, final IProject project) {
 		// TODO Auto-generated method stub
 
 	}
@@ -141,23 +142,22 @@ public class ModuleSourceContentAssistProcessor extends XMLContentAssistProcesso
 	 * @param project
 	 * @param typeScope
 	 * @param contentAssistRequest
-	 * 
 	 * @return an error message (maybe <code>null</code>)
 	 */
-	protected String generateTypeAndPackageProposals(String currentContent, IProject project, final Collection<ICompletionProposal> proposals, final int replacementStart, final int replacementLength, final int typeScope) {
+	protected String generateTypeAndPackageProposals(String currentContent, final IProject project, final Collection<ICompletionProposal> proposals, final int replacementStart, final int replacementLength, final int typeScope) {
 		currentContent = ContentAssistUtils.removeLeadingSpaces(currentContent);
 		if (currentContent.length() == 0)
 			return "The Java content assist needs a prefix of at least one character.";
 
 		try {
-			ICompilationUnit unit = ContentAssistUtils.getWorkingCopy(project);
+			final ICompilationUnit unit = ContentAssistUtils.getWorkingCopy(project);
 			if (unit == null)
 				return generateTypeProposals(currentContent, project, proposals, replacementStart, replacementLength, typeScope);
 
-			IBuffer buff = unit.getBuffer();
+			final IBuffer buff = unit.getBuffer();
 			buff.setContents("class Dummy2 { " + currentContent); //$NON-NLS-1$
 
-			CompletionRequestor req = new CompletionRequestor() {
+			final CompletionRequestor req = new CompletionRequestor() {
 
 				@Override
 				public void accept(CompletionProposal proposal) {
@@ -191,7 +191,7 @@ public class ModuleSourceContentAssistProcessor extends XMLContentAssistProcesso
 					req.setIgnored(i, true);
 			unit.codeComplete(15 + currentContent.length(), req);
 			unit.discardWorkingCopy();
-		} catch (JavaModelException e) {
+		} catch (final JavaModelException e) {
 			return e.getMessage();
 		}
 
@@ -208,13 +208,13 @@ public class ModuleSourceContentAssistProcessor extends XMLContentAssistProcesso
 	 * @param replacementLength
 	 * @param typeScope
 	 */
-	protected String generateTypeProposals(String currentContent, IProject project, final Collection<ICompletionProposal> proposals, final int replacementStart, final int replacementLength, final int typeScope) {
+	protected String generateTypeProposals(final String currentContent, final IProject project, final Collection<ICompletionProposal> proposals, final int replacementStart, final int replacementLength, final int typeScope) {
 		// Dynamically adjust the search scope depending on the current
 		// state of the project
-		IJavaSearchScope scope = GwtJavaUtil.getSearchScope(project);
+		final IJavaSearchScope scope = GwtJavaUtil.getSearchScope(project);
 		char[] packageName = null;
 		char[] typeName = null;
-		int index = currentContent.lastIndexOf('.');
+		final int index = currentContent.lastIndexOf('.');
 
 		if (index == -1)
 			// There is no package qualification
@@ -238,7 +238,7 @@ public class ModuleSourceContentAssistProcessor extends XMLContentAssistProcesso
 		}
 
 		try {
-			TypeNameRequestor req = new TypeNameRequestor() {
+			final TypeNameRequestor req = new TypeNameRequestor() {
 				@Override
 				public void acceptType(int modifiers, char[] packageName, char[] simpleTypeName, char[][] enclosingTypeNames, String path) {
 					// Accept search results from the JDT SearchEngine
@@ -254,7 +254,7 @@ public class ModuleSourceContentAssistProcessor extends XMLContentAssistProcesso
 			// Note: Do not use the search() method, its performance is
 			// bad compared to the searchAllTypeNames() method
 			searchEngine.searchAllTypeNames(packageName, typeName, SearchPattern.R_PREFIX_MATCH, typeScope, scope, req, IJavaSearchConstants.WAIT_UNTIL_READY_TO_SEARCH, null);
-		} catch (CoreException e) {
+		} catch (final CoreException e) {
 			return e.getMessage();
 		}
 

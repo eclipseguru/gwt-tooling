@@ -11,14 +11,14 @@
  **************************************************************************************************/
 package org.eclipseguru.gwt.ui;
 
-import java.net.URL;
-
 import org.eclipse.core.runtime.FileLocator;
 import org.eclipse.core.runtime.Path;
 import org.eclipse.jface.resource.ImageDescriptor;
 import org.eclipse.jface.resource.ImageRegistry;
 import org.eclipse.swt.graphics.Image;
 import org.eclipse.ui.PlatformUI;
+
+import java.net.URL;
 
 /**
  * Bundle of all images used by the PDE plugin.
@@ -53,11 +53,11 @@ public class GwtUiImages {
 
 	public static final ImageDescriptor DESC_OVERLAY_MODULE = create(PATH_OVR, "ovr_module.png"); //$NON-NLS-1$
 
-	private static ImageDescriptor create(String prefix, String name) {
+	private static ImageDescriptor create(final String prefix, final String name) {
 		return ImageDescriptor.createFromURL(makeImageURL(prefix, name));
 	}
 
-	public static Image get(String key) {
+	public static Image get(final String key) {
 		if (PLUGIN_REGISTRY == null)
 			initialize();
 		return PLUGIN_REGISTRY.get(key);
@@ -72,13 +72,13 @@ public class GwtUiImages {
 		manage(IMG_MODULE, DESC_MODULE);
 	}
 
-	private static URL makeImageURL(String prefix, String name) {
-		String path = "$nl$/" + prefix + name; //$NON-NLS-1$
+	private static URL makeImageURL(final String prefix, final String name) {
+		final String path = "$nl$/" + prefix + name; //$NON-NLS-1$
 		return FileLocator.find(GwtUi.getPlugin().getBundle(), new Path(path), null);
 	}
 
-	public static Image manage(String key, ImageDescriptor desc) {
-		Image image = desc.createImage();
+	public static Image manage(final String key, final ImageDescriptor desc) {
+		final Image image = desc.createImage();
 		PLUGIN_REGISTRY.put(key, image);
 		return image;
 	}

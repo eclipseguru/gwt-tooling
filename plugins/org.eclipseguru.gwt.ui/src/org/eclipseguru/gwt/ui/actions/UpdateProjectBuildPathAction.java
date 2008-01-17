@@ -11,8 +11,10 @@
  **************************************************************************************************/
 package org.eclipseguru.gwt.ui.actions;
 
-import java.lang.reflect.InvocationTargetException;
-import java.text.MessageFormat;
+import org.eclipseguru.gwt.core.classpath.GwtClasspathUtil;
+import org.eclipseguru.gwt.core.project.GwtProjectNature;
+import org.eclipseguru.gwt.core.utils.ProgressUtil;
+import org.eclipseguru.gwt.ui.GwtUi;
 
 import org.eclipse.core.resources.IProject;
 import org.eclipse.core.resources.IWorkspace;
@@ -34,10 +36,9 @@ import org.eclipse.ui.IObjectActionDelegate;
 import org.eclipse.ui.IWorkbenchPart;
 import org.eclipse.ui.IWorkbenchWindow;
 import org.eclipse.ui.PlatformUI;
-import org.eclipseguru.gwt.core.classpath.GwtClasspathUtil;
-import org.eclipseguru.gwt.core.project.GwtProjectNature;
-import org.eclipseguru.gwt.core.utils.ProgressUtil;
-import org.eclipseguru.gwt.ui.GwtUi;
+
+import java.lang.reflect.InvocationTargetException;
+import java.text.MessageFormat;
 
 /**
  * Updates the classpath of a GWT project.
@@ -78,11 +79,11 @@ public class UpdateProjectBuildPathAction implements IObjectActionDelegate {
 	/**
 	 * @see IActionDelegate#run(IAction)
 	 */
-	public void run(IAction action) {
+	public void run(final IAction action) {
 		final Shell shell = null != workbenchWindow ? workbenchWindow.getShell() : new Shell();
 		final IProject project = getSelectedProject();
 		if ((null != project) && GwtProjectNature.isPossibleGwtProject(project)) {
-			IRunnableWithProgress runnableWithProgress = new IRunnableWithProgress() {
+			final IRunnableWithProgress runnableWithProgress = new IRunnableWithProgress() {
 				public void run(IProgressMonitor monitor) throws InvocationTargetException, InterruptedException {
 					try {
 						ResourcesPlugin.getWorkspace().run(createUpdateClasspathRunnable(project), null, IWorkspace.AVOID_UPDATE, monitor);
@@ -96,10 +97,10 @@ public class UpdateProjectBuildPathAction implements IObjectActionDelegate {
 			try {
 				PlatformUI.getWorkbench().getProgressService().busyCursorWhile(runnableWithProgress);
 				MessageDialog.openInformation(shell, "GWT Classpath", MessageFormat.format("Updated classpath of project {0}.", selectedProject.getName()));
-			} catch (InvocationTargetException e) {
+			} catch (final InvocationTargetException e) {
 				GwtUi.logError("Error while updating classpath.", e.getCause());
 				ErrorDialog.openError(shell, "Error", "An error occured while updating the project classpath.", GwtUi.newErrorStatus(e.getCause()));
-			} catch (InterruptedException e) {
+			} catch (final InterruptedException e) {
 				// canceled
 			}
 		}
@@ -108,12 +109,12 @@ public class UpdateProjectBuildPathAction implements IObjectActionDelegate {
 	/**
 	 * @see IActionDelegate#selectionChanged(IAction, ISelection)
 	 */
-	public void selectionChanged(IAction action, ISelection selection) {
+	public void selectionChanged(final IAction action, final ISelection selection) {
 		selectedProject = null;
 		if (!(selection instanceof IStructuredSelection))
 			return;
 
-		Object element = ((IStructuredSelection) selection).getFirstElement();
+		final Object element = ((IStructuredSelection) selection).getFirstElement();
 		if (element instanceof IProject)
 			selectedProject = (IProject) element;
 
@@ -124,7 +125,7 @@ public class UpdateProjectBuildPathAction implements IObjectActionDelegate {
 	/**
 	 * @see IObjectActionDelegate#setActivePart(IAction, IWorkbenchPart)
 	 */
-	public void setActivePart(IAction action, IWorkbenchPart targetPart) {
+	public void setActivePart(final IAction action, final IWorkbenchPart targetPart) {
 		workbenchWindow = targetPart.getSite().getWorkbenchWindow();
 	}
 

@@ -11,17 +11,18 @@
  **************************************************************************************************/
 package org.eclipseguru.gwt.core.facet;
 
-import java.text.MessageFormat;
+import org.eclipseguru.gwt.core.GwtCore;
+import org.eclipseguru.gwt.core.GwtProject;
+import org.eclipseguru.gwt.core.classpath.GwtClasspathUtil;
+import org.eclipseguru.gwt.core.utils.ProgressUtil;
 
 import org.eclipse.core.resources.IProject;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.wst.common.project.facet.core.IDelegate;
 import org.eclipse.wst.common.project.facet.core.IProjectFacetVersion;
-import org.eclipseguru.gwt.core.GwtCore;
-import org.eclipseguru.gwt.core.GwtProject;
-import org.eclipseguru.gwt.core.classpath.GwtClasspathUtil;
-import org.eclipseguru.gwt.core.utils.ProgressUtil;
+
+import java.text.MessageFormat;
 
 /**
  * The delegate for installing a web facet.
@@ -45,7 +46,7 @@ public class GwtWebInstallDelegate implements IDelegate {
 	 *      org.eclipse.wst.common.project.facet.core.IProjectFacetVersion,
 	 *      java.lang.Object, org.eclipse.core.runtime.IProgressMonitor)
 	 */
-	public void execute(IProject project, IProjectFacetVersion fv, Object config, IProgressMonitor monitor) throws CoreException {
+	public void execute(final IProject project, final IProjectFacetVersion fv, final Object config, IProgressMonitor monitor) throws CoreException {
 		// get monitor
 		monitor = ProgressUtil.monitor(monitor);
 		try {
@@ -58,7 +59,7 @@ public class GwtWebInstallDelegate implements IDelegate {
 			// update build path
 			updateBuildPath(project, monitor);
 
-		} catch (CoreException e) {
+		} catch (final CoreException e) {
 			// log exception & cancel
 			GwtCore.logError(MessageFormat.format("Error while installing GWT {0}: {1}", getFacetName(), e.getMessage()), e);
 			monitor.setCanceled(true);
@@ -86,7 +87,7 @@ public class GwtWebInstallDelegate implements IDelegate {
 	 * @throws CoreException
 	 *             if an error occurred
 	 */
-	protected void updateBuildPath(IProject project, IProgressMonitor monitor) throws CoreException {
+	protected void updateBuildPath(final IProject project, final IProgressMonitor monitor) throws CoreException {
 		GwtClasspathUtil.addGwtContainer(project, ProgressUtil.subProgressMonitor(monitor, 2));
 		GwtClasspathUtil.updateJREContainer(project, ProgressUtil.subProgressMonitor(monitor, 2), addAccessRules());
 	}
