@@ -23,6 +23,9 @@ import org.eclipse.jdt.core.JavaCore;
  */
 public class GwtRuntime {
 
+	/** NO_VMARGS */
+	private static final String[] NO_VMARGS = new String[0];
+
 	/** NO_ATTRIBUTES */
 	private static final IClasspathAttribute[] NO_ATTRIBUTES = new IClasspathAttribute[0];
 
@@ -31,6 +34,9 @@ public class GwtRuntime {
 
 	/** Constant value indicating if the current platform is Windows */
 	private static final boolean WINDOWS = Platform.getOS().equals(Platform.OS_WIN32);
+
+	/** Constant value indicating if the current platform is MacOSX */
+	private static final boolean MACOSX = Platform.getOS().equals(Platform.OS_MACOSX);
 
 	/** path */
 	private final IPath location;
@@ -64,8 +70,13 @@ public class GwtRuntime {
 	 * @return the jar name
 	 */
 	private String getDevJarName() {
-		if (WINDOWS)
+		if (WINDOWS) {
 			return "gwt-dev-windows.jar";
+		} else if (MACOSX) {
+			return "gwt-dev-mac.jar";
+		}
+
+		// at this point we assume Linux
 		return "gwt-dev-linux.jar";
 	}
 
@@ -76,6 +87,18 @@ public class GwtRuntime {
 	 */
 	public String[] getGwtRuntimeClasspath() {
 		return new String[] { getUserJar().toOSString(), getDevJar().toOSString() };
+	}
+
+	/**
+	 * Returns the VM arguments necessary for launching this GWT runtime.
+	 * 
+	 * @return the VM arguments
+	 */
+	public String[] getGwtRuntimeVmArgs() {
+		if (MACOSX) {
+			return new String[] { "-XstartOnFirstThread" };
+		}
+		return NO_VMARGS;
 	}
 
 	/**

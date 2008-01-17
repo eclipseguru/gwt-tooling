@@ -18,11 +18,11 @@ import org.eclipseguru.gwt.core.utils.ProgressUtil;
 
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IProgressMonitor;
+import org.eclipse.debug.core.DebugPlugin;
 import org.eclipse.debug.core.ILaunch;
 import org.eclipse.debug.core.ILaunchConfiguration;
 import org.eclipse.debug.core.model.ILaunchConfigurationDelegate;
 import org.eclipse.jdt.launching.AbstractJavaLaunchConfigurationDelegate;
-import org.eclipse.jdt.launching.ExecutionArguments;
 import org.eclipse.jdt.launching.IVMRunner;
 import org.eclipse.jdt.launching.VMRunnerConfiguration;
 
@@ -34,7 +34,7 @@ import java.util.List;
 import java.util.Map;
 
 /**
- * A launch delegate for launchin the GWT browser.
+ * A launch delegate for launching the GWT browser.
  */
 public class GwtBrowserLaunchDelegate extends AbstractJavaLaunchConfigurationDelegate implements ILaunchConfigurationDelegate, GwtLaunchConstants {
 
@@ -66,6 +66,32 @@ public class GwtBrowserLaunchDelegate extends AbstractJavaLaunchConfigurationDel
 		return classpath.toArray(new String[classpath.size()]);
 	}
 
+	/**
+	 * Computes the classpath for the specified project and configuration.
+	 * 
+	 * @param project
+	 * @param configuration
+	 * @return
+	 * @throws CoreException
+	 */
+	private String[] computeVmArgs(final GwtProject project, final ILaunchConfiguration configuration) throws CoreException {
+		final List<String> vmArgs = new ArrayList<String>();
+
+		// launch config arguments first
+		vmArgs.addAll(Arrays.asList(DebugPlugin.parseArguments(getVMArguments(configuration))));
+
+		// GWT runtime entries only if not already present
+		final GwtRuntime runtime = GwtCore.getRuntime(project);
+		final String[] runtimeVmArgs = runtime.getGwtRuntimeVmArgs();
+		for (final String arg : runtimeVmArgs) {
+			if (!vmArgs.contains(arg)) {
+				vmArgs.add(arg);
+			}
+		}
+
+		return vmArgs.toArray(new String[vmArgs.size()]);
+	}
+
 	/*
 	 * (non-Javadoc)
 	 * 
@@ -81,8 +107,9 @@ public class GwtBrowserLaunchDelegate extends AbstractJavaLaunchConfigurationDel
 			monitor.beginTask(MessageFormat.format("{0}...", configuration.getName()), 3); //$NON-NLS-1$
 
 			// check for cancellation
-			if (monitor.isCanceled())
+			if (monitor.isCanceled()) {
 				return;
+			}
 
 			monitor.subTask("Verifying launch attributes...");
 
@@ -93,16 +120,16 @@ public class GwtBrowserLaunchDelegate extends AbstractJavaLaunchConfigurationDel
 			// working directory
 			final File workingDir = verifyWorkingDirectory(configuration);
 			String workingDirName = null;
-			if (workingDir != null)
+			if (workingDir != null) {
 				workingDirName = workingDir.getAbsolutePath();
+			}
 
 			// Environment variables
 			final String[] envp = getEnvironment(configuration);
 
 			// Program & VM arguments
 			final String[] pgmArgs = GwtLaunchUtil.getGwtShellArguments(configuration);
-			final String vmArgs = getVMArguments(configuration);
-			final ExecutionArguments execArgs = new ExecutionArguments(vmArgs, "");
+			final String[] vmArgs = computeVmArgs(project, configuration);
 
 			// VM-specific attributes
 			final Map vmAttributesMap = getVMSpecificAttributesMap(configuration);
@@ -114,7 +141,7 @@ public class GwtBrowserLaunchDelegate extends AbstractJavaLaunchConfigurationDel
 			final VMRunnerConfiguration runConfig = new VMRunnerConfiguration(CLASS_NAME_GWTSHELL, classpath);
 			runConfig.setProgramArguments(pgmArgs);
 			runConfig.setEnvironment(envp);
-			runConfig.setVMArguments(execArgs.getVMArgumentsArray());
+			runConfig.setVMArguments(vmArgs);
 			runConfig.setWorkingDirectory(workingDirName);
 			runConfig.setVMSpecificAttributesMap(vmAttributesMap);
 
@@ -122,8 +149,9 @@ public class GwtBrowserLaunchDelegate extends AbstractJavaLaunchConfigurationDel
 			runConfig.setBootClassPath(getBootpath(configuration));
 
 			// check for cancellation
-			if (monitor.isCanceled())
+			if (monitor.isCanceled()) {
 				return;
+			}
 
 			// stop in main
 			prepareStopInMain(configuration);
@@ -140,8 +168,9 @@ public class GwtBrowserLaunchDelegate extends AbstractJavaLaunchConfigurationDel
 			runner.run(runConfig, launch, monitor);
 
 			// check for cancellation
-			if (monitor.isCanceled())
+			if (monitor.isCanceled()) {
 				return;
+			}
 
 		} finally {
 			monitor.done();

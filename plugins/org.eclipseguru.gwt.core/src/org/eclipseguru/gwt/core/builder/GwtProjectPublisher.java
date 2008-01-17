@@ -94,13 +94,15 @@ public class GwtProjectPublisher extends WorkspaceJob {
 			try {
 				final BufferedReader reader = new BufferedReader(new StringReader(collectedOutput.toString()));
 				String text = null;
-				while ((text = reader.readLine()) != null)
+				while ((text = reader.readLine()) != null) {
 					if (text.trim().startsWith("[ERROR] ")) {
 						String errorMsg = text.trim().substring("[ERROR] ".length());
 						errorMsg = stripNewlines(errorMsg);
-						if (!ignoreError(errorMsg))
+						if (!ignoreError(errorMsg)) {
 							compileErrors.add(errorMsg);
+						}
 					}
+				}
 			} catch (final IOException e) {
 				compileErrors.add("Internal error while analyzing compile output: " + e.getMessage());
 			}
@@ -118,12 +120,15 @@ public class GwtProjectPublisher extends WorkspaceJob {
 		}
 
 		private boolean ignoreError(final String errorMsg) {
-			if (errorMsg.equals("Build failed"))
+			if (errorMsg.equals("Build failed")) {
 				return true;
-			if (errorMsg.equals("Failure while parsing XML"))
+			}
+			if (errorMsg.equals("Failure while parsing XML")) {
 				return true;
-			if (errorMsg.contains("Unexpected exception while processing element"))
+			}
+			if (errorMsg.contains("Unexpected exception while processing element")) {
 				return true;
+			}
 			return false;
 		}
 
@@ -168,8 +173,9 @@ public class GwtProjectPublisher extends WorkspaceJob {
 	@SuppressWarnings("unchecked")
 	private void compileModule(final GwtProject gwtProject, final GwtModule module, final IFolder targetFolder, final IProgressMonitor monitor) throws CoreException {
 		// check for local install
-		if (null == targetFolder.getLocation())
+		if (null == targetFolder.getLocation()) {
 			throw new CoreException(GwtCore.newErrorStatus("Target Folder must be on the local filesystem!"));
+		}
 
 		// determine the marker resource
 		final IResource markerResource = (module.getModuleDescriptor() instanceof IResource) ? (IResource) module.getModuleDescriptor() : module.getProjectResource();
@@ -223,8 +229,9 @@ public class GwtProjectPublisher extends WorkspaceJob {
 			// GWT libraries
 			final GwtRuntime runtime = GwtCore.getRuntime(gwtProject);
 			final String[] gwtRuntimeClasspath = runtime.getGwtRuntimeClasspath();
-			for (final String element : gwtRuntimeClasspath)
+			for (final String element : gwtRuntimeClasspath) {
 				classpath.add(element);
+			}
 
 			// regular classpath
 			final String[] projectClassPath = JavaRuntime.computeDefaultRuntimeClassPath(gwtProject.getJavaProject());
@@ -253,10 +260,10 @@ public class GwtProjectPublisher extends WorkspaceJob {
 						if ((source instanceof IProcess)) {
 							final IProcess process = (IProcess) source;
 							final ILaunch launch = process.getLaunch();
-							if ((launch != null) && (launch == gwtLaunch))
-								if (event.getKind() == DebugEvent.CREATE)
+							if ((launch != null) && (launch == gwtLaunch)) {
+								if (event.getKind() == DebugEvent.CREATE) {
 									process.getStreamsProxy().getOutputStreamMonitor().addListener(compileErrorLogger);
-								else if (event.getKind() == DebugEvent.TERMINATE) {
+								} else if (event.getKind() == DebugEvent.TERMINATE) {
 									process.getStreamsProxy().getOutputStreamMonitor().removeListener(compileErrorLogger);
 									DebugPlugin.getDefault().removeDebugEventListener(this);
 
@@ -268,6 +275,7 @@ public class GwtProjectPublisher extends WorkspaceJob {
 										compilerLaunchLock.unlock();
 									}
 								}
+							}
 						}
 					}
 				}
@@ -292,20 +300,24 @@ public class GwtProjectPublisher extends WorkspaceJob {
 						Thread.interrupted();
 					}
 				}
-				if (!gwtLaunch.isTerminated())
+				if (!gwtLaunch.isTerminated()) {
 					ResourceUtil.createProblem(markerResource, "GWT Compiler: Took too long to complete. Compile results might be undefined.");
+				}
 			} finally {
 				compilerLaunchLock.unlock();
 			}
 
 			// create marker for error message
 			final List<String> compileErrors = compileErrorLogger.getCompileErrors();
-			if (compileErrors.size() > 0)
-				for (final String error : compileErrors)
-					if (module.getModuleDescriptor() instanceof IResource)
+			if (compileErrors.size() > 0) {
+				for (final String error : compileErrors) {
+					if (module.getModuleDescriptor() instanceof IResource) {
 						ResourceUtil.createProblem(markerResource, NLS.bind("GWT Compiler: {0}", error));
-					else
+					} else {
 						ResourceUtil.createProblem(markerResource, NLS.bind("GWT Compiler, module {0}: {1}", module.getModuleId(), error));
+					}
+				}
+			}
 
 			// refresh
 			targetFolder.refreshLocal(IResource.DEPTH_INFINITE, monitor);
@@ -364,8 +376,7 @@ public class GwtProjectPublisher extends WorkspaceJob {
 	 * @throws CoreException
 	 */
 	private String[] prepareGwtCompilerVmArguments(final GwtModule module) throws CoreException {
-		final String vmArgs = VariablesPlugin.getDefault().getStringVariableManager().performStringSubstitution(GwtUtil.getCompilerVmArgs(module.getProject()));
-		return vmArgs.split(" ");
+		return DebugPlugin.parseArguments(VariablesPlugin.getDefault().getStringVariableManager().performStringSubstitution(GwtUtil.getCompilerVmArgs(module.getProject())));
 	}
 
 	/**
@@ -390,8 +401,9 @@ public class GwtProjectPublisher extends WorkspaceJob {
 				}
 			});
 			final IStatus canWrite = makeEditable(resources);
-			if (!canWrite.isOK())
+			if (!canWrite.isOK()) {
 				throw new CoreException(canWrite);
+			}
 
 			// compile the modules
 			for (final GwtModule module : modules) {
@@ -402,13 +414,15 @@ public class GwtProjectPublisher extends WorkspaceJob {
 					// we need a "smart" publish that just generates
 					// the (module.nocache.html)
 					// http://groups.google.com/group/Google-Web-Toolkit/browse_thread/thread/aa3a8d942e493c26/69a1a5689cb56e2b#69a1a5689cb56e2b
-					if (false) // (isHosted)
+					if (false) {
 						publishHostedModuleFull(module, targetFolder, ProgressUtil.subProgressMonitor(monitor, 1));
-					else
+					} else {
 						compileModule(gwtProject, module, targetFolder, ProgressUtil.subProgressMonitor(monitor, 1));
+					}
 
-				} else
+				} else {
 					ResourceUtil.createProblem(gwtProject.getProjectResource(), NLS.bind("Could not resolve module ''{0}''.", module.getModuleId()));
+				}
 			}
 
 			// mark all generated resources as derived
@@ -428,8 +442,9 @@ public class GwtProjectPublisher extends WorkspaceJob {
 							try {
 								final BufferedReader reader = new BufferedReader(new InputStreamReader(contents, file.getCharset()));
 								final StringBuilder newContents = new StringBuilder(50000);
-								while (reader.ready())
+								while (reader.ready()) {
 									newContents.append(reader.readLine()).append(lineSeparator);
+								}
 								file.setContents(new ByteArrayInputStream(newContents.toString().getBytes(file.getCharset())), IResource.NONE, null);
 							} catch (final IOException e) {
 								// ignore, we don't care if there is such a problem
@@ -466,8 +481,9 @@ public class GwtProjectPublisher extends WorkspaceJob {
 		// we need a "smart" publish that just generates
 		// the (module.nocache.html)
 		// http://groups.google.com/group/Google-Web-Toolkit/browse_thread/thread/aa3a8d942e493c26/69a1a5689cb56e2b#69a1a5689cb56e2b
-		if (module.isBinary())
+		if (module.isBinary()) {
 			return;
+		}
 
 		try {
 			monitor.beginTask(NLS.bind("Publishing {0}", module.getSimpleName()), 10);
@@ -475,8 +491,9 @@ public class GwtProjectPublisher extends WorkspaceJob {
 			if ((null != resource) && (resource.getType() == IResource.FOLDER)) {
 				final IFolder publicFolder = ((IFolder) resource).getFolder(Constants.PUBLIC_FOLDER);
 				ResourceUtil.copyFolderContent(publicFolder, targetFolder.getFullPath(), ProgressUtil.subProgressMonitor(monitor, 1));
-			} else
+			} else {
 				ResourceUtil.createProblem(targetFolder.getProject(), NLS.bind("Could not publish module ''{0}'' (invalid workspace resource).", module.getSimpleName()));
+			}
 		} finally {
 			monitor.done();
 		}
@@ -497,8 +514,9 @@ public class GwtProjectPublisher extends WorkspaceJob {
 			final List<IProject> includedModulesProjects = new ArrayList<IProject>(includedModules.length);
 			for (final GwtModule module : includedModules) {
 				final IProject includedProject = module.getProjectResource();
-				if (!includedModulesProjects.contains(includedProject))
+				if (!includedModulesProjects.contains(includedProject)) {
 					includedModulesProjects.add(includedProject);
+				}
 			}
 
 			// remove project markers
@@ -511,13 +529,14 @@ public class GwtProjectPublisher extends WorkspaceJob {
 			if ((projectModules.length > 0) || (includedModules.length > 0)) {
 				// check output folder
 				final IPath outputLocation = GwtUtil.getOutputLocation(project);
-				if (outputLocation.makeRelative().isEmpty())
+				if (outputLocation.makeRelative().isEmpty()) {
 					ResourceUtil.createProblem(project.getProjectResource(), "The GWT build output folder is mapped to the project root which is not yet supported!");
-				else {
+				} else {
 					// initialize output folder
 					final IFolder targetFolder = project.getProjectResource().getFolder(outputLocation);
-					if (!targetFolder.exists())
+					if (!targetFolder.exists()) {
 						ResourceUtil.createFolderHierarchy(targetFolder, ProgressUtil.subProgressMonitor(monitor, 1));
+					}
 
 					monitor.subTask("Publishing Modules ...");
 
