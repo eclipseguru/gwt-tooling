@@ -1,0 +1,8 @@
+#Organize Import Order
+#Thu Jan 17 08:30:59 CET 2008
+5=net
+4=com
+3=javax
+2=java
+1=org
+0=org.eclipseguru
