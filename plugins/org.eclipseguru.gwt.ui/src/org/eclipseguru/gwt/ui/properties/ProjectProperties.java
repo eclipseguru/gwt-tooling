@@ -1,15 +1,14 @@
-/***************************************************************************************************
- * Copyright (c) 2006 2008 Eclipse Guru and others.
- * All rights reserved. 
- *
+/*******************************************************************************
+ * Copyright (c) 2006, 2008 EclipseGuru and others.
+ * All rights reserved.
+ * 
  * This program and the accompanying materials are made available under the terms of the 
  * Eclipse Public License v1.0 which accompanies this distribution, and is available at
  * http://www.eclipse.org/legal/epl-v10.html
  * 
- * Contributors: Eclipse Guru - initial API and implementation
- *               Eclipse.org - ideas, concepts and code from existing Eclipse projects
- *               Elias Balasis - Patch for http://code.google.com/p/gwt-tooling/issues/detail?id=46
- **************************************************************************************************/
+ * Contributors:
+ *     EclipseGuru - initial API and implementation
+ *******************************************************************************/
 package org.eclipseguru.gwt.ui.properties;
 
 import org.eclipseguru.gwt.core.GwtCore;
@@ -105,9 +104,8 @@ public class ProjectProperties extends PropertyPage implements IWorkbenchPropert
 
 	private final class ModulesListDialogFieldAdapter implements IListAdapter {
 		public void customButtonPressed(final ListDialogField field, final int index) {
-			if (field != modulesListDialogField) {
+			if (field != modulesListDialogField)
 				return;
-			}
 
 			switch (index) {
 				case IDX_BUTTON_ML_ADD:
@@ -221,9 +219,8 @@ public class ProjectProperties extends PropertyPage implements IWorkbenchPropert
 		dialog.setInitialSelection(initSelection);
 		dialog.setComparator(new ResourceComparator(ResourceComparator.NAME));
 
-		if (dialog.open() == Window.OK) {
+		if (dialog.open() == Window.OK)
 			return (IContainer) dialog.getFirstResult();
-		}
 		return null;
 	}
 
@@ -331,7 +328,7 @@ public class ProjectProperties extends PropertyPage implements IWorkbenchPropert
 			 * @see org.eclipse.core.runtime.jobs.Job#belongsTo(java.lang.Object)
 			 */
 			@Override
-			public boolean belongsTo(Object family) {
+			public boolean belongsTo(final Object family) {
 				return ResourcesPlugin.FAMILY_MANUAL_BUILD == family;
 			}
 
@@ -342,7 +339,7 @@ public class ProjectProperties extends PropertyPage implements IWorkbenchPropert
 			 * @see org.eclipse.core.runtime.jobs.Job#run(org.eclipse.core.runtime.IProgressMonitor)
 			 */
 			@Override
-			protected IStatus run(IProgressMonitor monitor) {
+			protected IStatus run(final IProgressMonitor monitor) {
 				try {
 					IProject[] projects = null;
 					if (getProject() == null) {
@@ -351,7 +348,7 @@ public class ProjectProperties extends PropertyPage implements IWorkbenchPropert
 						projects = new IProject[] { getProject().getProjectResource() };
 					}
 					monitor.beginTask("", projects.length * 2); //$NON-NLS-1$
-					for (IProject projectToBuild : projects) {
+					for (final IProject projectToBuild : projects) {
 						if (!projectToBuild.isOpen()) {
 							continue;
 						}
@@ -361,9 +358,9 @@ public class ProjectProperties extends PropertyPage implements IWorkbenchPropert
 							monitor.worked(1);
 						}
 					}
-				} catch (CoreException e) {
+				} catch (final CoreException e) {
 					return e.getStatus();
-				} catch (OperationCanceledException e) {
+				} catch (final OperationCanceledException e) {
 					return Status.CANCEL_STATUS;
 				} finally {
 					monitor.done();
@@ -428,9 +425,8 @@ public class ProjectProperties extends PropertyPage implements IWorkbenchPropert
 				currentProject = GwtCore.create((IProject) adaptable.getAdapter(IProject.class));
 			}
 
-			if (null == currentProject) {
+			if (null == currentProject)
 				throw new IllegalStateException("Project not found!");
-			}
 		}
 
 		return currentProject;
@@ -545,9 +541,8 @@ public class ProjectProperties extends PropertyPage implements IWorkbenchPropert
 		}
 
 		final IEclipsePreferences projectPreferences = project.getProjectPreferences();
-		if (null == projectPreferences) {
+		if (null == projectPreferences)
 			return false;
-		}
 
 		// hosted mode
 		projectPreferences.putBoolean(GwtCorePreferenceConstants.PREF_HOSTED_DEPLOY_MODE, isHosted);
@@ -671,9 +666,8 @@ public class ProjectProperties extends PropertyPage implements IWorkbenchPropert
 			final StringVariableSelectionDialog dialog = new StringVariableSelectionDialog(getShell());
 			dialog.open();
 			final String variableExpression = dialog.getVariableExpression();
-			if (variableExpression == null) {
+			if (variableExpression == null)
 				return;
-			}
 			final int startSel = vmArgsDialogField.getTextControl(null).getSelection().x;
 			final int lenSel = vmArgsDialogField.getTextControl(null).getSelectionCount();
 			final String currentText = getCompilerVmArgs();

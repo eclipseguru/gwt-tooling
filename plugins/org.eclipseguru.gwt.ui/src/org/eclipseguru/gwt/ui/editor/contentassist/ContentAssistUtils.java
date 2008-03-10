@@ -1,14 +1,14 @@
-/***************************************************************************************************
- * Copyright (c) 2006 Eclipse Guru and others.
- * All rights reserved. 
- *
+/*******************************************************************************
+ * Copyright (c) 2006, 2008 EclipseGuru and others.
+ * All rights reserved.
+ * 
  * This program and the accompanying materials are made available under the terms of the 
  * Eclipse Public License v1.0 which accompanies this distribution, and is available at
  * http://www.eclipse.org/legal/epl-v10.html
  * 
- * Contributors: Eclipse Guru - initial API and implementation
- *               Eclipse.org - ideas, concepts and code from existing Eclipse projects
- **************************************************************************************************/
+ * Contributors:
+ *     EclipseGuru - initial API and implementation
+ *******************************************************************************/
 package org.eclipseguru.gwt.ui.editor.contentassist;
 
 import org.eclipse.core.resources.IProject;
@@ -52,11 +52,13 @@ class ContentAssistUtils {
 				IStructuredModel model = null;
 				try {
 					model = StructuredModelManager.getModelManager().getExistingModelForRead(document);
-					if (model != null)
+					if (model != null) {
 						baselocation = model.getBaseLocation();
+					}
 				} finally {
-					if (model != null)
+					if (model != null) {
 						model.releaseFromRead();
+					}
 				}
 			}
 		}
@@ -64,8 +66,9 @@ class ContentAssistUtils {
 		if (baselocation != null) {
 			final IWorkspaceRoot root = ResourcesPlugin.getWorkspace().getRoot();
 			final IPath filePath = new Path(baselocation);
-			if (filePath.segmentCount() > 0)
+			if (filePath.segmentCount() > 0) {
 				resource = root.getFile(filePath);
+			}
 		}
 		return resource;
 	}
@@ -92,8 +95,9 @@ class ContentAssistUtils {
 		final char[] valueArray = value.toCharArray();
 		int i = 0;
 		for (; i < valueArray.length; i++)
-			if (!Character.isWhitespace(valueArray[i]))
+			if (!Character.isWhitespace(valueArray[i])) {
 				break;
+			}
 		return (i == valueArray.length) ? "" : new String(valueArray, i, valueArray.length - i); //$NON-NLS-1$
 	}
 

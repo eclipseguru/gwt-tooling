@@ -1,12 +1,13 @@
 /*******************************************************************************
- * Copyright (c) 2006 IBM Corporation and others.
- * All rights reserved. This program and the accompanying materials
- * are made available under the terms of the Eclipse Public License v1.0
- * which accompanies this distribution, and is available at
+ * Copyright (c) 2006, 2008 EclipseGuru and others.
+ * All rights reserved.
+ * 
+ * This program and the accompanying materials are made available under the terms of the 
+ * Eclipse Public License v1.0 which accompanies this distribution, and is available at
  * http://www.eclipse.org/legal/epl-v10.html
  * 
  * Contributors:
- *     IBM Corporation - initial API and implementation
+ *     EclipseGuru - initial API and implementation
  *******************************************************************************/
 package org.eclipseguru.gwt.ui.editor.utils;
 
@@ -62,8 +63,9 @@ public class JavaHyperlink implements IHyperlink {
 	public void open() {
 		try {
 			final IEditorPart editor = JavaUI.openInEditor(fElement);
-			if (editor != null)
+			if (editor != null) {
 				JavaUI.revealInEditor(editor, fElement);
+			}
 		} catch (final Exception e) {
 			// problem
 		}

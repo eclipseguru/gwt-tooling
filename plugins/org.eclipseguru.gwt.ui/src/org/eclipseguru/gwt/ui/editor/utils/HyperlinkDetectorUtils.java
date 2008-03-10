@@ -1,14 +1,14 @@
-/***************************************************************************************************
- * Copyright (c) 2006 Eclipse Guru and others.
- * All rights reserved. 
- *
+/*******************************************************************************
+ * Copyright (c) 2006, 2008 EclipseGuru and others.
+ * All rights reserved.
+ * 
  * This program and the accompanying materials are made available under the terms of the 
  * Eclipse Public License v1.0 which accompanies this distribution, and is available at
  * http://www.eclipse.org/legal/epl-v10.html
  * 
- * Contributors: Eclipse Guru - initial API and implementation
- *               Eclipse.org - ideas, concepts and code from existing Eclipse projects
- **************************************************************************************************/
+ * Contributors:
+ *     EclipseGuru - initial API and implementation
+ *******************************************************************************/
 package org.eclipseguru.gwt.ui.editor.utils;
 
 import org.eclipse.core.resources.IProject;
@@ -73,12 +73,14 @@ public class HyperlinkDetectorUtils {
 			sModel = StructuredModelManager.getModelManager().getExistingModelForRead(document);
 			if (sModel != null) {
 				inode = sModel.getIndexedRegion(offset);
-				if (inode == null)
+				if (inode == null) {
 					inode = sModel.getIndexedRegion(offset - 1);
+				}
 			}
 		} finally {
-			if (sModel != null)
+			if (sModel != null) {
 				sModel.releaseFromRead();
+			}
 		}
 
 		if (inode instanceof IDOMNode)
@@ -100,12 +102,13 @@ public class HyperlinkDetectorUtils {
 
 		IJavaElement element = null;
 		final IJavaProject project = getJavaProject(document);
-		if (project != null)
+		if (project != null) {
 			try {
 				element = project.findType(name);
 			} catch (final JavaModelException e) {
 				e.printStackTrace();
 			}
+		}
 		return element;
 	}
 
@@ -123,11 +126,13 @@ public class HyperlinkDetectorUtils {
 		IStructuredModel model = null;
 		try {
 			model = StructuredModelManager.getModelManager().getExistingModelForRead(document);
-			if (model != null)
+			if (model != null) {
 				baselocation = model.getBaseLocation();
+			}
 		} finally {
-			if (model != null)
+			if (model != null) {
 				model.releaseFromRead();
+			}
 		}
 
 		if (baselocation != null) {
@@ -135,8 +140,9 @@ public class HyperlinkDetectorUtils {
 			final IPath filePath = new Path(baselocation);
 			if (filePath.segmentCount() > 0) {
 				final IProject proj = root.getProject(filePath.segment(0));
-				if (proj != null)
+				if (proj != null) {
 					project = JavaCore.create(proj);
+				}
 			}
 		}
 		return project;

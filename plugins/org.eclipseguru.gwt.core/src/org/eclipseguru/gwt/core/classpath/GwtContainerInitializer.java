@@ -1,14 +1,14 @@
-/***************************************************************************************************
- * Copyright (c) 2006 Eclipse Guru and others.
- * All rights reserved. 
- *
+/*******************************************************************************
+ * Copyright (c) 2006, 2008 EclipseGuru and others.
+ * All rights reserved.
+ * 
  * This program and the accompanying materials are made available under the terms of the 
  * Eclipse Public License v1.0 which accompanies this distribution, and is available at
  * http://www.eclipse.org/legal/epl-v10.html
  * 
- * Contributors: Eclipse Guru - initial API and implementation
- *               Eclipse.org - ideas, concepts and code from existing Eclipse projects
- **************************************************************************************************/
+ * Contributors:
+ *     EclipseGuru - initial API and implementation
+ *******************************************************************************/
 package org.eclipseguru.gwt.core.classpath;
 
 import org.eclipseguru.gwt.core.GwtCore;
@@ -52,8 +52,9 @@ public class GwtContainerInitializer extends ClasspathContainerInitializer {
 			if (containerPath.segment(0).equals(GwtCore.GWT_CONTAINER)) {
 				final GwtRuntime gwtRuntime = GwtRuntimeManager.getInstalledRuntimes()[0];
 				GwtContainer container = null;
-				if (!gwtRuntime.getLocation().isEmpty())
+				if (!gwtRuntime.getLocation().isEmpty()) {
 					container = new GwtContainer(gwtRuntime, containerPath);
+				}
 				JavaCore.setClasspathContainer(containerPath, new IJavaProject[] { project }, new IClasspathContainer[] { container }, null);
 			}
 	}

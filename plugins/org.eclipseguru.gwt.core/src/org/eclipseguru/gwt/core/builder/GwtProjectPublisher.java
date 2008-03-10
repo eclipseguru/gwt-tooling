@@ -1,14 +1,14 @@
-/***************************************************************************************************
- * Copyright (c) 2006 Gunnar Wagenknecht, Truition and others.
- * All rights reserved. 
- *
+/*******************************************************************************
+ * Copyright (c) 2006, 2008 EclipseGuru and others.
+ * All rights reserved.
+ * 
  * This program and the accompanying materials are made available under the terms of the 
  * Eclipse Public License v1.0 which accompanies this distribution, and is available at
  * http://www.eclipse.org/legal/epl-v10.html
  * 
- * Contributors: Gunnar Wagenknecht - initial API and implementation
- *               Eclipse.org - ideas, concepts and code from existing Eclipse projects
- **************************************************************************************************/
+ * Contributors:
+ *     EclipseGuru - initial API and implementation
+ *******************************************************************************/
 package org.eclipseguru.gwt.core.builder;
 
 import org.eclipseguru.gwt.core.GwtCore;
@@ -120,15 +120,12 @@ public class GwtProjectPublisher extends WorkspaceJob {
 		}
 
 		private boolean ignoreError(final String errorMsg) {
-			if (errorMsg.equals("Build failed")) {
+			if (errorMsg.equals("Build failed"))
 				return true;
-			}
-			if (errorMsg.equals("Failure while parsing XML")) {
+			if (errorMsg.equals("Failure while parsing XML"))
 				return true;
-			}
-			if (errorMsg.contains("Unexpected exception while processing element")) {
+			if (errorMsg.contains("Unexpected exception while processing element"))
 				return true;
-			}
 			return false;
 		}
 
@@ -170,12 +167,10 @@ public class GwtProjectPublisher extends WorkspaceJob {
 	 * @param monitor
 	 * @throws CoreException
 	 */
-	@SuppressWarnings("unchecked")
 	private void compileModule(final GwtProject gwtProject, final GwtModule module, final IFolder targetFolder, final IProgressMonitor monitor) throws CoreException {
 		// check for local install
-		if (null == targetFolder.getLocation()) {
+		if (null == targetFolder.getLocation())
 			throw new CoreException(GwtCore.newErrorStatus("Target Folder must be on the local filesystem!"));
-		}
 
 		// determine the marker resource
 		final IResource markerResource = (module.getModuleDescriptor() instanceof IResource) ? (IResource) module.getModuleDescriptor() : module.getProjectResource();
@@ -331,7 +326,6 @@ public class GwtProjectPublisher extends WorkspaceJob {
 	 * @param resources
 	 * @return a status indicating if all files could be made editable
 	 */
-	@SuppressWarnings("restriction")
 	private IStatus makeEditable(final List<IResource> resources) {
 		return Resources.makeCommittable(resources.toArray(new IResource[resources.size()]), null);
 	}
@@ -401,9 +395,8 @@ public class GwtProjectPublisher extends WorkspaceJob {
 				}
 			});
 			final IStatus canWrite = makeEditable(resources);
-			if (!canWrite.isOK()) {
+			if (!canWrite.isOK())
 				throw new CoreException(canWrite);
-			}
 
 			// compile the modules
 			for (final GwtModule module : modules) {
@@ -481,9 +474,8 @@ public class GwtProjectPublisher extends WorkspaceJob {
 		// we need a "smart" publish that just generates
 		// the (module.nocache.html)
 		// http://groups.google.com/group/Google-Web-Toolkit/browse_thread/thread/aa3a8d942e493c26/69a1a5689cb56e2b#69a1a5689cb56e2b
-		if (module.isBinary()) {
+		if (module.isBinary())
 			return;
-		}
 
 		try {
 			monitor.beginTask(NLS.bind("Publishing {0}", module.getSimpleName()), 10);

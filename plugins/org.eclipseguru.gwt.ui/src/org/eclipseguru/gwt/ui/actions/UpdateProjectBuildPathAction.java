@@ -1,14 +1,14 @@
-/***************************************************************************************************
- * Copyright (c) 2006 Eclipse Guru and others.
- * All rights reserved. 
- *
+/*******************************************************************************
+ * Copyright (c) 2006, 2008 EclipseGuru and others.
+ * All rights reserved.
+ * 
  * This program and the accompanying materials are made available under the terms of the 
  * Eclipse Public License v1.0 which accompanies this distribution, and is available at
  * http://www.eclipse.org/legal/epl-v10.html
  * 
- * Contributors: Eclipse Guru - initial API and implementation
- *               Eclipse.org - ideas, concepts and code from existing Eclipse projects
- **************************************************************************************************/
+ * Contributors:
+ *     EclipseGuru - initial API and implementation
+ *******************************************************************************/
 package org.eclipseguru.gwt.ui.actions;
 
 import org.eclipseguru.gwt.core.classpath.GwtClasspathUtil;
@@ -84,12 +84,12 @@ public class UpdateProjectBuildPathAction implements IObjectActionDelegate {
 		final IProject project = getSelectedProject();
 		if ((null != project) && GwtProjectNature.isPossibleGwtProject(project)) {
 			final IRunnableWithProgress runnableWithProgress = new IRunnableWithProgress() {
-				public void run(IProgressMonitor monitor) throws InvocationTargetException, InterruptedException {
+				public void run(final IProgressMonitor monitor) throws InvocationTargetException, InterruptedException {
 					try {
 						ResourcesPlugin.getWorkspace().run(createUpdateClasspathRunnable(project), null, IWorkspace.AVOID_UPDATE, monitor);
-					} catch (CoreException e) {
+					} catch (final CoreException e) {
 						throw new InvocationTargetException(e);
-					} catch (OperationCanceledException e) {
+					} catch (final OperationCanceledException e) {
 						throw new InterruptedException();
 					}
 				}
@@ -115,11 +115,13 @@ public class UpdateProjectBuildPathAction implements IObjectActionDelegate {
 			return;
 
 		final Object element = ((IStructuredSelection) selection).getFirstElement();
-		if (element instanceof IProject)
+		if (element instanceof IProject) {
 			selectedProject = (IProject) element;
+		}
 
-		if ((null == selectedProject) && (element instanceof IAdaptable))
+		if ((null == selectedProject) && (element instanceof IAdaptable)) {
 			selectedProject = (IProject) ((IAdaptable) element).getAdapter(IProject.class);
+		}
 	}
 
 	/**

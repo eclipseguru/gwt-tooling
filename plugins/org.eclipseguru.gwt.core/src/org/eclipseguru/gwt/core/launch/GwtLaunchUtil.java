@@ -1,14 +1,14 @@
-/***************************************************************************************************
- * Copyright (c) 2006 Eclipse Guru and others.
- * All rights reserved. 
- *
+/*******************************************************************************
+ * Copyright (c) 2006, 2008 EclipseGuru and others.
+ * All rights reserved.
+ * 
  * This program and the accompanying materials are made available under the terms of the 
  * Eclipse Public License v1.0 which accompanies this distribution, and is available at
  * http://www.eclipse.org/legal/epl-v10.html
  * 
- * Contributors: Eclipse Guru - initial API and implementation
- *               Eclipse.org - ideas, concepts and code from existing Eclipse projects
- **************************************************************************************************/
+ * Contributors:
+ *     EclipseGuru - initial API and implementation
+ *******************************************************************************/
 package org.eclipseguru.gwt.core.launch;
 
 import org.eclipseguru.gwt.core.GwtCore;
@@ -100,8 +100,9 @@ public class GwtLaunchUtil implements GwtLaunchConstants {
 
 		final IPackageFragmentRoot[] packageFragmentRoots = project.getPackageFragmentRoots();
 		for (final IPackageFragmentRoot packageFragmentRoot : packageFragmentRoots)
-			if (packageFragmentRoot.getKind() == IPackageFragmentRoot.K_SOURCE)
+			if (packageFragmentRoot.getKind() == IPackageFragmentRoot.K_SOURCE) {
 				classpath.add(packageFragmentRoot.getResource().getLocation().toOSString());
+			}
 	}
 
 	/**
@@ -144,8 +145,9 @@ public class GwtLaunchUtil implements GwtLaunchConstants {
 			if ((null != url) && (url.trim().length() > 0)) {
 				wc.setAttribute(ATTR_CUSTOM_URL, true);
 				wc.setAttribute(ATTR_URL, url);
-			} else
+			} else {
 				wc.setAttribute(ATTR_CUSTOM_URL, false);
+			}
 			config = wc.doSave();
 		} catch (final CoreException e) {
 			GwtCore.logError(MessageFormat.format("Error while creating GWT Browser launch configuration for module {0}", module.getModuleId()), e);
@@ -213,9 +215,9 @@ public class GwtLaunchUtil implements GwtLaunchConstants {
 
 		// port or noserver option
 		final boolean noserver = getNoServer(configuration);
-		if (noserver)
+		if (noserver) {
 			args.add("-noserver");
-		else {
+		} else {
 			// port
 			args.add("-port");
 			args.add(String.valueOf(getPort(configuration)));
@@ -369,8 +371,9 @@ public class GwtLaunchUtil implements GwtLaunchConstants {
 	 */
 	public static String verifyModuleId(final ILaunchConfiguration configuration) throws CoreException {
 		final String moduleId = getModuleId(configuration);
-		if ((moduleId == null) || (moduleId.trim().length() == 0))
+		if ((moduleId == null) || (moduleId.trim().length() == 0)) {
 			abort("Module id not specified", null, GwtLaunchConstants.ERR_UNSPECIFIED_MODULE_ID);
+		}
 		return moduleId;
 	}
 
@@ -387,8 +390,9 @@ public class GwtLaunchUtil implements GwtLaunchConstants {
 	 */
 	public static GwtProject verifyProject(final ILaunchConfiguration configuration) throws CoreException {
 		final GwtProject project = getProject(configuration);
-		if (project == null)
+		if (project == null) {
 			abort("Project not specified", null, GwtLaunchConstants.ERR_UNSPECIFIED_PROJECT);
+		}
 		return project;
 	}
 

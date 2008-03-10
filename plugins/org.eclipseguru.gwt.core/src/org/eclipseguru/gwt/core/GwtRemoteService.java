@@ -1,14 +1,14 @@
-/***************************************************************************************************
- * Copyright (c) 2006 Gunnar Wagenknecht, Truition and others.
- * All rights reserved. 
- *
+/*******************************************************************************
+ * Copyright (c) 2006, 2008 EclipseGuru and others.
+ * All rights reserved.
+ * 
  * This program and the accompanying materials are made available under the terms of the 
  * Eclipse Public License v1.0 which accompanies this distribution, and is available at
  * http://www.eclipse.org/legal/epl-v10.html
  * 
- * Contributors: Gunnar Wagenknecht - initial API and implementation
- *               Eclipse.org - ideas, concepts and code from existing Eclipse projects
- **************************************************************************************************/
+ * Contributors:
+ *     EclipseGuru - initial API and implementation
+ *******************************************************************************/
 package org.eclipseguru.gwt.core;
 
 import org.eclipseguru.gwt.core.internal.codegen.AsyncServiceCodeGenerator;
@@ -50,13 +50,15 @@ public class GwtRemoteService extends GwtElement {
 		final List<IType> remoteServiceFiles = new ArrayList<IType>();
 		for (final GwtModule module : projectModules) {
 			// skip modules without a java package
-			if ((null == module.getModulePackage()) || !module.getModulePackage().exists())
+			if ((null == module.getModulePackage()) || !module.getModulePackage().exists()) {
 				continue;
+			}
 
 			// get the "client" folder
 			final IFolder folder = ((IFolder) module.getModulePackage().getResource()).getFolder(Constants.CLIENT_PACKAGE);
-			if (!folder.exists())
+			if (!folder.exists()) {
 				continue;
+			}
 
 			// check for service definitions
 			folder.accept(new IResourceProxyVisitor() {
@@ -74,8 +76,9 @@ public class GwtRemoteService extends GwtElement {
 								return false;
 
 							final ICompilationUnit cu = JavaCore.createCompilationUnitFrom(file);
-							if ((null != cu) && module.getModulePackage().getJavaProject().isOnClasspath(cu))
+							if ((null != cu) && module.getModulePackage().getJavaProject().isOnClasspath(cu)) {
 								GwtRemoteService.findRemoteServices(cu, remoteServiceFiles);
+							}
 					}
 					return false;
 				}
@@ -96,13 +99,15 @@ public class GwtRemoteService extends GwtElement {
 		// for every type declared in the java file
 		for (final IType someType : cu.getTypes()) {
 			// ignore binary types and non-interfaces
-			if (!someType.isInterface() || someType.isBinary())
+			if (!someType.isInterface() || someType.isBinary()) {
 				continue;
+			}
 			// for every interface implemented by that type
 			for (final String aSuperInterfaceSignature : someType.getSuperInterfaceTypeSignatures()) {
 				final String simpleName = GwtUtil.getTypeNameWithoutParameters(Signature.getSignatureSimpleName(aSuperInterfaceSignature));
-				if (simpleName.equals(GwtRemoteService.REMOTE_SERVICE_CLASS_SIMPLE_NAME) && !remoteServiceFiles.contains(someType))
+				if (simpleName.equals(GwtRemoteService.REMOTE_SERVICE_CLASS_SIMPLE_NAME) && !remoteServiceFiles.contains(someType)) {
 					remoteServiceFiles.add(someType);
+				}
 			}
 		}
 	}

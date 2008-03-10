@@ -1,14 +1,14 @@
-/***************************************************************************************************
- * Copyright (c) 2006 Eclipse Guru and others.
- * All rights reserved. 
- *
+/*******************************************************************************
+ * Copyright (c) 2006, 2008 EclipseGuru and others.
+ * All rights reserved.
+ * 
  * This program and the accompanying materials are made available under the terms of the 
  * Eclipse Public License v1.0 which accompanies this distribution, and is available at
  * http://www.eclipse.org/legal/epl-v10.html
  * 
- * Contributors: Eclipse Guru - initial API and implementation
- *               Eclipse.org - ideas, concepts and code from existing Eclipse projects
- **************************************************************************************************/
+ * Contributors:
+ *     EclipseGuru - initial API and implementation
+ *******************************************************************************/
 package org.eclipseguru.gwt.ui.launch;
 
 import org.eclipseguru.gwt.core.launch.GwtLaunchConstants;
@@ -64,7 +64,7 @@ public class GwtShellArgumentsTab extends JavaArgumentsTab implements GwtLaunchC
 		result.setLayout(layout);
 
 		final IDialogFieldListener launchDialogUpdater = new IDialogFieldListener() {
-			public void dialogFieldChanged(DialogField field) {
+			public void dialogFieldChanged(final DialogField field) {
 				updateLaunchConfigurationDialog();
 			}
 		};
@@ -140,8 +140,9 @@ public class GwtShellArgumentsTab extends JavaArgumentsTab implements GwtLaunchC
 		} catch (final CoreException e) {
 			logLevel = LOG_LEVELS[2];
 		}
-		for (int i = 0; i < LOG_LEVELS.length; i++)
+		for (int i = 0; i < LOG_LEVELS.length; i++) {
 			logLevelsDialogFieldGroup.setSelection(i, LOG_LEVELS[i].equals(logLevel));
+		}
 	}
 
 	protected void updateStyleFromConfig(final ILaunchConfiguration configuration) {
@@ -151,8 +152,9 @@ public class GwtShellArgumentsTab extends JavaArgumentsTab implements GwtLaunchC
 		} catch (final CoreException e) {
 			style = JAVSCRIPT_STYLES[1];
 		}
-		for (int i = 0; i < JAVSCRIPT_STYLES.length; i++)
+		for (int i = 0; i < JAVSCRIPT_STYLES.length; i++) {
 			javascriptStyleDialogFieldGroup.setSelection(i, JAVSCRIPT_STYLES[i].equals(style));
+		}
 	}
 
 }

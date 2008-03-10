@@ -1,14 +1,14 @@
-/***************************************************************************************************
- * Copyright (c) 2006 Eclipse Guru and others.
- * All rights reserved. 
- *
+/*******************************************************************************
+ * Copyright (c) 2006, 2008 EclipseGuru and others.
+ * All rights reserved.
+ * 
  * This program and the accompanying materials are made available under the terms of the 
  * Eclipse Public License v1.0 which accompanies this distribution, and is available at
  * http://www.eclipse.org/legal/epl-v10.html
  * 
- * Contributors: Eclipse Guru - initial API and implementation
- *               Eclipse.org - ideas, concepts and code from existing Eclipse projects
- **************************************************************************************************/
+ * Contributors:
+ *     EclipseGuru - initial API and implementation
+ *******************************************************************************/
 package org.eclipseguru.gwt.core.launch;
 
 import org.eclipseguru.gwt.core.GwtCore;
@@ -107,9 +107,8 @@ public class GwtBrowserLaunchDelegate extends AbstractJavaLaunchConfigurationDel
 			monitor.beginTask(MessageFormat.format("{0}...", configuration.getName()), 3); //$NON-NLS-1$
 
 			// check for cancellation
-			if (monitor.isCanceled()) {
+			if (monitor.isCanceled())
 				return;
-			}
 
 			monitor.subTask("Verifying launch attributes...");
 
@@ -149,9 +148,8 @@ public class GwtBrowserLaunchDelegate extends AbstractJavaLaunchConfigurationDel
 			runConfig.setBootClassPath(getBootpath(configuration));
 
 			// check for cancellation
-			if (monitor.isCanceled()) {
+			if (monitor.isCanceled())
 				return;
-			}
 
 			// stop in main
 			prepareStopInMain(configuration);
@@ -168,9 +166,8 @@ public class GwtBrowserLaunchDelegate extends AbstractJavaLaunchConfigurationDel
 			runner.run(runConfig, launch, monitor);
 
 			// check for cancellation
-			if (monitor.isCanceled()) {
+			if (monitor.isCanceled())
 				return;
-			}
 
 		} finally {
 			monitor.done();

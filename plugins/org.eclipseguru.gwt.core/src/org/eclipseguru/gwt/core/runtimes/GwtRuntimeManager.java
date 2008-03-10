@@ -1,14 +1,14 @@
-/***************************************************************************************************
- * Copyright (c) 2006 Eclipse Guru and others.
- * All rights reserved. 
- *
+/*******************************************************************************
+ * Copyright (c) 2006, 2008 EclipseGuru and others.
+ * All rights reserved.
+ * 
  * This program and the accompanying materials are made available under the terms of the 
  * Eclipse Public License v1.0 which accompanies this distribution, and is available at
  * http://www.eclipse.org/legal/epl-v10.html
  * 
- * Contributors: Eclipse Guru - initial API and implementation
- *               Eclipse.org - ideas, concepts and code from existing Eclipse projects
- **************************************************************************************************/
+ * Contributors:
+ *     EclipseGuru - initial API and implementation
+ *******************************************************************************/
 package org.eclipseguru.gwt.core.runtimes;
 
 import org.eclipseguru.gwt.core.GwtCore;
@@ -40,17 +40,19 @@ public class GwtRuntimeManager implements GwtCorePreferenceConstants {
 	private static final boolean logProblems = false;
 	private static IPropertyChangeListener listener = new IPropertyChangeListener() {
 
-		public void propertyChange(PropertyChangeEvent event) {
-			String key = event.getProperty();
-			if (PREF_GWT_HOME.equals(key))
+		public void propertyChange(final PropertyChangeEvent event) {
+			final String key = event.getProperty();
+			if (PREF_GWT_HOME.equals(key)) {
 				try {
 					installedRuntimes = null;
 					rebindClasspathEntries();
-				} catch (CoreException e) {
-					if (logProblems)
+				} catch (final CoreException e) {
+					if (logProblems) {
 						GwtCore.logError("Exception while rebinding GWT runtime library '" + key.substring(CP_HOME_PREFERENCES_PREFIX.length()) + "'.", e); //$NON-NLS-1$ //$NON-NLS-2$
+					}
 
 				}
+			}
 		}
 	};
 

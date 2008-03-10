@@ -1,14 +1,14 @@
-/***************************************************************************************************
- * Copyright (c) 2006 Eclipse Guru and others.
- * All rights reserved. 
- *
+/*******************************************************************************
+ * Copyright (c) 2006, 2008 EclipseGuru and others.
+ * All rights reserved.
+ * 
  * This program and the accompanying materials are made available under the terms of the 
  * Eclipse Public License v1.0 which accompanies this distribution, and is available at
  * http://www.eclipse.org/legal/epl-v10.html
  * 
- * Contributors: Eclipse Guru - initial API and implementation
- *               Eclipse.org - ideas, concepts and code from existing Eclipse projects
- **************************************************************************************************/
+ * Contributors:
+ *     EclipseGuru - initial API and implementation
+ *******************************************************************************/
 package org.eclipseguru.gwt.internal.core.refactoring;
 
 import org.eclipseguru.gwt.core.GwtCore;
@@ -78,12 +78,13 @@ public class GwtRefactoringUtil {
 			String mtname;
 			for (final GwtModule gwtModule : modules) {
 				mtname = gwtModule.getEntryPointTypeName();
-				if (typename.equals(mtname))
+				if (typename.equals(mtname)) {
 					changes.add(new GwtModuleEntryPointChange(gwtModule, newfqname));
-				else {
+				} else {
 					final Change change = createChangesForOuterTypeChange(gwtModule, type, newfqname);
-					if (change != null)
+					if (change != null) {
 						changes.add(change);
+					}
 				}
 			}
 		}
@@ -103,11 +104,12 @@ public class GwtRefactoringUtil {
 	 */
 	public static Change createChangesForTypeMove(final IType type, final IJavaElement destination) throws CoreException {
 		String newfqname = type.getElementName();
-		if (destination instanceof IType)
+		if (destination instanceof IType) {
 			newfqname = ((IType) destination).getFullyQualifiedName() + '$' + type.getElementName();
-		else if (destination instanceof IPackageFragment)
-			if (!((IPackageFragment) destination).isDefaultPackage())
+		} else if (destination instanceof IPackageFragment)
+			if (!((IPackageFragment) destination).isDefaultPackage()) {
 				newfqname = destination.getElementName() + '.' + type.getElementName();
+			}
 		return createChangesForTypeChange(type, newfqname);
 	}
 
@@ -127,10 +129,12 @@ public class GwtRefactoringUtil {
 		String newfqname = newname;
 		if (dtype == null) {
 			final IPackageFragment packageFragment = type.getPackageFragment();
-			if (!packageFragment.isDefaultPackage())
+			if (!packageFragment.isDefaultPackage()) {
 				newfqname = packageFragment.getElementName() + '.' + newname;
-		} else
+			}
+		} else {
 			newfqname = dtype.getFullyQualifiedName() + '$' + newname;
+		}
 		return createChangesForTypeChange(type, newfqname);
 	}
 

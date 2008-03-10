@@ -1,14 +1,14 @@
-/***************************************************************************************************
- * Copyright (c) 2006 Eclipse Guru and others.
- * All rights reserved. 
- *
+/*******************************************************************************
+ * Copyright (c) 2006, 2008 EclipseGuru and others.
+ * All rights reserved.
+ * 
  * This program and the accompanying materials are made available under the terms of the 
  * Eclipse Public License v1.0 which accompanies this distribution, and is available at
  * http://www.eclipse.org/legal/epl-v10.html
  * 
- * Contributors: Eclipse Guru - initial API and implementation
- *               Eclipse.org - ideas, concepts and code from existing Eclipse projects
- **************************************************************************************************/
+ * Contributors:
+ *     EclipseGuru - initial API and implementation
+ *******************************************************************************/
 package org.eclipseguru.gwt.ui.actions;
 
 import org.eclipseguru.gwt.core.GwtCore;
@@ -50,12 +50,13 @@ public class PublishProjectAction implements IObjectActionDelegate {
 	 */
 	public void run(final IAction action) {
 		final Shell shell = null != workbenchWindow ? workbenchWindow.getShell() : new Shell();
-		if ((null != selectedProject) && GwtProjectNature.isPossibleGwtProject(getSelectedProject()))
+		if ((null != selectedProject) && GwtProjectNature.isPossibleGwtProject(getSelectedProject())) {
 			try {
 				new GwtProjectPublisher(GwtCore.create(getSelectedProject())).schedule();
 			} catch (final Exception e) {
 				ErrorDialog.openError(shell, "Error", "An error occured while initilizing the project publishing process.", GwtUi.newErrorStatus(e));
 			}
+		}
 	}
 
 	/**
@@ -67,11 +68,13 @@ public class PublishProjectAction implements IObjectActionDelegate {
 			return;
 
 		final Object element = ((IStructuredSelection) selection).getFirstElement();
-		if (element instanceof IProject)
+		if (element instanceof IProject) {
 			selectedProject = (IProject) element;
+		}
 
-		if ((null == selectedProject) && (element instanceof IAdaptable))
+		if ((null == selectedProject) && (element instanceof IAdaptable)) {
 			selectedProject = (IProject) ((IAdaptable) element).getAdapter(IProject.class);
+		}
 	}
 
 	/**

@@ -1,14 +1,14 @@
-/***************************************************************************************************
- * Copyright (c) 2006 Eclipse Guru and others.
- * All rights reserved. 
- *
+/*******************************************************************************
+ * Copyright (c) 2006, 2008 EclipseGuru and others.
+ * All rights reserved.
+ * 
  * This program and the accompanying materials are made available under the terms of the 
  * Eclipse Public License v1.0 which accompanies this distribution, and is available at
  * http://www.eclipse.org/legal/epl-v10.html
  * 
- * Contributors: Eclipse Guru - initial API and implementation
- *               Eclipse.org - ideas, concepts and code from existing Eclipse projects
- **************************************************************************************************/
+ * Contributors:
+ *     EclipseGuru - initial API and implementation
+ *******************************************************************************/
 package org.eclipseguru.gwt.core.internal.classpath;
 
 import org.eclipseguru.gwt.core.GwtCore;
@@ -58,17 +58,19 @@ public class AccessRulesUtil {
 		InputStream stream = null;
 		try {
 			stream = FileLocator.openStream(GwtCore.getGwtCore().getBundle(), new Path(ACCESSIBLE_JRE_TYPES_RESOURCE), false);
-			if (null != stream)
+			if (null != stream) {
 				properties.load(stream);
+			}
 		} catch (final IOException e) {
 			GwtCore.logError("Error while reading JRE access rules", e);
 		} finally {
-			if (null != stream)
+			if (null != stream) {
 				try {
 					stream.close();
 				} catch (final IOException e) {
 					// ignore
 				}
+			}
 		}
 
 		final List<IPath> types = new ArrayList<IPath>();

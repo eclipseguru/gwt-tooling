@@ -1,14 +1,14 @@
-/***************************************************************************************************
- * Copyright (c) 2006 Eclipse Guru and others.
- * All rights reserved. 
- *
+/*******************************************************************************
+ * Copyright (c) 2006, 2008 EclipseGuru and others.
+ * All rights reserved.
+ * 
  * This program and the accompanying materials are made available under the terms of the 
  * Eclipse Public License v1.0 which accompanies this distribution, and is available at
  * http://www.eclipse.org/legal/epl-v10.html
  * 
- * Contributors: Eclipse Guru - initial API and implementation
- *               Eclipse.org - ideas, concepts and code from existing Eclipse projects
- **************************************************************************************************/
+ * Contributors:
+ *     EclipseGuru - initial API and implementation
+ *******************************************************************************/
 package org.eclipseguru.gwt.core.project;
 
 import org.eclipseguru.gwt.core.GwtCore;
@@ -56,8 +56,9 @@ public class GwtProjectNature implements IProjectNature {
 	 * @see org.eclipse.core.resources.IProjectNature#configure()
 	 */
 	public void configure() throws CoreException {
-		if (!isPossibleGwtProject(getProject()))
+		if (!isPossibleGwtProject(getProject())) {
 			throw new CoreException(GwtCore.newErrorStatus("Project must be a Java project!"));
+		}
 
 		final IProjectDescription desc = getProject().getDescription();
 		final ICommand[] commands = desc.getBuildSpec();
@@ -78,8 +79,9 @@ public class GwtProjectNature implements IProjectNature {
 			final List<ICommand> newBuilders = new ArrayList<ICommand>(oldBuilders.length + 1);
 			for (final ICommand command : oldBuilders) {
 				newBuilders.add(command);
-				if (command.getBuilderName().equals(JavaCore.BUILDER_ID) && !newBuilders.contains(gwtBuildCommand))
+				if (command.getBuilderName().equals(JavaCore.BUILDER_ID) && !newBuilders.contains(gwtBuildCommand)) {
 					newBuilders.add(gwtBuildCommand);
+				}
 			}
 			desc.setBuildSpec(newBuilders.toArray(new ICommand[newBuilders.size()]));
 			getProject().setDescription(desc, null);
@@ -106,8 +108,9 @@ public class GwtProjectNature implements IProjectNature {
 			final ICommand[] newCommands = new ICommand[commands.length - 1];
 			int j = 0;
 			for (final ICommand element : commands) {
-				if (element.getBuilderName().equals(GwtCore.BUILDER_ID))
+				if (element.getBuilderName().equals(GwtCore.BUILDER_ID)) {
 					continue;
+				}
 				newCommands[j] = element;
 				j++;
 			}

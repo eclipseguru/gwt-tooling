@@ -1,14 +1,14 @@
-/***************************************************************************************************
- * Copyright (c) 2006 Eclipse Guru and others.
- * All rights reserved. 
- *
+/*******************************************************************************
+ * Copyright (c) 2006, 2008 EclipseGuru and others.
+ * All rights reserved.
+ * 
  * This program and the accompanying materials are made available under the terms of the 
  * Eclipse Public License v1.0 which accompanies this distribution, and is available at
  * http://www.eclipse.org/legal/epl-v10.html
  * 
- * Contributors: Eclipse Guru - initial API and implementation
- *               Eclipse.org - ideas, concepts and code from existing Eclipse projects
- **************************************************************************************************/
+ * Contributors:
+ *     EclipseGuru - initial API and implementation
+ *******************************************************************************/
 package org.eclipseguru.gwt.core;
 
 import org.xml.sax.Attributes;
@@ -176,8 +176,9 @@ public class GwtModuleSourceHandler extends DefaultHandler {
 	 * @throws InvalidModuleSourceException
 	 */
 	private void processEntryPoint(final Attributes attributes) throws InvalidModuleSourceException {
-		if (null != entryPointClass)
+		if (null != entryPointClass) {
 			throw new InvalidModuleSourceException("entry point defined more than once");
+		}
 		entryPointClass = attributes.getValue(ATTR_CLASS);
 	}
 
@@ -186,8 +187,9 @@ public class GwtModuleSourceHandler extends DefaultHandler {
 	 */
 	private void processInherits(final Attributes attributes) {
 		final String moduleId = attributes.getValue(ATTR_NAME);
-		if (null != moduleId)
+		if (null != moduleId) {
 			inheritedModules.add(moduleId);
+		}
 	}
 
 	/*
@@ -215,21 +217,24 @@ public class GwtModuleSourceHandler extends DefaultHandler {
 
 		switch (level) {
 			case 0:
-				if (!ELEM_MODULE.equals(elementName))
+				if (!ELEM_MODULE.equals(elementName)) {
 					throw new InvalidModuleSourceException(MessageFormat.format("Root element is not ''{0}''.", ELEM_MODULE));
+				}
 				break;
 
 			case 1:
-				if (ELEM_ENTRY_POINT.equals(elementName))
+				if (ELEM_ENTRY_POINT.equals(elementName)) {
 					processEntryPoint(attributes);
-				else if (ELEM_INHERITS.equals(elementName))
+				} else if (ELEM_INHERITS.equals(elementName)) {
 					processInherits(attributes);
+				}
 				break;
 
 			default:
 				// avoid compile warnings
-				if (false)
+				if (false) {
 					throw new StopParsingException();
+				}
 		}
 	}
 }

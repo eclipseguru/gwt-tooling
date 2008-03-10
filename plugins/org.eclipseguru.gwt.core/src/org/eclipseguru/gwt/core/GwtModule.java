@@ -1,14 +1,14 @@
-/***************************************************************************************************
- * Copyright (c) 2006 Eclipse Guru and others.
- * All rights reserved. 
- *
+/*******************************************************************************
+ * Copyright (c) 2006, 2008 EclipseGuru and others.
+ * All rights reserved.
+ * 
  * This program and the accompanying materials are made available under the terms of the 
  * Eclipse Public License v1.0 which accompanies this distribution, and is available at
  * http://www.eclipse.org/legal/epl-v10.html
  * 
- * Contributors: Eclipse Guru - initial API and implementation
- *               Eclipse.org - ideas, concepts and code from existing Eclipse projects
- **************************************************************************************************/
+ * Contributors:
+ *     EclipseGuru - initial API and implementation
+ *******************************************************************************/
 package org.eclipseguru.gwt.core;
 
 import org.eclipse.core.resources.IFile;
@@ -96,14 +96,15 @@ public class GwtModule extends GwtElement {
 	GwtModule(final IFile moduleDescriptor, final GwtProject parent) {
 		super(parent);
 
-		if (!GwtUtil.isModuleDescriptor(moduleDescriptor))
+		if (!GwtUtil.isModuleDescriptor(moduleDescriptor)) {
 			throw new IllegalArgumentException("Module descriptor is invalid");
+		}
 
 		this.moduleDescriptor = moduleDescriptor;
 
 		// module package
 		final IJavaElement element = JavaCore.create(moduleDescriptor.getParent());
-		if (null != element)
+		if (null != element) {
 			switch (element.getElementType()) {
 				case IJavaElement.PACKAGE_FRAGMENT_ROOT:
 					modulePackage = ((IPackageFragmentRoot) element).getPackageFragment("");
@@ -115,15 +116,17 @@ public class GwtModule extends GwtElement {
 					modulePackage = null;
 					break;
 			}
-		else
+		} else {
 			modulePackage = null;
+		}
 
 		// the module id
 		final StringBuilder moduleIdBuilder = new StringBuilder();
 		if (null != modulePackage) {
 			moduleIdBuilder.append(modulePackage.getElementName());
-			if (moduleIdBuilder.length() > 0)
+			if (moduleIdBuilder.length() > 0) {
 				moduleIdBuilder.append('.');
+			}
 			moduleIdBuilder.append(moduleDescriptor.getName().substring(0, moduleDescriptor.getName().length() - Constants.GWT_XML_EXT.length() - 1));
 		} else {
 			final String path = moduleDescriptor.getFullPath().makeRelative().toString();
@@ -142,20 +145,24 @@ public class GwtModule extends GwtElement {
 	GwtModule(final IStorage moduleDescriptor, final IPackageFragment packageFragment, final GwtProject parent) {
 		super(parent);
 
-		if (null == moduleDescriptor)
+		if (null == moduleDescriptor) {
 			throw new IllegalArgumentException("Module descriptor cannot be null");
+		}
 
-		if (null == packageFragment)
+		if (null == packageFragment) {
 			throw new IllegalArgumentException("Package fragment cannot be null");
+		}
 
 		final String simpleName = GwtUtil.getSimpleName(moduleDescriptor);
-		if (null == simpleName)
+		if (null == simpleName) {
 			throw new IllegalArgumentException("Invalid storage name");
+		}
 
-		if (packageFragment.isDefaultPackage())
+		if (packageFragment.isDefaultPackage()) {
 			moduleId = GwtUtil.getSimpleName(moduleDescriptor);
-		else
+		} else {
 			moduleId = packageFragment.getElementName().concat(".").concat(simpleName);
+		}
 		modulePackage = packageFragment;
 		this.moduleDescriptor = moduleDescriptor;
 	}
@@ -253,8 +260,9 @@ public class GwtModule extends GwtElement {
 	 * @throws GwtModelException
 	 */
 	public IType getEntryPointType() throws GwtModelException {
-		if (null == entryPointType)
+		if (null == entryPointType) {
 			entryPointType = findEntryPointType();
+		}
 
 		return entryPointType;
 	}
@@ -266,8 +274,9 @@ public class GwtModule extends GwtElement {
 	 * @throws GwtModelException
 	 */
 	public String getEntryPointTypeName() throws GwtModelException {
-		if (null == entryPointTypeName)
+		if (null == entryPointTypeName) {
 			entryPointTypeName = findEntryPointTypeName();
+		}
 
 		return entryPointTypeName;
 	}
@@ -279,8 +288,9 @@ public class GwtModule extends GwtElement {
 	 * @throws CoreException
 	 */
 	public GwtModule[] getInheritedModules() throws CoreException {
-		if (null == inheritedModules)
+		if (null == inheritedModules) {
 			inheritedModules = findInheritedModules();
+		}
 
 		return inheritedModules;
 	}
@@ -337,12 +347,13 @@ public class GwtModule extends GwtElement {
 			} catch (final CoreException e) {
 				throw new GwtModelException(e.getStatus());
 			} finally {
-				if (null != contents)
+				if (null != contents) {
 					try {
 						contents.close();
 					} catch (final IOException e) {
 						// ignore
 					}
+				}
 			}
 		}
 		return moduleSourceInfo;

@@ -1,14 +1,14 @@
-/***************************************************************************************************
- * Copyright (c) 2006 Eclipse Guru and others.
- * All rights reserved. 
- *
+/*******************************************************************************
+ * Copyright (c) 2006, 2008 EclipseGuru and others.
+ * All rights reserved.
+ * 
  * This program and the accompanying materials are made available under the terms of the 
  * Eclipse Public License v1.0 which accompanies this distribution, and is available at
  * http://www.eclipse.org/legal/epl-v10.html
  * 
- * Contributors: Eclipse Guru - initial API and implementation
- *               Eclipse.org - ideas, concepts and code from existing Eclipse projects
- **************************************************************************************************/
+ * Contributors:
+ *     EclipseGuru - initial API and implementation
+ *******************************************************************************/
 package org.eclipseguru.gwt.core.server;
 
 import org.eclipseguru.gwt.core.GwtCore;
@@ -42,8 +42,9 @@ public class GwtLaunchableAdapter extends LaunchableAdapterDelegate {
 
 		try {
 			IURLProvider urlAdapter = (IURLProvider) server.getAdapter(IURLProvider.class);
-			if (null == urlAdapter)
+			if (null == urlAdapter) {
 				urlAdapter = (IURLProvider) server.loadAdapter(IURLProvider.class, new NullProgressMonitor());
+			}
 			if (null == urlAdapter)
 				return null;
 
@@ -53,10 +54,12 @@ public class GwtLaunchableAdapter extends LaunchableAdapterDelegate {
 
 			final GwtBrowserResource webResource = (GwtBrowserResource) moduleArtifact;
 			String path = webResource.getPath().toString();
-			if ((path != null) && path.startsWith("/") && (path.length() > 0))
+			if ((path != null) && path.startsWith("/") && (path.length() > 0)) {
 				path = path.substring(1);
-			if ((path != null) && (path.length() > 0))
+			}
+			if ((path != null) && (path.length() > 0)) {
 				url = new URL(url, path);
+			}
 
 			return new GwtBrowserLaunchable(url, webResource.getGwtModule());
 		} catch (final MalformedURLException e) {

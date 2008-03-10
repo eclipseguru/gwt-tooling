@@ -1,14 +1,14 @@
-/***************************************************************************************************
- * Copyright (c) 2006 Eclipse Guru and others.
- * All rights reserved. 
- *
+/*******************************************************************************
+ * Copyright (c) 2006, 2008 EclipseGuru and others.
+ * All rights reserved.
+ * 
  * This program and the accompanying materials are made available under the terms of the 
  * Eclipse Public License v1.0 which accompanies this distribution, and is available at
  * http://www.eclipse.org/legal/epl-v10.html
  * 
- * Contributors: Eclipse Guru - initial API and implementation
- *               Eclipse.org - ideas, concepts and code from existing Eclipse projects
- **************************************************************************************************/
+ * Contributors:
+ *     EclipseGuru - initial API and implementation
+ *******************************************************************************/
 package org.eclipseguru.gwt.ui.editor;
 
 import org.eclipseguru.gwt.core.GwtCore;
@@ -86,8 +86,9 @@ public class ModuleSourceEditor extends FormEditor {
 	 */
 	private void createModelFromInput(final IEditorInput newInput) {
 		// reset model
-		if ((null != structuredModel) || (null != moduleSource))
+		if ((null != structuredModel) || (null != moduleSource)) {
 			releaseModel();
+		}
 
 		if ((newInput != null) && (sourceEditor != null)) {
 			final IDocument textDocument = sourceEditor.getDocumentProvider().getDocument(newInput);
@@ -100,8 +101,9 @@ public class ModuleSourceEditor extends FormEditor {
 
 				/* Register the synchonizer factory */
 				final FactoryRegistry factoryRegistry = structuredModel.getFactoryRegistry();
-				if (factoryRegistry.getFactoryFor(ModuleSourceModelSynchronizer.class) == null)
+				if (factoryRegistry.getFactoryFor(ModuleSourceModelSynchronizer.class) == null) {
 					factoryRegistry.addFactory(new ModuleSourceModelSynchronizerFactory(moduleSource));
+				}
 			}
 
 			// set input to pages
@@ -117,7 +119,7 @@ public class ModuleSourceEditor extends FormEditor {
 	@Override
 	protected IEditorSite createSite(final IEditorPart editor) {
 		IEditorSite site = null;
-		if (editor == sourceEditor)
+		if (editor == sourceEditor) {
 			site = new MultiPageEditorSite(this, sourceEditor) {
 				/**
 				 * Set this id so nested editor is configured as an GWT Module
@@ -130,8 +132,9 @@ public class ModuleSourceEditor extends FormEditor {
 					return GwtCore.MODULE_SOURCE_CONTENT_TYPE_ID;
 				}
 			};
-		else
+		} else {
 			site = super.createSite(editor);
+		}
 		return site;
 	}
 
@@ -213,8 +216,9 @@ public class ModuleSourceEditor extends FormEditor {
 			structuredModel = null;
 		}
 
-		if (null != moduleSource)
+		if (null != moduleSource) {
 			moduleSource = null;
+		}
 	}
 
 	/*

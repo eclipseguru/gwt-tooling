@@ -1,14 +1,14 @@
-/***************************************************************************************************
- * Copyright (c) 2006 Eclipse Guru and others.
- * All rights reserved. 
- *
+/*******************************************************************************
+ * Copyright (c) 2006, 2008 EclipseGuru and others.
+ * All rights reserved.
+ * 
  * This program and the accompanying materials are made available under the terms of the 
  * Eclipse Public License v1.0 which accompanies this distribution, and is available at
  * http://www.eclipse.org/legal/epl-v10.html
  * 
- * Contributors: Eclipse Guru - initial API and implementation
- *               Eclipse.org - ideas, concepts and code from existing Eclipse projects
- **************************************************************************************************/
+ * Contributors:
+ *     EclipseGuru - initial API and implementation
+ *******************************************************************************/
 package org.eclipseguru.gwt.ui.launch;
 
 import org.eclipseguru.gwt.core.GwtCore;
@@ -72,15 +72,17 @@ public class GwtMainTab extends AbstractLaunchConfigurationTab implements GwtLau
 
 	private final class ModuleDialogFieldAdapter implements IStringButtonAdapter {
 		public void changeControlPressed(final DialogField field) {
-			if (field == moduleDialogField)
+			if (field == moduleDialogField) {
 				handleModuleDialogFieldSearchButtonPressed();
+			}
 		}
 	}
 
 	private final class ProjectDialogFieldAdapter implements IStringButtonAdapter {
 		public void changeControlPressed(final DialogField field) {
-			if (field == projectDialogField)
+			if (field == projectDialogField) {
 				handleProjectDialogFieldSearchButtonPressed();
+			}
 		}
 	}
 
@@ -90,7 +92,7 @@ public class GwtMainTab extends AbstractLaunchConfigurationTab implements GwtLau
 		private boolean inUpdate;
 		private boolean restoreCustomUrl;
 
-		public void dialogFieldChanged(DialogField field) {
+		public void dialogFieldChanged(final DialogField field) {
 			if (inUpdate)
 				return;
 			try {
@@ -99,8 +101,9 @@ public class GwtMainTab extends AbstractLaunchConfigurationTab implements GwtLau
 				if ((field == launchInternalASDialogField) || (field == doNotLaunchInternalASDialogField)) {
 					launchInternalASDialogField.setSelection(!doNotLaunchInternalASDialogField.isSelected());
 					if (launchInternalASDialogField.isSelected()) {
-						if (!customUrlDialogField.isEnabled() && restoreCustomUrl)
+						if (!customUrlDialogField.isEnabled() && restoreCustomUrl) {
 							customUrlDialogField.setSelection(false);
+						}
 						customUrlDialogField.setEnabled(true);
 					} else {
 						restoreCustomUrl = !customUrlDialogField.isSelected() && customUrlDialogField.isEnabled();
@@ -110,8 +113,9 @@ public class GwtMainTab extends AbstractLaunchConfigurationTab implements GwtLau
 				}
 
 				// we update this all the time (just to keep it in sync)
-				if (initialized && !customUrlDialogField.isSelected())
+				if (initialized && !customUrlDialogField.isSelected()) {
 					urlDialogField.setTextWithoutUpdate(GwtLaunchUtil.computeDefaultUrl(moduleDialogField.getText()));
+				}
 
 				updateLaunchConfigurationDialog();
 			} finally {
@@ -398,13 +402,14 @@ public class GwtMainTab extends AbstractLaunchConfigurationTab implements GwtLau
 			if (url.trim().length() == 0) {
 				setErrorMessage("Please enter a URL.");
 				return false;
-			} else
+			} else {
 				try {
 					new URL(url);
 				} catch (final MalformedURLException e) {
 					setErrorMessage(NLS.bind("The entered URL is invalid ({0}).", e.getMessage()));
 					return false;
 				}
+			}
 		}
 
 		if (launchInternalASDialogField.isSelected()) {
@@ -412,7 +417,7 @@ public class GwtMainTab extends AbstractLaunchConfigurationTab implements GwtLau
 			if (port.trim().length() == 0) {
 				setErrorMessage("Please enter a port number.");
 				return false;
-			} else
+			} else {
 				try {
 					final int portNbr = Integer.parseInt(port);
 					if ((portNbr < 0) || (portNbr > 65535)) {
@@ -423,6 +428,7 @@ public class GwtMainTab extends AbstractLaunchConfigurationTab implements GwtLau
 					setErrorMessage("The entered port string is not a valid number.");
 					return false;
 				}
+			}
 		}
 
 		return true;
@@ -463,10 +469,11 @@ public class GwtMainTab extends AbstractLaunchConfigurationTab implements GwtLau
 		// do we have a context?
 		final IResource resource = getContext();
 		if (null != resource)
-			if (GwtUtil.isModuleDescriptor(resource))
+			if (GwtUtil.isModuleDescriptor(resource)) {
 				initializeGwtModule(GwtCore.create((IFile) resource), config);
-			else
+			} else {
 				initializeProject(resource.getProject(), config);
+			}
 	}
 
 	/**

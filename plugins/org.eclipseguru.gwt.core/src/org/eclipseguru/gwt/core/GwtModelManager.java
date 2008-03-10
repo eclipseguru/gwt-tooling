@@ -1,14 +1,14 @@
-/***************************************************************************************************
- * Copyright (c) 2006 Eclipse Guru and others.
- * All rights reserved. 
- *
+/*******************************************************************************
+ * Copyright (c) 2006, 2008 EclipseGuru and others.
+ * All rights reserved.
+ * 
  * This program and the accompanying materials are made available under the terms of the 
  * Eclipse Public License v1.0 which accompanies this distribution, and is available at
  * http://www.eclipse.org/legal/epl-v10.html
  * 
- * Contributors: Eclipse Guru - initial API and implementation
- *               Eclipse.org - ideas, concepts and code from existing Eclipse projects
- **************************************************************************************************/
+ * Contributors:
+ *     EclipseGuru - initial API and implementation
+ *******************************************************************************/
 package org.eclipseguru.gwt.core;
 
 import org.eclipse.core.resources.IFile;
@@ -67,8 +67,9 @@ class GwtModelManager {
 		if (!GwtUtil.isModuleDescriptor(file))
 			return null;
 
-		if (project == null)
+		if (project == null) {
 			project = getModelManager().getModel().createProject(file);
+		}
 
 		return project.createModule(file);
 	}
@@ -177,14 +178,19 @@ class GwtModelManager {
 
 		try {
 			final IPackageFragment[] packageFragments = javaProject.getPackageFragments();
-			if (packageFragments.length > moduleIds.length)
-				for (final IPackageFragment fragment : packageFragments)
-					for (final String moduleId : moduleIds)
+			if (packageFragments.length > moduleIds.length) {
+				for (final IPackageFragment fragment : packageFragments) {
+					for (final String moduleId : moduleIds) {
 						findModuleInPackage(fragment, moduleId, modules);
-			else
-				for (final String moduleId : moduleIds)
-					for (final IPackageFragment fragment : packageFragments)
+					}
+				}
+			} else {
+				for (final String moduleId : moduleIds) {
+					for (final IPackageFragment fragment : packageFragments) {
 						findModuleInPackage(fragment, moduleId, modules);
+					}
+				}
+			}
 
 		} catch (final JavaModelException e) {
 			throw new GwtModelException(e.getStatus());

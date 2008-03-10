@@ -1,14 +1,14 @@
-/***************************************************************************************************
- * Copyright (c) 2006 Eclipse Guru and others.
- * All rights reserved. 
- *
+/*******************************************************************************
+ * Copyright (c) 2006, 2008 EclipseGuru and others.
+ * All rights reserved.
+ * 
  * This program and the accompanying materials are made available under the terms of the 
  * Eclipse Public License v1.0 which accompanies this distribution, and is available at
  * http://www.eclipse.org/legal/epl-v10.html
  * 
- * Contributors: Eclipse Guru - initial API and implementation
- *               Eclipse.org - ideas, concepts and code from existing Eclipse projects
- **************************************************************************************************/
+ * Contributors:
+ *     EclipseGuru - initial API and implementation
+ *******************************************************************************/
 package org.eclipseguru.gwt.core.runtimes;
 
 import org.eclipse.core.runtime.IPath;
@@ -70,11 +70,10 @@ public class GwtRuntime {
 	 * @return the jar name
 	 */
 	private String getDevJarName() {
-		if (WINDOWS) {
+		if (WINDOWS)
 			return "gwt-dev-windows.jar";
-		} else if (MACOSX) {
+		else if (MACOSX)
 			return "gwt-dev-mac.jar";
-		}
 
 		// at this point we assume Linux
 		return "gwt-dev-linux.jar";
@@ -95,9 +94,8 @@ public class GwtRuntime {
 	 * @return the VM arguments
 	 */
 	public String[] getGwtRuntimeVmArgs() {
-		if (MACOSX) {
+		if (MACOSX)
 			return new String[] { "-XstartOnFirstThread" };
-		}
 		return NO_VMARGS;
 	}
 

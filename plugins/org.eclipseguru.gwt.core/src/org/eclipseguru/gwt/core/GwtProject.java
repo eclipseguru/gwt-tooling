@@ -1,14 +1,14 @@
-/***************************************************************************************************
- * Copyright (c) 2007 Eclipse Guru and others.
- * All rights reserved. 
- *
+/*******************************************************************************
+ * Copyright (c) 2006, 2008 EclipseGuru and others.
+ * All rights reserved.
+ * 
  * This program and the accompanying materials are made available under the terms of the 
  * Eclipse Public License v1.0 which accompanies this distribution, and is available at
  * http://www.eclipse.org/legal/epl-v10.html
  * 
- * Contributors: Eclipse Guru - initial API and implementation
- *               Eclipse.org - ideas, concepts and code from existing Eclipse projects
- **************************************************************************************************/
+ * Contributors:
+ *     EclipseGuru - initial API and implementation
+ *******************************************************************************/
 package org.eclipseguru.gwt.core;
 
 import org.eclipseguru.gwt.core.facet.GwtFacetConstants;
@@ -68,8 +68,9 @@ public class GwtProject extends GwtElement {
 		description.setNatureIds(newNatures);
 
 		// make writable
-		if (project.getFile(IProjectDescription.DESCRIPTION_FILE_NAME).isReadOnly())
+		if (project.getFile(IProjectDescription.DESCRIPTION_FILE_NAME).isReadOnly()) {
 			ResourcesPlugin.getWorkspace().validateEdit(new IFile[] { project.getFile(IProjectDescription.DESCRIPTION_FILE_NAME) }, null);
+		}
 
 		// save description
 		project.setDescription(description, IResource.FORCE, null);
@@ -139,8 +140,9 @@ public class GwtProject extends GwtElement {
 	 */
 	GwtProject(final IProject project, final GwtModel parent) {
 		super(parent);
-		if (null == project)
+		if (null == project) {
 			throw new IllegalArgumentException("project cannot be null");
+		}
 		this.project = project;
 		javaProject = JavaCore.create(project);
 	}
@@ -213,21 +215,25 @@ public class GwtProject extends GwtElement {
 		final List<GwtModule> moduleFiles = new ArrayList<GwtModule>();
 		for (final IPackageFragmentRoot aRoot : javaProject.getPackageFragmentRoots()) {
 			// check only in source folders. Skip others
-			if (aRoot.getKind() != IPackageFragmentRoot.K_SOURCE)
+			if (aRoot.getKind() != IPackageFragmentRoot.K_SOURCE) {
 				continue;
+			}
 			for (final IJavaElement aPackage : aRoot.getChildren()) {
 				// look only for packages. Skip others
-				if (aPackage.getElementType() != IJavaElement.PACKAGE_FRAGMENT)
+				if (aPackage.getElementType() != IJavaElement.PACKAGE_FRAGMENT) {
 					continue;
+				}
 
 				for (final Object aResource : ((IPackageFragment) aPackage).getNonJavaResources()) {
 					// look only files. Skip others
-					if (!(aResource instanceof IFile))
+					if (!(aResource instanceof IFile)) {
 						continue;
+					}
 
 					final IFile aFile = (IFile) aResource;
-					if (GwtUtil.isModuleDescriptor(aFile))
+					if (GwtUtil.isModuleDescriptor(aFile)) {
 						moduleFiles.add(createModule(aFile));
+					}
 				}
 			}
 		}
@@ -241,8 +247,9 @@ public class GwtProject extends GwtElement {
 	 * @return the list of included modules
 	 */
 	public GwtModule[] getIncludedModules() {
-		if (null == includedModules)
+		if (null == includedModules) {
 			includedModules = findIncludedModules();
+		}
 
 		return includedModules;
 	}
@@ -282,12 +289,13 @@ public class GwtProject extends GwtElement {
 	 *             if an error occured while accessing the project
 	 */
 	public GwtModule[] getModules() throws GwtModelException {
-		if (null == modules)
+		if (null == modules) {
 			try {
 				modules = findModules();
 			} catch (final CoreException e) {
 				throw newGwtModelException(e);
 			}
+		}
 		return modules;
 	}
 
@@ -344,13 +352,15 @@ public class GwtProject extends GwtElement {
 		final StringBuilder builder = new StringBuilder();
 		for (int i = 0; i < modules.size(); i++) {
 			final GwtModule module = (GwtModule) modules.get(i);
-			if (i > 0)
+			if (i > 0) {
 				builder.append(';');
+			}
 			builder.append(module.getModuleDescriptor().getFullPath().toPortableString());
 		}
-		if (builder.length() > 0)
+		if (builder.length() > 0) {
 			projectPreferences.put(GwtCorePreferenceConstants.PREF_INCLUDED_MODULES, builder.toString());
-		else
+		} else {
 			projectPreferences.remove(GwtCorePreferenceConstants.PREF_INCLUDED_MODULES);
+		}
 	}
 }

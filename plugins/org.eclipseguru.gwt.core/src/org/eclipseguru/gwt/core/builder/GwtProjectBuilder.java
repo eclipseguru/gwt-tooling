@@ -1,14 +1,14 @@
-/***************************************************************************************************
- * Copyright (c) 2006 Eclipse Guru and others.
- * All rights reserved. 
- *
+/*******************************************************************************
+ * Copyright (c) 2006, 2008 EclipseGuru and others.
+ * All rights reserved.
+ * 
  * This program and the accompanying materials are made available under the terms of the 
  * Eclipse Public License v1.0 which accompanies this distribution, and is available at
  * http://www.eclipse.org/legal/epl-v10.html
  * 
- * Contributors: Eclipse Guru - initial API and implementation
- *               Eclipse.org - ideas, concepts and code from existing Eclipse projects
- **************************************************************************************************/
+ * Contributors:
+ *     EclipseGuru - initial API and implementation
+ *******************************************************************************/
 package org.eclipseguru.gwt.core.builder;
 
 import org.eclipseguru.gwt.core.GwtCore;
@@ -124,10 +124,12 @@ public class GwtProjectBuilder extends IncrementalProjectBuilder {
 
 					if (JavaCore.isJavaLikeFileName(resource.getName()) && gwtProject.getJavaProject().isOnClasspath(resource)) {
 						final ICompilationUnit cu = (ICompilationUnit) JavaCore.create(resource);
-						if ((null != cu) && cu.exists())
+						if ((null != cu) && cu.exists()) {
 							for (final GwtModule module : currentProjectModules)
-								if (module.isModuleResource(resource))
+								if (module.isModuleResource(resource)) {
 									GwtRemoteService.findRemoteServices(cu, changed);
+								}
+						}
 					}
 					return false;
 			}
@@ -162,9 +164,10 @@ public class GwtProjectBuilder extends IncrementalProjectBuilder {
 				// remove current project markers
 				project.deleteMarkers(GwtCore.PROBLEM_MARKER, true, IResource.DEPTH_ZERO);
 				monitor.worked(1);
-			} else
+			} else {
 				// do a complete clean on full builds
 				clean(ProgressUtil.subProgressMonitor(monitor, 1));
+			}
 
 			// check for Java nature
 			if (!project.isNatureEnabled(JavaCore.NATURE_ID)) {
@@ -179,8 +182,9 @@ public class GwtProjectBuilder extends IncrementalProjectBuilder {
 			final List<IProject> includedModulesProjects = new ArrayList<IProject>(includedModules.length);
 			for (final GwtModule module : includedModules) {
 				final IProject includedProject = module.getProjectResource();
-				if (!includedModulesProjects.contains(includedProject))
+				if (!includedModulesProjects.contains(includedProject)) {
 					includedModulesProjects.add(includedProject);
+				}
 			}
 
 			// find project modules
@@ -191,8 +195,9 @@ public class GwtProjectBuilder extends IncrementalProjectBuilder {
 			// update/generate RemoteServiceAsync interfaces
 			final IResourceDelta delta = isIncrementalBuild ? getDelta(project) : null;
 			final List<IType> remoteServices = findRemoteServiceFiles(gwtProject, projectModules, delta, ProgressUtil.subProgressMonitor(monitor, 1));
-			if (!remoteServices.isEmpty())
+			if (!remoteServices.isEmpty()) {
 				updateAsyncFiles(remoteServices, ProgressUtil.subProgressMonitor(monitor, 1));
+			}
 
 			// check modules
 			for (final GwtModule gwtModule : projectModules) {
@@ -201,8 +206,9 @@ public class GwtProjectBuilder extends IncrementalProjectBuilder {
 					final String entryPointTypeName = gwtModule.getEntryPointTypeName();
 					if (null != entryPointTypeName) {
 						final IType entryPointType = gwtModule.getEntryPointType();
-						if (null == entryPointType)
+						if (null == entryPointType) {
 							ResourceUtil.createProblem((IResource) moduleDescriptor, MessageFormat.format("Entry point \"{0}\" could not be found on the project build path.", entryPointTypeName));
+						}
 					}
 				}
 			}
@@ -242,8 +248,9 @@ public class GwtProjectBuilder extends IncrementalProjectBuilder {
 			final IPath outputLocation = GwtUtil.getOutputLocation(GwtCore.create(project));
 			if (!outputLocation.makeRelative().isEmpty()) {
 				final IFolder targetFolder = project.getFolder(outputLocation);
-				if (targetFolder.exists())
+				if (targetFolder.exists()) {
 					ResourceUtil.removeFolderContent(targetFolder, ProgressUtil.subProgressMonitor(monitor, 1));
+				}
 			}
 		} finally {
 			monitor.done();
@@ -289,8 +296,9 @@ public class GwtProjectBuilder extends IncrementalProjectBuilder {
 			// check that file is writable
 			final IFile asyncServiceFile = ((IContainer) pack.getResource()).getFile(new Path(asyncServiceCuName));
 			final IStatus canWrite = Resources.makeCommittable(asyncServiceFile, null);
-			if (!canWrite.isOK())
+			if (!canWrite.isOK()) {
 				throw new CoreException(canWrite);
+			}
 
 			ProgressUtil.checkCanceled(monitor);
 
@@ -314,8 +322,9 @@ public class GwtProjectBuilder extends IncrementalProjectBuilder {
 			// TODO: this should be a preference
 			// asyncServiceCu.getResource().setDerived(true);
 		} finally {
-			if (asyncServiceCu != null)
+			if (asyncServiceCu != null) {
 				asyncServiceCu.discardWorkingCopy();
+			}
 			monitor.done();
 		}
 	}

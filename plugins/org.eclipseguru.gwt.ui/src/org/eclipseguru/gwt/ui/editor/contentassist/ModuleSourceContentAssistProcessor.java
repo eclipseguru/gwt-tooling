@@ -1,14 +1,14 @@
-/***************************************************************************************************
- * Copyright (c) 2006 Eclipse Guru and others.
- * All rights reserved. 
- *
+/*******************************************************************************
+ * Copyright (c) 2006, 2008 EclipseGuru and others.
+ * All rights reserved.
+ * 
  * This program and the accompanying materials are made available under the terms of the 
  * Eclipse Public License v1.0 which accompanies this distribution, and is available at
  * http://www.eclipse.org/legal/epl-v10.html
  * 
- * Contributors: Eclipse Guru - initial API and implementation
- *               Eclipse.org - ideas, concepts and code from existing Eclipse projects
- **************************************************************************************************/
+ * Contributors:
+ *     EclipseGuru - initial API and implementation
+ *******************************************************************************/
 package org.eclipseguru.gwt.ui.editor.contentassist;
 
 import org.eclipseguru.gwt.ui.GwtUiImages;
@@ -68,16 +68,18 @@ public class ModuleSourceContentAssistProcessor extends XMLContentAssistProcesso
 		ITextRegion nameRegion = null;
 		while (i >= 0) {
 			nameRegion = openRegions.get(i--);
-			if (nameRegion.getType() == DOMRegionContext.XML_TAG_ATTRIBUTE_NAME)
+			if (nameRegion.getType() == DOMRegionContext.XML_TAG_ATTRIBUTE_NAME) {
 				break;
+			}
 		}
 
 		// get prefix
 		String prefix = contentAssistRequest.getMatchString();
-		if (prefix == null)
+		if (prefix == null) {
 			prefix = "";
-		else if ((prefix.length() > 0) && (prefix.startsWith("\"") || prefix.startsWith("'")))
+		} else if ((prefix.length() > 0) && (prefix.startsWith("\"") || prefix.startsWith("'"))) {
 			prefix = prefix.substring(1);
+		}
 
 		// the name region is REQUIRED to do anything useful
 		if (nameRegion != null) {
@@ -115,12 +117,14 @@ public class ModuleSourceContentAssistProcessor extends XMLContentAssistProcesso
 
 		if ("inherits".equals(node.getNodeName()))
 			if ("name".equals(attributeName))
-				if (null != resource)
+				if (null != resource) {
 					generateModuleProposals(contentAssistRequest, prefix, resource.getProject());
+				}
 
 		// add proposals
-		for (final ICompletionProposal proposal : proposals)
+		for (final ICompletionProposal proposal : proposals) {
 			contentAssistRequest.addProposal(proposal);
+		}
 	}
 
 	/**
@@ -160,25 +164,25 @@ public class ModuleSourceContentAssistProcessor extends XMLContentAssistProcesso
 			final CompletionRequestor req = new CompletionRequestor() {
 
 				@Override
-				public void accept(CompletionProposal proposal) {
+				public void accept(final CompletionProposal proposal) {
 					if (proposal.getKind() == CompletionProposal.PACKAGE_REF) {
-						String pkgName = new String(proposal.getCompletion());
+						final String pkgName = new String(proposal.getCompletion());
 						proposals.add(new TypeCompletionProposal(pkgName, GwtUiImages.get(GwtUiImages.IMG_PACKAGE), pkgName, replacementStart, replacementLength));
 					} else {
-						boolean isInterface = Flags.isInterface(proposal.getFlags());
-						String completion = new String(proposal.getCompletion());
+						final boolean isInterface = Flags.isInterface(proposal.getFlags());
+						final String completion = new String(proposal.getCompletion());
 						if ((isInterface && (typeScope == IJavaSearchConstants.CLASS)) || completion.equals("Dummy2")) //$NON-NLS-1$
 							// don't want Dummy class showing up as option.
 							return;
-						int period = completion.lastIndexOf('.');
+						final int period = completion.lastIndexOf('.');
 						String cName = null, pName = null;
-						if (period == -1)
+						if (period == -1) {
 							cName = completion;
-						else {
+						} else {
 							cName = completion.substring(period + 1);
 							pName = completion.substring(0, period);
 						}
-						Image image = isInterface ? GwtUiImages.get(GwtUiImages.IMG_INTERFACE) : GwtUiImages.get(GwtUiImages.IMG_CLASS);
+						final Image image = isInterface ? GwtUiImages.get(GwtUiImages.IMG_INTERFACE) : GwtUiImages.get(GwtUiImages.IMG_CLASS);
 						proposals.add(new TypeCompletionProposal(completion, image, cName + " - " + pName, replacementStart, replacementLength)); //$NON-NLS-1$
 					}
 				}
@@ -187,8 +191,9 @@ public class ModuleSourceContentAssistProcessor extends XMLContentAssistProcesso
 
 			// ignore everything but class and package references
 			for (int i = 1; i <= 20; i++)
-				if ((i != CompletionProposal.PACKAGE_REF) && (i != CompletionProposal.TYPE_REF))
+				if ((i != CompletionProposal.PACKAGE_REF) && (i != CompletionProposal.TYPE_REF)) {
 					req.setIgnored(i, true);
+				}
 			unit.codeComplete(15 + currentContent.length(), req);
 			unit.discardWorkingCopy();
 		} catch (final JavaModelException e) {
@@ -216,11 +221,11 @@ public class ModuleSourceContentAssistProcessor extends XMLContentAssistProcesso
 		char[] typeName = null;
 		final int index = currentContent.lastIndexOf('.');
 
-		if (index == -1)
+		if (index == -1) {
 			// There is no package qualification
 			// Perform the search only on the type name
 			typeName = currentContent.toCharArray();
-		else if ((index + 1) == currentContent.length()) {
+		} else if ((index + 1) == currentContent.length()) {
 			// There is a package qualification and the last character is a
 			// dot
 			// Perform the search for all types under the given package
@@ -240,14 +245,14 @@ public class ModuleSourceContentAssistProcessor extends XMLContentAssistProcesso
 		try {
 			final TypeNameRequestor req = new TypeNameRequestor() {
 				@Override
-				public void acceptType(int modifiers, char[] packageName, char[] simpleTypeName, char[][] enclosingTypeNames, String path) {
+				public void acceptType(final int modifiers, final char[] packageName, final char[] simpleTypeName, final char[][] enclosingTypeNames, final String path) {
 					// Accept search results from the JDT SearchEngine
-					String cName = new String(simpleTypeName);
-					String pName = new String(packageName);
-					String label = cName + " - " + pName; //$NON-NLS-1$
-					String content = pName + "." + cName; //$NON-NLS-1$
-					Image image = (Flags.isInterface(modifiers)) ? GwtUiImages.get(GwtUiImages.IMG_INTERFACE) : GwtUiImages.get(GwtUiImages.IMG_CLASS);
-					TypeCompletionProposal proposal = new TypeCompletionProposal(content, image, label, replacementStart, replacementLength);
+					final String cName = new String(simpleTypeName);
+					final String pName = new String(packageName);
+					final String label = cName + " - " + pName; //$NON-NLS-1$
+					final String content = pName + "." + cName; //$NON-NLS-1$
+					final Image image = (Flags.isInterface(modifiers)) ? GwtUiImages.get(GwtUiImages.IMG_INTERFACE) : GwtUiImages.get(GwtUiImages.IMG_CLASS);
+					final TypeCompletionProposal proposal = new TypeCompletionProposal(content, image, label, replacementStart, replacementLength);
 					proposals.add(proposal);
 				}
 			};

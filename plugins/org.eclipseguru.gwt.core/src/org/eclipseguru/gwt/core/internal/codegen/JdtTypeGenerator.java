@@ -1,14 +1,14 @@
-/***************************************************************************************************
- * Copyright (c) 2006 Eclipse Guru and others.
- * All rights reserved. 
- *
+/*******************************************************************************
+ * Copyright (c) 2006, 2008 EclipseGuru and others.
+ * All rights reserved.
+ * 
  * This program and the accompanying materials are made available under the terms of the 
  * Eclipse Public License v1.0 which accompanies this distribution, and is available at
  * http://www.eclipse.org/legal/epl-v10.html
  * 
- * Contributors: Eclipse Guru - initial API and implementation
- *               Eclipse.org - ideas, concepts and code from existing Eclipse projects
- **************************************************************************************************/
+ * Contributors:
+ *     EclipseGuru - initial API and implementation
+ *******************************************************************************/
 package org.eclipseguru.gwt.core.internal.codegen;
 
 import org.eclipseguru.gwt.core.GwtCore;
@@ -133,11 +133,13 @@ public abstract class JdtTypeGenerator {
 				return content;
 		}
 		final StringBuffer buf = new StringBuffer();
-		if (!pack.isDefaultPackage())
+		if (!pack.isDefaultPackage()) {
 			buf.append("package ").append(pack.getElementName()).append(';'); //$NON-NLS-1$
+		}
 		buf.append(lineDelimiter).append(lineDelimiter);
-		if (typeComment != null)
+		if (typeComment != null) {
 			buf.append(typeComment).append(lineDelimiter);
+		}
 		buf.append(typeContent);
 		return buf.toString();
 	}
@@ -161,8 +163,9 @@ public abstract class JdtTypeGenerator {
 		final StringBuffer buf = new StringBuffer();
 
 		buf.append(Flags.toString(modifiers));
-		if (modifiers != 0)
+		if (modifiers != 0) {
 			buf.append(' ');
+		}
 		String type = ""; //$NON-NLS-1$
 		String templateID = ""; //$NON-NLS-1$
 		switch (typeKind) {
@@ -190,10 +193,11 @@ public abstract class JdtTypeGenerator {
 
 		buf.append(" {").append(lineDelimiter); //$NON-NLS-1$
 		final String typeBody = CodeGeneration.getTypeBody(templateID, parentCU, getTypeName(), lineDelimiter);
-		if (typeBody != null)
+		if (typeBody != null) {
 			buf.append(typeBody);
-		else
+		} else {
 			buf.append(lineDelimiter);
+		}
 		buf.append('}').append(lineDelimiter);
 		return buf.toString();
 	}
@@ -275,13 +279,15 @@ public abstract class JdtTypeGenerator {
 
 			// format the compilation unit
 			final TextEdit edit = CodeFormatterUtil.format2(CodeFormatter.K_COMPILATION_UNIT, parentCU.getBuffer().getContents(), 0, lineDelimiter, new HashMap(parentCU.getJavaProject().getOptions(true)));
-			if (edit != null)
+			if (edit != null) {
 				JavaModelUtil.applyEdit(parentCU, edit, needsSave, ProgressUtil.subProgressMonitor(monitor, 1));
+			}
 
-			if (needsSave)
+			if (needsSave) {
 				parentCU.commitWorkingCopy(true, ProgressUtil.subProgressMonitor(monitor, 1));
-			else
+			} else {
 				monitor.worked(1);
+			}
 		} finally {
 			monitor.done();
 		}
@@ -353,10 +359,11 @@ public abstract class JdtTypeGenerator {
 	private StubTypeContext getSuperClassStubTypeContext() {
 		if (superClassStubTypeContext == null) {
 			String typeName;
-			if (currentType != null)
+			if (currentType != null) {
 				typeName = getTypeName();
-			else
+			} else {
 				typeName = DUMMY_CLASS_NAME;
+			}
 			superClassStubTypeContext = TypeContextChecker.createSuperClassStubTypeContext(typeName, null, getPackageFragment());
 		}
 		return superClassStubTypeContext;
@@ -374,10 +381,11 @@ public abstract class JdtTypeGenerator {
 	private StubTypeContext getSuperInterfacesStubTypeContext() {
 		if (superInterfaceStubTypeContext == null) {
 			String typeName;
-			if (currentType != null)
+			if (currentType != null) {
 				typeName = getTypeName();
-			else
+			} else {
 				typeName = DUMMY_CLASS_NAME;
+			}
 			superInterfaceStubTypeContext = TypeContextChecker.createSuperInterfaceStubTypeContext(typeName, null, getPackageFragment());
 		}
 		return superInterfaceStubTypeContext;
@@ -433,8 +441,9 @@ public abstract class JdtTypeGenerator {
 		scanner.setSource(template.toCharArray());
 		try {
 			int next = scanner.getNextToken();
-			while (TokenScanner.isComment(next))
+			while (TokenScanner.isComment(next)) {
 				next = scanner.getNextToken();
+			}
 			return next == ITerminalSymbols.TokenNameEOF;
 		} catch (final InvalidInputException e) {
 		}
@@ -447,12 +456,14 @@ public abstract class JdtTypeGenerator {
 			buf.append(" extends "); //$NON-NLS-1$
 
 			ITypeBinding binding = null;
-			if (currentType != null)
+			if (currentType != null) {
 				binding = TypeContextChecker.resolveSuperClass(superclass, currentType, getSuperClassStubTypeContext());
-			if (binding != null)
+			}
+			if (binding != null) {
 				buf.append(imports.addImport(binding));
-			else
+			} else {
 				buf.append(imports.addImport(superclass));
+			}
 		}
 	}
 
@@ -460,24 +471,28 @@ public abstract class JdtTypeGenerator {
 		final List<String> interfaces = getSuperInterfaces();
 		final int last = interfaces.size() - 1;
 		if (last >= 0) {
-			if (typeKind != INTERFACE_TYPE)
+			if (typeKind != INTERFACE_TYPE) {
 				buf.append(" implements "); //$NON-NLS-1$
-			else
+			} else {
 				buf.append(" extends "); //$NON-NLS-1$
+			}
 			final String[] intfs = interfaces.toArray(new String[interfaces.size()]);
 			ITypeBinding[] bindings;
-			if (currentType != null)
+			if (currentType != null) {
 				bindings = TypeContextChecker.resolveSuperInterfaces(intfs, currentType, getSuperInterfacesStubTypeContext());
-			else
+			} else {
 				bindings = new ITypeBinding[intfs.length];
+			}
 			for (int i = 0; i <= last; i++) {
 				final ITypeBinding binding = bindings[i];
-				if (binding != null)
+				if (binding != null) {
 					buf.append(imports.addImport(binding));
-				else
+				} else {
 					buf.append(imports.addImport(intfs[i]));
-				if (i < last)
+				}
+				if (i < last) {
 					buf.append(',');
+				}
 			}
 		}
 	}

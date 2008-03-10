@@ -1,14 +1,14 @@
-/***************************************************************************************************
- * Copyright (c) 2006 Eclipse Guru and others.
- * All rights reserved. 
- *
+/*******************************************************************************
+ * Copyright (c) 2006, 2008 EclipseGuru and others.
+ * All rights reserved.
+ * 
  * This program and the accompanying materials are made available under the terms of the 
  * Eclipse Public License v1.0 which accompanies this distribution, and is available at
  * http://www.eclipse.org/legal/epl-v10.html
  * 
- * Contributors: Eclipse Guru - initial API and implementation
- *               Eclipse.org - ideas, concepts and code from existing Eclipse projects
- **************************************************************************************************/
+ * Contributors:
+ *     EclipseGuru - initial API and implementation
+ *******************************************************************************/
 package org.eclipseguru.gwt.core.utils;
 
 import org.eclipseguru.gwt.core.GwtCore;
@@ -60,10 +60,11 @@ public class ResourceUtil {
 			for (final IResource toCopy : resources) {
 				final IPath relativePath = toCopy.getFullPath().removeFirstSegments(sourcePath.segmentCount());
 				final IResource existing = root.findMember(target.append(relativePath));
-				if (null != existing)
+				if (null != existing) {
 					existing.delete(IResource.FORCE, ProgressUtil.subProgressMonitor(monitor, 1));
-				else
+				} else {
 					monitor.worked(1);
+				}
 				toCopy.copy(target.append(relativePath), IResource.FORCE | IResource.DERIVED, ProgressUtil.subProgressMonitor(monitor, 1));
 			}
 		} finally {
@@ -85,8 +86,9 @@ public class ResourceUtil {
 		try {
 			monitor.beginTask(NLS.bind("Copying {0}", toCopy.getName()), 2);
 			final IResource existing = ResourcesPlugin.getWorkspace().getRoot().findMember(target);
-			if (null != existing)
+			if (null != existing) {
 				existing.delete(IResource.FORCE, ProgressUtil.subProgressMonitor(monitor, 1));
+			}
 			toCopy.copy(target, IResource.FORCE | IResource.DERIVED, ProgressUtil.subProgressMonitor(monitor, 1));
 		} finally {
 			monitor.done();
@@ -121,17 +123,19 @@ public class ResourceUtil {
 	 * @throws CoreException
 	 */
 	public static void createFolderHierarchy(final IFolder folder, final IProgressMonitor monitor) throws CoreException {
-		while (!folder.exists())
+		while (!folder.exists()) {
 			try {
 				monitor.beginTask(NLS.bind("Creating folder {0}", folder.getFullPath().toString()), 2);
 				final IContainer parent = folder.getParent();
 				if (!parent.exists())
-					if (parent.getType() == IResource.FOLDER)
+					if (parent.getType() == IResource.FOLDER) {
 						createFolderHierarchy((IFolder) parent, ProgressUtil.subProgressMonitor(monitor, 1));
+					}
 				folder.create(IResource.FORCE, true, ProgressUtil.subProgressMonitor(monitor, 1));
 			} finally {
 				monitor.done();
 			}
+		}
 	}
 
 	/**
@@ -142,8 +146,9 @@ public class ResourceUtil {
 	 * @throws CoreException
 	 */
 	public static IMarker createProblem(IResource resource, final String message) throws CoreException {
-		if (null == resource)
+		if (null == resource) {
 			resource = ResourcesPlugin.getWorkspace().getRoot();
+		}
 		final IMarker marker = resource.createMarker(GwtCore.PROBLEM_MARKER);
 		final Map<String, Object> attributes = new HashMap<String, Object>(2);
 		attributes.put(IMarker.MESSAGE, message);
@@ -179,8 +184,9 @@ public class ResourceUtil {
 		try {
 			final IResource[] resources = folder.members();
 			monitor.beginTask(NLS.bind("Cleaning folder {0}", folder.getFullPath()), resources.length);
-			for (final IResource toDelete : resources)
+			for (final IResource toDelete : resources) {
 				toDelete.delete(true, ProgressUtil.subProgressMonitor(monitor, 1));
+			}
 		} finally {
 			monitor.done();
 		}

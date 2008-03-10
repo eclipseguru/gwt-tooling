@@ -1,14 +1,14 @@
-/***************************************************************************************************
- * Copyright (c) 2006 Eclipse Guru and others.
- * All rights reserved. 
- *
+/*******************************************************************************
+ * Copyright (c) 2006, 2008 EclipseGuru and others.
+ * All rights reserved.
+ * 
  * This program and the accompanying materials are made available under the terms of the 
  * Eclipse Public License v1.0 which accompanies this distribution, and is available at
  * http://www.eclipse.org/legal/epl-v10.html
  * 
- * Contributors: Eclipse Guru - initial API and implementation
- *               Eclipse.org - ideas, concepts and code from existing Eclipse projects
- **************************************************************************************************/
+ * Contributors:
+ *     EclipseGuru - initial API and implementation
+ *******************************************************************************/
 package org.eclipseguru.gwt.ui.server;
 
 import org.eclipseguru.gwt.core.GwtModule;
@@ -57,10 +57,11 @@ public class GwtBrowserClient extends ClientDelegate {
 		final ElementListSelectionDialog dialog = new ElementListSelectionDialog(GwtUi.getActiveWorkbenchShell(), labelProvider);
 		dialog.setElements(configList.toArray());
 		dialog.setTitle("Select a Browser Configuration");
-		if (mode.equals(ILaunchManager.DEBUG_MODE))
+		if (mode.equals(ILaunchManager.DEBUG_MODE)) {
 			dialog.setMessage("Select GWT Browser configuration to debug");
-		else
+		} else {
 			dialog.setMessage("Select GWT Browser configuration to run");
+		}
 
 		dialog.setMultipleSelection(false);
 		final int result = dialog.open();
@@ -81,8 +82,9 @@ public class GwtBrowserClient extends ClientDelegate {
 			candidateConfigs = new ArrayList<ILaunchConfiguration>(configs.length);
 			for (final ILaunchConfiguration config : configs)
 				if ((config.getAttribute(GwtLaunchConstants.ATTR_MODULE_ID, "").equals(moduleId)) && //$NON-NLS-1$
-						(config.getAttribute(IJavaLaunchConfigurationConstants.ATTR_PROJECT_NAME, "").equals(projectName)))
+						(config.getAttribute(IJavaLaunchConfigurationConstants.ATTR_PROJECT_NAME, "").equals(projectName))) {
 					candidateConfigs.add(config);
+				}
 		} catch (final CoreException e) {
 			GwtUi.logError(MessageFormat.format("Error while searching for existing GWT Browser launch configurations for module {0}", module.getModuleId()), e);
 		}
@@ -128,8 +130,9 @@ public class GwtBrowserClient extends ClientDelegate {
 		final URL url = browserLaunchable.getURL();
 
 		ILaunchConfiguration config = findGwtBrowserLaunchConfiguration(module, launchMode);
-		if (config == null)
+		if (config == null) {
 			config = GwtLaunchUtil.createGwtBrowserLaunchConfiguration(module, url.toString(), true);
+		}
 
 		DebugUITools.launch(config, launchMode);
 		return Status.OK_STATUS;

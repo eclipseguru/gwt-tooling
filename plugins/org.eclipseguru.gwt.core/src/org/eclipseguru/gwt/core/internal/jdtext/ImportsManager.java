@@ -1,14 +1,14 @@
-/***************************************************************************************************
- * Copyright (c) 2006 Eclipse Guru and others.
- * All rights reserved. 
- *
+/*******************************************************************************
+ * Copyright (c) 2006, 2008 EclipseGuru and others.
+ * All rights reserved.
+ * 
  * This program and the accompanying materials are made available under the terms of the 
  * Eclipse Public License v1.0 which accompanies this distribution, and is available at
  * http://www.eclipse.org/legal/epl-v10.html
  * 
- * Contributors: Eclipse Guru - initial API and implementation
- *               Eclipse.org - ideas, concepts and code from existing Eclipse projects
- **************************************************************************************************/
+ * Contributors:
+ *     EclipseGuru - initial API and implementation
+ *******************************************************************************/
 package org.eclipseguru.gwt.core.internal.jdtext;
 
 import org.eclipse.core.runtime.CoreException;
@@ -62,8 +62,9 @@ public class ImportsManager {
 	public static Set<String> getExistingImports(final CompilationUnit root) {
 		final List imports = root.imports();
 		final Set<String> res = new HashSet<String>(imports.size());
-		for (int i = 0; i < imports.size(); i++)
+		for (int i = 0; i < imports.size(); i++) {
 			res.add(ASTNodes.asString((ImportDeclaration) imports.get(i)));
+		}
 		return res;
 	}
 
@@ -110,12 +111,14 @@ public class ImportsManager {
 						if ((decl.getStartPosition() <= pos) && (pos < decl.getStartPosition() + decl.getLength())) {
 							if (existingImports.isEmpty() || !existingImports.contains(ASTNodes.asString(decl))) {
 								String name = decl.getName().getFullyQualifiedName();
-								if (decl.isOnDemand())
+								if (decl.isOnDemand()) {
 									name += ".*"; //$NON-NLS-1$
-								if (decl.isStatic())
+								}
+								if (decl.isStatic()) {
 									imports.removeStaticImport(name);
-								else
+								} else {
 									imports.removeImport(name);
+								}
 							}
 							break;
 						}

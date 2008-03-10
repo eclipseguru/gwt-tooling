@@ -1,14 +1,14 @@
-/***************************************************************************************************
- * Copyright (c) 2006 Eclipse Guru and others.
- * All rights reserved. 
- *
+/*******************************************************************************
+ * Copyright (c) 2006, 2008 EclipseGuru and others.
+ * All rights reserved.
+ * 
  * This program and the accompanying materials are made available under the terms of the 
  * Eclipse Public License v1.0 which accompanies this distribution, and is available at
  * http://www.eclipse.org/legal/epl-v10.html
  * 
- * Contributors: Eclipse Guru - initial API and implementation
- *               Eclipse.org - ideas, concepts and code from existing Eclipse projects
- **************************************************************************************************/
+ * Contributors:
+ *     EclipseGuru - initial API and implementation
+ *******************************************************************************/
 package org.eclipseguru.gwt.core.internal.codegen;
 
 import org.eclipseguru.gwt.core.GwtUtil;
@@ -173,13 +173,15 @@ public class AsyncServiceCodeGenerator extends JdtTypeGenerator {
 		final boolean varargs = Flags.isVarargs(flags);
 		final int parameterLength = parameterTypes.length;
 		for (int j = 0; j < parameterLength; j++) {
-			if (j > 0)
+			if (j > 0) {
 				buffer.append(","); //$NON-NLS-1$
+			}
 			buffer.append(Signature.toString(parameterTypes[j]));
 			if (varargs && (j == parameterLength - 1)) {
 				final int length = buffer.length();
-				if ((length >= 2) && (buffer.indexOf("[]", length - 2) >= 0)) //$NON-NLS-1$
+				if ((length >= 2) && (buffer.indexOf("[]", length - 2) >= 0)) {
 					buffer.setLength(length - 2);
+				}
 				buffer.append("..."); //$NON-NLS-1$
 			}
 			buffer.append(" "); //$NON-NLS-1$
@@ -241,8 +243,9 @@ public class AsyncServiceCodeGenerator extends JdtTypeGenerator {
 			for (final IMethod method : methods) {
 				// skip contructors and binary, static, private or protected
 				// methods
-				if (method.isConstructor() || method.isBinary() || Flags.isStatic(method.getFlags()) || Flags.isPrivate(method.getFlags()) || Flags.isProtected(method.getFlags()))
+				if (method.isConstructor() || method.isBinary() || Flags.isStatic(method.getFlags()) || Flags.isPrivate(method.getFlags()) || Flags.isProtected(method.getFlags())) {
 					continue;
+				}
 
 				final StringBuffer methodContent = new StringBuffer();
 
@@ -250,8 +253,9 @@ public class AsyncServiceCodeGenerator extends JdtTypeGenerator {
 				final ISourceRange javadocRange = method.getJavadocRange();
 				if (null != javadocRange) {
 					final IBuffer buffer = remoteServiceType.getOpenable().getBuffer();
-					if (buffer != null)
+					if (buffer != null) {
 						methodContent.append(buffer.getText(javadocRange.getOffset(), javadocRange.getLength()));
+					}
 				}
 
 				// declaration
@@ -329,8 +333,9 @@ public class AsyncServiceCodeGenerator extends JdtTypeGenerator {
 						final StringBuffer result = new StringBuffer();
 						for (int i = 0; i < lines.length; i++) {
 							result.append(lines[i]);
-							if (i < lines.length - 1)
+							if (i < lines.length - 1) {
 								result.append(lineDelimiter);
+							}
 						}
 						return result.toString();
 					}
@@ -359,8 +364,9 @@ public class AsyncServiceCodeGenerator extends JdtTypeGenerator {
 		final ListRewrite typeRewrite = cuRewrite.getListRewrite(cu, CompilationUnit.TYPES_PROPERTY);
 		for (final Iterator stream = typeRewrite.getOriginalList().iterator(); stream.hasNext();) {
 			final TypeDeclaration td = (TypeDeclaration) stream.next();
-			if (td.getName().getIdentifier().equals(getTypeNameWithoutParameters()))
+			if (td.getName().getIdentifier().equals(getTypeNameWithoutParameters())) {
 				updateTypeJavaDoc(cuRewrite, td, textEditGroup);
+			}
 		}
 
 		// apply edit
@@ -380,22 +386,24 @@ public class AsyncServiceCodeGenerator extends JdtTypeGenerator {
 			final TagElement element = (TagElement) stream.next();
 			if (null != element.getTagName()) {
 				final String tagName = element.getTagName();
-				if (tagName.equals(TAG_PARAM))
+				if (tagName.equals(TAG_PARAM)) {
 					lastParamPos = element;
-				else if (tagName.equals(TAG_RETURN) && !element.fragments().isEmpty()) {
+				} else if (tagName.equals(TAG_RETURN) && !element.fragments().isEmpty()) {
 					hasReturnTag = true;
 					cuRewrite.set(element, TagElement.TAG_NAME_PROPERTY, TAG_GWT_CALLBACK_RETURN, textEditGroup);
-				} else if (tagName.equals(TAG_THROWS) || tagName.equals(TAG_GWT_TYPE_ARGS))
+				} else if (tagName.equals(TAG_THROWS) || tagName.equals(TAG_GWT_TYPE_ARGS)) {
 					javadocRewrite.remove(element, textEditGroup);
+				}
 			}
 		}
 
 		// create @param callback
 		final TagElement callbackParamTag = cuRewrite.getAST().newTagElement();
-		if (null != lastParamPos)
+		if (null != lastParamPos) {
 			javadocRewrite.insertAfter(callbackParamTag, lastParamPos, textEditGroup);
-		else
+		} else {
 			javadocRewrite.insertLast(callbackParamTag, textEditGroup);
+		}
 		cuRewrite.set(callbackParamTag, TagElement.TAG_NAME_PROPERTY, TAG_PARAM, textEditGroup);
 		final ListRewrite tagRewrite = cuRewrite.getListRewrite(callbackParamTag, TagElement.FRAGMENTS_PROPERTY);
 		final TextElement space = cuRewrite.getAST().newTextElement();
@@ -445,12 +453,14 @@ public class AsyncServiceCodeGenerator extends JdtTypeGenerator {
 		for (final IImportDeclaration declaration : existingImports)
 			if (Flags.isStatic(declaration.getFlags())) {
 				String name = Signature.getSimpleName(declaration.getElementName());
-				boolean isField = !name.endsWith("()"); //$NON-NLS-1$
-				if (!isField)
+				final boolean isField = !name.endsWith("()"); //$NON-NLS-1$
+				if (!isField) {
 					name = name.substring(0, name.length() - 2);
+				}
 				final String qualifier = Signature.getQualifier(declaration.getElementName());
 				imports.addStaticImport(qualifier, name, isField);
-			} else
+			} else {
 				imports.addImport(declaration.getElementName());
+			}
 	}
 }
