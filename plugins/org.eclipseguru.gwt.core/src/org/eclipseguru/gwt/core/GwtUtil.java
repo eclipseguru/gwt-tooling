@@ -60,8 +60,9 @@ public class GwtUtil {
 	 */
 	public static String getCompilerVmArgs(final GwtProject project) {
 		final IEclipsePreferences projectPreferences = project.getProjectPreferences();
-		if (null == projectPreferences)
+		if (null == projectPreferences) {
 			return NO_VM_ARGS;
+		}
 
 		return projectPreferences.get(GwtCorePreferenceConstants.PREF_COMPILER_VM_ARGS, NO_VM_ARGS);
 	}
@@ -79,8 +80,9 @@ public class GwtUtil {
 	public static IPath getDeploymentPath(final GwtProject project) {
 		final IEclipsePreferences projectPreferences = project.getProjectPreferences();
 		final String deploymentPathString = null != projectPreferences ? projectPreferences.get(GwtCorePreferenceConstants.PREF_DEPLOYMENT_PATH, null) : null;
-		if (null != deploymentPathString)
+		if (null != deploymentPathString) {
 			return new Path(deploymentPathString).makeAbsolute();
+		}
 
 		return new Path("/gwt");
 	}
@@ -98,15 +100,17 @@ public class GwtUtil {
 		if (project != null) {
 			scopeContext = new IScopeContext[] { new ProjectScope(project) };
 			lineSeparator = Platform.getPreferencesService().getString(Platform.PI_RUNTIME, Platform.PREF_LINE_SEPARATOR, null, scopeContext);
-			if (lineSeparator != null)
+			if (lineSeparator != null) {
 				return lineSeparator;
+			}
 		}
 
 		// line delimiter in workspace preference
 		scopeContext = new IScopeContext[] { new InstanceScope() };
 		lineSeparator = Platform.getPreferencesService().getString(Platform.PI_RUNTIME, Platform.PREF_LINE_SEPARATOR, null, scopeContext);
-		if (lineSeparator != null)
+		if (lineSeparator != null) {
 			return lineSeparator;
+		}
 
 		// system line delimiter
 		return SYSTEM_LINE_SEPARATOR;
@@ -126,8 +130,9 @@ public class GwtUtil {
 		// prefere configures output location
 		final IEclipsePreferences projectPreferences = gwtProject.getProjectPreferences();
 		final String outputPathString = null != projectPreferences ? projectPreferences.get(GwtCorePreferenceConstants.PREF_OUTPUT_LOCATION, null) : null;
-		if (null != outputPathString)
+		if (null != outputPathString) {
 			return new Path(outputPathString).makeRelative();
+		}
 
 		// fallback to default
 		return new Path(DEFAULT_OUTPUT_LOCATION).makeRelative();
@@ -141,12 +146,14 @@ public class GwtUtil {
 	 * @return the package name part
 	 */
 	public static String getPackageName(final String moduleId) {
-		if (null == moduleId)
+		if (null == moduleId) {
 			return null;
+		}
 
 		final int lastDot = moduleId.lastIndexOf('.');
-		if (lastDot != -1)
+		if (lastDot != -1) {
 			return moduleId.substring(0, lastDot);
+		}
 
 		return DEFAULT_PACKAGE_NAME;
 	}
@@ -163,12 +170,14 @@ public class GwtUtil {
 	 * @return the simple name (maybe <code>null</code>)
 	 */
 	public static String getSimpleName(final IStorage storage) {
-		if (null == storage)
+		if (null == storage) {
 			return null;
+		}
 
 		final String name = storage.getName();
-		if ((null == name) || !name.endsWith(GWT_MODULE_SOURCE_EXTENSION))
+		if ((null == name) || !name.endsWith(GWT_MODULE_SOURCE_EXTENSION)) {
 			return null;
+		}
 
 		return name.substring(0, name.length() - GWT_MODULE_SOURCE_EXTENSION.length());
 	}
@@ -181,12 +190,14 @@ public class GwtUtil {
 	 * @return the simple name
 	 */
 	public static String getSimpleName(final String moduleId) {
-		if (null == moduleId)
+		if (null == moduleId) {
 			return null;
+		}
 
 		final int lastDot = moduleId.lastIndexOf('.');
-		if ((lastDot != -1) && (moduleId.length() > lastDot))
+		if ((lastDot != -1) && (moduleId.length() > lastDot)) {
 			return moduleId.substring(lastDot + 1);
+		}
 
 		return moduleId;
 	}
@@ -200,10 +211,11 @@ public class GwtUtil {
 	public static String getTypeNameWithoutParameters(final String typeName) {
 		final String typeNameWithParameters = typeName;
 		final int angleBracketOffset = typeNameWithParameters.indexOf('<');
-		if (angleBracketOffset == -1)
+		if (angleBracketOffset == -1) {
 			return typeNameWithParameters;
-		else
+		} else {
 			return typeNameWithParameters.substring(0, angleBracketOffset);
+		}
 	}
 
 	/**
@@ -216,14 +228,31 @@ public class GwtUtil {
 	public static boolean hasFacet(final IProject project, final String facteId) {
 		try {
 			final IFacetedProject facetsManager = ProjectFacetsManager.create(project);
-			if (null == facetsManager)
+			if (null == facetsManager) {
 				return false;
+			}
 
 			return facetsManager.hasProjectFacet(ProjectFacetsManager.getProjectFacet(facteId));
 		} catch (final CoreException e) {
 			// fail gracefully
 			return false;
 		}
+	}
+
+	/**
+	 * Indicates if the project is configured to build modules automatically.
+	 * 
+	 * @param project
+	 * @return <code>true</code> if the project is configured to build modules
+	 *         automatically, <code>false</code> if in compiled mode
+	 */
+	public static boolean isAutoBuildModules(final GwtProject project) {
+		final IEclipsePreferences projectPreferences = project.getProjectPreferences();
+		if (null == projectPreferences) {
+			return false;
+		}
+
+		return projectPreferences.getBoolean(GwtCorePreferenceConstants.PREF_AUTO_BUILD_MODULES, false);
 	}
 
 	/**
@@ -235,8 +264,9 @@ public class GwtUtil {
 	 */
 	public static boolean isHostedDeploymentMode(final GwtProject project) {
 		final IEclipsePreferences projectPreferences = project.getProjectPreferences();
-		if (null == projectPreferences)
+		if (null == projectPreferences) {
 			return false;
+		}
 
 		return projectPreferences.getBoolean(GwtCorePreferenceConstants.PREF_HOSTED_DEPLOY_MODE, true);
 	}
@@ -249,8 +279,9 @@ public class GwtUtil {
 	 *         <code>false</code> otherwise
 	 */
 	public static boolean isModuleDescriptor(final IResource resource) {
-		if ((resource != null) && (resource.getType() == IResource.FILE) && resource.getName().toLowerCase().endsWith(GWT_MODULE_SOURCE_EXTENSION))
+		if ((resource != null) && (resource.getType() == IResource.FILE) && resource.getName().toLowerCase().endsWith(GWT_MODULE_SOURCE_EXTENSION)) {
 			return true;
+		}
 		return false;
 	}
 

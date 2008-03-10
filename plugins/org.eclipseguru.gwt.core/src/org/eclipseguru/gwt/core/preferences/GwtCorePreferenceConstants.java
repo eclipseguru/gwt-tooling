@@ -40,4 +40,6 @@ public interface GwtCorePreferenceConstants {
 	 * Defines path to a custom module template.
 	 */
 	String PREF_CUSTOM_MODULE_TEMPLATE_PATH = "customModuleTemplatePath";
+
+	String PREF_AUTO_BUILD_MODULES = "autoBuildModules";
 }

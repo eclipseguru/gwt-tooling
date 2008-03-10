@@ -12,6 +12,7 @@
 package org.eclipseguru.gwt.core.builder;
 
 import org.eclipseguru.gwt.core.GwtCore;
+import org.eclipseguru.gwt.core.GwtModelException;
 import org.eclipseguru.gwt.core.GwtModule;
 import org.eclipseguru.gwt.core.GwtProject;
 import org.eclipseguru.gwt.core.GwtRemoteService;
@@ -104,8 +105,9 @@ public class GwtProjectBuilder extends IncrementalProjectBuilder {
 					currentProjectModules = null;
 
 					// check project nature
-					if (!GwtProject.hasGwtNature(project))
+					if (!GwtProject.hasGwtNature(project)) {
 						return false;
+					}
 
 					gwtProject = GwtCore.create(project);
 					if (null != gwtProject) {
@@ -119,16 +121,18 @@ public class GwtProjectBuilder extends IncrementalProjectBuilder {
 					return true;
 
 				case IResource.FILE:
-					if (null == currentProjectModules)
+					if (null == currentProjectModules) {
 						return false;
+					}
 
 					if (JavaCore.isJavaLikeFileName(resource.getName()) && gwtProject.getJavaProject().isOnClasspath(resource)) {
 						final ICompilationUnit cu = (ICompilationUnit) JavaCore.create(resource);
 						if ((null != cu) && cu.exists()) {
-							for (final GwtModule module : currentProjectModules)
+							for (final GwtModule module : currentProjectModules) {
 								if (module.isModuleResource(resource)) {
 									GwtRemoteService.findRemoteServices(cu, changed);
 								}
+							}
 						}
 					}
 					return false;
@@ -157,8 +161,9 @@ public class GwtProjectBuilder extends IncrementalProjectBuilder {
 			monitor.beginTask(NLS.bind("Building project{0} ...", project.getName()), 10);
 
 			// check for our nature
-			if (!GwtProject.hasGwtNature(project))
+			if (!GwtProject.hasGwtNature(project)) {
 				return null;
+			}
 
 			if (isIncrementalBuild) {
 				// remove current project markers
@@ -199,25 +204,46 @@ public class GwtProjectBuilder extends IncrementalProjectBuilder {
 				updateAsyncFiles(remoteServices, ProgressUtil.subProgressMonitor(monitor, 1));
 			}
 
+			// compile modules
+			monitor.subTask("Compiling modules ...");
+			compileProjectModules(gwtProject, projectModules, delta, ProgressUtil.subProgressMonitor(monitor, 1));
+
 			// check modules
-			for (final GwtModule gwtModule : projectModules) {
-				final IStorage moduleDescriptor = gwtModule.getModuleDescriptor();
-				if (moduleDescriptor instanceof IResource) {
-					final String entryPointTypeName = gwtModule.getEntryPointTypeName();
-					if (null != entryPointTypeName) {
-						final IType entryPointType = gwtModule.getEntryPointType();
-						if (null == entryPointType) {
-							ResourceUtil.createProblem((IResource) moduleDescriptor, MessageFormat.format("Entry point \"{0}\" could not be found on the project build path.", entryPointTypeName));
-						}
-					}
-				}
-			}
+			monitor.subTask("Validating modules ...");
+			checkProjectModules(projectModules, ProgressUtil.subProgressMonitor(monitor, 1));
 
 			return includedModulesProjects.toArray(new IProject[includedModulesProjects.size()]);
 
 		} catch (final Exception e) {
 			forgetLastBuiltState();
 			throw new CoreException(new Status(IStatus.ERROR, Constants.PLUGIN_ID, IResourceStatus.BUILD_FAILED, "An error occured during building: " + e.toString(), e));
+		} finally {
+			monitor.done();
+		}
+	}
+
+	private void checkProjectModules(final GwtModule[] projectModules, IProgressMonitor monitor) throws GwtModelException, CoreException {
+		monitor = ProgressUtil.monitor(monitor);
+		try {
+			monitor.beginTask("Validating", projectModules.length);
+			for (final GwtModule gwtModule : projectModules) {
+				monitor.setTaskName(gwtModule.getName());
+				final IStorage moduleDescriptor = gwtModule.getModuleDescriptor();
+				if (moduleDescriptor instanceof IResource) {
+					try {
+						final String entryPointTypeName = gwtModule.getEntryPointTypeName();
+						if (null != entryPointTypeName) {
+							final IType entryPointType = gwtModule.getEntryPointType();
+							if (null == entryPointType) {
+								ResourceUtil.createProblem((IResource) moduleDescriptor, MessageFormat.format("Entry point \"{0}\" could not be found on the project build path.", entryPointTypeName));
+							}
+						}
+					} catch (final GwtModelException e) {
+						ResourceUtil.createProblem((IResource) moduleDescriptor, MessageFormat.format("Error while analyzing module \"{0}\": {1} ", gwtModule.getModuleId(), e.getMessage()));
+					}
+				}
+				monitor.worked(1);
+			}
 		} finally {
 			monitor.done();
 		}
@@ -234,11 +260,12 @@ public class GwtProjectBuilder extends IncrementalProjectBuilder {
 		try {
 			// initialize
 			final IProject project = getProject();
-			monitor.beginTask(NLS.bind("Cleaning project{0}", project.getName()), 10);
+			monitor.beginTask(NLS.bind("Cleaning project {0}", project.getName()), 10);
 
 			// check for our nature
-			if (!GwtProject.hasGwtNature(project))
+			if (!GwtProject.hasGwtNature(project)) {
 				return;
+			}
 
 			// remove all markers
 			project.deleteMarkers(GwtCore.PROBLEM_MARKER, true, IResource.DEPTH_INFINITE);
@@ -257,15 +284,28 @@ public class GwtProjectBuilder extends IncrementalProjectBuilder {
 		}
 	}
 
+	private void compileProjectModules(final GwtProject gwtProject, final GwtModule[] projectModules, final IResourceDelta delta, final IProgressMonitor monitor) throws CoreException {
+		if (!GwtUtil.isAutoBuildModules(gwtProject)) {
+			return;
+		}
+
+		// TODO we should be smart and support incremental builds
+		try {
+			new GwtProjectPublisher(gwtProject).runInWorkspace(monitor);
+		} catch (final CoreException e) {
+			ResourceUtil.createProblem(gwtProject.getProjectResource(), MessageFormat.format("Error while compiling modules: {0} ", e.getMessage()));
+		}
+	}
+
 	private List<IType> findRemoteServiceFiles(final GwtProject gwtProject, final GwtModule[] projectModules, final IResourceDelta delta, IProgressMonitor monitor) throws CoreException {
 		monitor = ProgressUtil.monitor(monitor);
 		try {
 			monitor.beginTask("Looking for Remote Service Files", 1);
 
-			if (delta == null)
+			if (delta == null) {
 				// full build
 				return GwtRemoteService.findRemoteServices(projectModules);
-			else {
+			} else {
 				// incremental build
 				final List<IType> remoteServices = new ArrayList<IType>();
 				delta.accept(new FindRemoteServicesVisitor(remoteServices));
@@ -306,8 +346,9 @@ public class GwtProjectBuilder extends IncrementalProjectBuilder {
 			asyncServiceCu = pack.getCompilationUnit(asyncServiceCuName);
 
 			// check if overwrite is allowed
-			if (!AsyncServiceCodeGenerator.isAllowedToGenerateAsyncServiceType(asyncServiceCu, asyncServiceTypeName))
+			if (!AsyncServiceCodeGenerator.isAllowedToGenerateAsyncServiceType(asyncServiceCu, asyncServiceTypeName)) {
 				return;
+			}
 
 			// make cu a working copy
 			asyncServiceCu = asyncServiceCu.getWorkingCopy(WORKING_COPY_OWNER, ProgressUtil.subProgressMonitor(monitor, 1));
