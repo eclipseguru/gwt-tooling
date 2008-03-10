@@ -6,7 +6,7 @@ Bundle-Version: 1.4.0.qualifier
 Bundle-Activator: org.eclipseguru.gwt.ui.GwtUi
 Bundle-Vendor: EclipseGuru
 Require-Bundle: org.eclipse.core.runtime,
- org.eclipse.jface.text;bundle-version="[3.4.0,3.5.0)",
+ org.eclipse.jface.text;bundle-version="[3.3.0.v20070321-1800,3.5.0)",
  org.eclipse.ui,
  org.eclipse.ui.ide,
  org.eclipse.ui.forms,
@@ -14,7 +14,7 @@ Require-Bundle: org.eclipse.core.runtime,
  org.eclipse.debug.ui,
  org.eclipse.ltk.core.refactoring,
  org.eclipse.jdt.core,
- org.eclipse.jdt.ui;bundle-version="[3.4.0,3.5.0)",
+ org.eclipse.jdt.ui;bundle-version="[3.3.0.v20070321-1800,3.5.0)",
  org.eclipse.jdt.launching,
  org.eclipse.jdt.debug.ui,
  org.eclipse.jst.j2ee,
@@ -25,6 +25,7 @@ Require-Bundle: org.eclipse.core.runtime,
  org.eclipse.wst.server.core,
  org.eclipseguru.gwt.core
 Bundle-ActivationPolicy: lazy
+Eclipse-LazyStart: true
 Bundle-RequiredExecutionEnvironment: JavaSE-1.6,
  J2SE-1.5
 Bundle-ClassPath: .
