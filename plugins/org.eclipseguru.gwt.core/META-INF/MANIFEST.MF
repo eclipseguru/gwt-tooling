@@ -5,13 +5,12 @@ Bundle-SymbolicName: org.eclipseguru.gwt.core;singleton:=true
 Bundle-Version: 1.4.0.qualifier
 Bundle-Activator: org.eclipseguru.gwt.core.GwtCore
 Bundle-Vendor: EclipseGuru
-Bundle-Localization: plugin
 Require-Bundle: org.eclipse.core.runtime,
  org.eclipse.jface.text,
  org.eclipse.debug.core,
  org.eclipse.jdt.core,
  org.eclipse.jdt.launching,
- org.eclipse.jdt.ui;bundle-version="[3.2.0,3.4.0)",
+ org.eclipse.jdt.ui;bundle-version="[3.4.0,3.5.0)",
  org.eclipse.wst.common.project.facet.core,
  org.eclipse.wst.sse.core,
  org.eclipse.wst.server.core,
@@ -21,8 +20,9 @@ Require-Bundle: org.eclipse.core.runtime,
  org.eclipse.jst.server.core,
  org.eclipse.ui.console,
  org.eclipse.core.variables
-Eclipse-LazyStart: true
-Bundle-RequiredExecutionEnvironment: J2SE-1.5
+Bundle-ActivationPolicy: lazy
+Bundle-RequiredExecutionEnvironment: JavaSE-1.6,
+ J2SE-1.5
 Export-Package: com.googlipse.gwt.common;x-friends:="org.eclipseguru.gwt.ui",
  com.googlipse.gwt.facet;x-friends:="org.eclipseguru.gwt.ui",
  org.eclipseguru.gwt.core;x-friends:="org.eclipseguru.gwt.ui",

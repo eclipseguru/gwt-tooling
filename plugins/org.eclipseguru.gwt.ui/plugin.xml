@@ -42,13 +42,16 @@
 	</extension>
 	<extension point="org.eclipse.ui.propertyPages">
 		<page
-        adaptable="true"
         class="org.eclipseguru.gwt.ui.properties.ProjectProperties"
         id="org.eclipseguru.gwt.ui.projectPropertyPage"
-        name="GWT Deployment"
-        objectClass="org.eclipse.core.resources.IProject">
+        name="GWT Deployment">
 			<filter name="nature"
 				value="org.eclipseguru.gwt.core.nature" />
+   <enabledWhen>
+      <adapt
+            type="org.eclipse.core.resources.IProject">
+      </adapt>
+   </enabledWhen>
 		</page>
 	</extension>
 	<extension point="org.eclipse.ui.perspectiveExtensions">
@@ -126,10 +129,8 @@
 				label="Remove GWT Tooling Support"
 				menubarPath="org.eclipseguru.gwt.ui.menu.tools/admin" />
 			<visibility>
-				<and>
-					<objectState name="nature"
-						value="org.eclipseguru.gwt.core.nature" />
-				</and>
+				<objectState name="nature"
+					value="org.eclipseguru.gwt.core.nature" />
 			</visibility>
 		</objectContribution>
 	</extension>

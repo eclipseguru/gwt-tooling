@@ -5,9 +5,8 @@ Bundle-SymbolicName: org.eclipseguru.gwt.ui;singleton:=true
 Bundle-Version: 1.4.0.qualifier
 Bundle-Activator: org.eclipseguru.gwt.ui.GwtUi
 Bundle-Vendor: EclipseGuru
-Bundle-Localization: plugin
 Require-Bundle: org.eclipse.core.runtime,
- org.eclipse.jface.text;bundle-version="[3.3.0.v20070321-1800,3.4.0)",
+ org.eclipse.jface.text;bundle-version="[3.4.0,3.5.0)",
  org.eclipse.ui,
  org.eclipse.ui.ide,
  org.eclipse.ui.forms,
@@ -15,7 +14,7 @@ Require-Bundle: org.eclipse.core.runtime,
  org.eclipse.debug.ui,
  org.eclipse.ltk.core.refactoring,
  org.eclipse.jdt.core,
- org.eclipse.jdt.ui;bundle-version="[3.3.0.v20070321-1800,3.4.0)",
+ org.eclipse.jdt.ui;bundle-version="[3.4.0,3.5.0)",
  org.eclipse.jdt.launching,
  org.eclipse.jdt.debug.ui,
  org.eclipse.jst.j2ee,
@@ -25,8 +24,9 @@ Require-Bundle: org.eclipse.core.runtime,
  org.eclipse.wst.xml.ui,
  org.eclipse.wst.server.core,
  org.eclipseguru.gwt.core
-Eclipse-LazyStart: true
-Bundle-RequiredExecutionEnvironment: J2SE-1.5
+Bundle-ActivationPolicy: lazy
+Bundle-RequiredExecutionEnvironment: JavaSE-1.6,
+ J2SE-1.5
 Bundle-ClassPath: .
 Export-Package: com.googlipse.gwt.wizards,
  org.eclipseguru.gwt.internal.core.refactoring;x-internal:=true,
