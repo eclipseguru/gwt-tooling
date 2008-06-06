@@ -11,19 +11,19 @@
  *******************************************************************************/
 package org.eclipseguru.gwt.ui.editor.contentassist;
 
+import org.eclipseguru.gwt.ui.GwtUi;
+
 import org.eclipse.core.runtime.Assert;
 import org.eclipse.core.runtime.IProgressMonitor;
+import org.eclipse.jdt.internal.ui.text.java.hover.JavadocHover;
 import org.eclipse.jface.internal.text.html.BrowserInformationControl;
-import org.eclipse.jface.text.AbstractReusableInformationControlCreator;
 import org.eclipse.jface.text.BadLocationException;
 import org.eclipse.jface.text.IDocument;
-import org.eclipse.jface.text.IInformationControl;
 import org.eclipse.jface.text.IInformationControlCreator;
 import org.eclipse.jface.text.contentassist.ICompletionProposal;
 import org.eclipse.jface.text.contentassist.ICompletionProposalExtension3;
 import org.eclipse.jface.text.contentassist.ICompletionProposalExtension5;
 import org.eclipse.jface.text.contentassist.IContextInformation;
-import org.eclipse.swt.SWT;
 import org.eclipse.swt.graphics.Image;
 import org.eclipse.swt.graphics.Point;
 import org.eclipse.swt.widgets.Shell;
@@ -57,8 +57,9 @@ public class TypeCompletionProposal implements ICompletionProposal, ICompletionP
 
 	/*
 	 * (non-Javadoc)
-	 * 
-	 * @see org.eclipse.jface.text.contentassist.ICompletionProposal#apply(org.eclipse.jface.text.IDocument)
+	 * @see
+	 * org.eclipse.jface.text.contentassist.ICompletionProposal#apply(org.eclipse
+	 * .jface.text.IDocument)
 	 */
 	public void apply(final IDocument document) {
 		if (fLength == -1) {
@@ -75,8 +76,8 @@ public class TypeCompletionProposal implements ICompletionProposal, ICompletionP
 
 	/*
 	 * (non-Javadoc)
-	 * 
-	 * @see org.eclipse.jface.text.contentassist.ICompletionProposal#getAdditionalProposalInfo()
+	 * @seeorg.eclipse.jface.text.contentassist.ICompletionProposal#
+	 * getAdditionalProposalInfo()
 	 */
 	public String getAdditionalProposalInfo() {
 		// No additional proposal information
@@ -89,8 +90,8 @@ public class TypeCompletionProposal implements ICompletionProposal, ICompletionP
 
 	/*
 	 * (non-Javadoc)
-	 * 
-	 * @see org.eclipse.jface.text.contentassist.ICompletionProposal#getContextInformation()
+	 * @seeorg.eclipse.jface.text.contentassist.ICompletionProposal#
+	 * getContextInformation()
 	 */
 	public IContextInformation getContextInformation() {
 		// No context information
@@ -99,8 +100,9 @@ public class TypeCompletionProposal implements ICompletionProposal, ICompletionP
 
 	/*
 	 * (non-Javadoc)
-	 * 
-	 * @see org.eclipse.jface.text.contentassist.ICompletionProposal#getDisplayString()
+	 * @see
+	 * org.eclipse.jface.text.contentassist.ICompletionProposal#getDisplayString
+	 * ()
 	 */
 	public String getDisplayString() {
 		return fDisplayString;
@@ -108,7 +110,6 @@ public class TypeCompletionProposal implements ICompletionProposal, ICompletionP
 
 	/*
 	 * (non-Javadoc)
-	 * 
 	 * @see org.eclipse.jface.text.contentassist.ICompletionProposal#getImage()
 	 */
 	public Image getImage() {
@@ -116,20 +117,26 @@ public class TypeCompletionProposal implements ICompletionProposal, ICompletionP
 	}
 
 	public IInformationControlCreator getInformationControlCreator() {
-		if (!BrowserInformationControl.isAvailable(null))
+		final Shell shell = GwtUi.getActiveWorkbenchShell();
+		if ((shell == null) || !BrowserInformationControl.isAvailable(shell)) {
 			return null;
+		}
 
 		if (fCreator == null) {
-			fCreator = new AbstractReusableInformationControlCreator() {
-
-				/*
-				 * @see org.eclipse.jdt.internal.ui.text.java.hover.AbstractReusableInformationControlCreator#doCreateInformationControl(org.eclipse.swt.widgets.Shell)
-				 */
-				@Override
-				public IInformationControl doCreateInformationControl(final Shell parent) {
-					return new BrowserInformationControl(parent, SWT.NO_TRIM | SWT.TOOL, SWT.NONE, null);
-				}
-			};
+			//			fCreator = new AbstractReusableInformationControlCreator() {
+			//
+			//				/*
+			//				 * @see org.eclipse.jdt.internal.ui.text.java.hover.AbstractReusableInformationControlCreator#doCreateInformationControl(org.eclipse.swt.widgets.Shell)
+			//				 */
+			//				@Override
+			//				public IInformationControl doCreateInformationControl(final Shell parent) {
+			//					return new BrowserInformationControl(parent, SWT.NO_TRIM | SWT.TOOL, SWT.NONE, null);
+			//				}
+			//			};
+			// copied from org.eclipse.jdt.internal.ui.text.java.AbstractJavaCompletionProposal
+			// see also: https://bugs.eclipse.org/bugs/show_bug.cgi?id=232024
+			final JavadocHover.PresenterControlCreator presenterControlCreator = new JavadocHover.PresenterControlCreator();
+			fCreator = new JavadocHover.HoverControlCreator(presenterControlCreator, true);
 		}
 		return fCreator;
 	}
@@ -151,12 +158,14 @@ public class TypeCompletionProposal implements ICompletionProposal, ICompletionP
 
 	/*
 	 * (non-Javadoc)
-	 * 
-	 * @see org.eclipse.jface.text.contentassist.ICompletionProposal#getSelection(org.eclipse.jface.text.IDocument)
+	 * @see
+	 * org.eclipse.jface.text.contentassist.ICompletionProposal#getSelection
+	 * (org.eclipse.jface.text.IDocument)
 	 */
 	public Point getSelection(final IDocument document) {
-		if (fReplacementString.equals("\"\"")) //$NON-NLS-1$
+		if (fReplacementString.equals("\"\"")) {
 			return new Point(fBeginInsertPoint + 1, 0);
+		}
 		return new Point(fBeginInsertPoint + fReplacementString.length(), 0);
 	}
 

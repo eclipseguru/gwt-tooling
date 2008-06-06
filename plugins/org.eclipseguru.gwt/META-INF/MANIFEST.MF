@@ -2,9 +2,8 @@ Manifest-Version: 1.0
 Bundle-ManifestVersion: 2
 Bundle-Name: GWT Tooling
 Bundle-SymbolicName: org.eclipseguru.gwt; singleton:=true
-Bundle-Version: 1.4.1.qualifier
+Bundle-Version: 1.5.0.qualifier
 Bundle-Vendor: EclipseGuru
 Eclipse-LazyStart: true
-Bundle-RequiredExecutionEnvironment: JavaSE-1.6,
- J2SE-1.5
+Bundle-RequiredExecutionEnvironment: J2SE-1.5
 Bundle-ActivationPolicy: lazy
