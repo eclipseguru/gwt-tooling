@@ -169,7 +169,23 @@ public class AsyncServiceCodeGenerator extends JdtTypeGenerator {
 		buffer.append(imports.addImport(ASYNC_CALLBACK));
 		if (is50OrHigher) {
 			final String returnType = method.getReturnType();
-			if (Signature.SIG_VOID.equals(returnType)) {
+			if (Signature.SIG_BOOLEAN.equals(returnType)) {
+				buffer.append("<Boolean>");
+			} else if (Signature.SIG_BYTE.equals(returnType)) {
+				buffer.append("<Byte>");
+			} else if (Signature.SIG_CHAR.equals(returnType)) {
+				buffer.append("<Character>");
+			} else if (Signature.SIG_DOUBLE.equals(returnType)) {
+				buffer.append("<Double>");
+			} else if (Signature.SIG_FLOAT.equals(returnType)) {
+				buffer.append("<Float>");
+			} else if (Signature.SIG_INT.equals(returnType)) {
+				buffer.append("<Integer>");
+			} else if (Signature.SIG_LONG.equals(returnType)) {
+				buffer.append("<Long>");
+			} else if (Signature.SIG_SHORT.equals(returnType)) {
+				buffer.append("<Short>");
+			} else if (Signature.SIG_VOID.equals(returnType)) {
 				buffer.append("<?>");
 			} else {
 				buffer.append('<');
