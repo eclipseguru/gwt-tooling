@@ -29,26 +29,26 @@ public class GwtContainerInitializer extends ClasspathContainerInitializer {
 
 	/*
 	 * (non-Javadoc)
-	 * 
-	 * @see org.eclipse.jdt.core.ClasspathContainerInitializer#getDescription(org.eclipse.core.runtime.IPath,
-	 *      org.eclipse.jdt.core.IJavaProject)
+	 * @see
+	 * org.eclipse.jdt.core.ClasspathContainerInitializer#getDescription(org
+	 * .eclipse.core.runtime.IPath, org.eclipse.jdt.core.IJavaProject)
 	 */
 	@Override
 	public String getDescription(final IPath containerPath, final IJavaProject project) {
 		// TODO: container specific toolkit
-		return "Google Webtoolkit";
+		return "Google Web Toolkit";
 	}
 
 	/*
 	 * (non-Javadoc)
-	 * 
-	 * @see org.eclipse.jdt.core.ClasspathContainerInitializer#initialize(org.eclipse.core.runtime.IPath,
-	 *      org.eclipse.jdt.core.IJavaProject)
+	 * @see
+	 * org.eclipse.jdt.core.ClasspathContainerInitializer#initialize(org.eclipse
+	 * .core.runtime.IPath, org.eclipse.jdt.core.IJavaProject)
 	 */
 	@Override
 	public void initialize(final IPath containerPath, final IJavaProject project) throws CoreException {
 		final int size = containerPath.segmentCount();
-		if (size > 0)
+		if (size > 0) {
 			if (containerPath.segment(0).equals(GwtCore.GWT_CONTAINER)) {
 				final GwtRuntime gwtRuntime = GwtRuntimeManager.getInstalledRuntimes()[0];
 				GwtContainer container = null;
@@ -57,5 +57,6 @@ public class GwtContainerInitializer extends ClasspathContainerInitializer {
 				}
 				JavaCore.setClasspathContainer(containerPath, new IJavaProject[] { project }, new IClasspathContainer[] { container }, null);
 			}
+		}
 	}
 }

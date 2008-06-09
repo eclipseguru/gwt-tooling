@@ -116,10 +116,6 @@ public class ConfigureWebProjectJob extends WorkspaceJob {
 		servletEdit.createURLMappings(gwtHostedServlet, deploymentPath.append("gwt-hosted.html").toString());
 	}
 
-	/**
-	 * @param flexProject
-	 * @param monitor
-	 */
 	private void addModuleJars(final IVirtualComponent flexProject, final IProgressMonitor monitor) {
 		try {
 			monitor.beginTask("Updatings Jars...", 4);
@@ -164,11 +160,6 @@ public class ConfigureWebProjectJob extends WorkspaceJob {
 		}
 	}
 
-	/**
-	 * @param flexProject
-	 * @param monitor
-	 * @throws CoreException
-	 */
 	private void createDeploymentFolderForOutputFolder(final IVirtualComponent flexProject, final IProgressMonitor monitor) throws CoreException {
 		try {
 			final List<GwtModule> modules = new ArrayList<GwtModule>();
@@ -194,8 +185,9 @@ public class ConfigureWebProjectJob extends WorkspaceJob {
 
 	/*
 	 * (non-Javadoc)
-	 * 
-	 * @see org.eclipse.core.resources.WorkspaceJob#runInWorkspace(org.eclipse.core.runtime.IProgressMonitor)
+	 * @see
+	 * org.eclipse.core.resources.WorkspaceJob#runInWorkspace(org.eclipse.core
+	 * .runtime.IProgressMonitor)
 	 */
 	@Override
 	public IStatus runInWorkspace(IProgressMonitor monitor) throws CoreException {
@@ -214,16 +206,16 @@ public class ConfigureWebProjectJob extends WorkspaceJob {
 			// link the deployment folder to the build output folder
 			createDeploymentFolderForOutputFolder(flexProject, ProgressUtil.subProgressMonitor(monitor, 1));
 
-			ProgressUtil.checkCanceled(monitor);
+			// TODO should we verify the classpath here?
 
 			// add necessary jar files
-			// XXX: I think this is not necessary
+			// XXX: Not necessary since GWT 1.4
 			if (false) {
 				addModuleJars(flexProject, ProgressUtil.subProgressMonitor(monitor, 1));
 			}
 
 			// update the deployment descriptor
-			// XXX: not necessary with GWT 1.1
+			// XXX: Not necessary since GWT 1.4
 			if (false) {
 				updateDeploymentDescriptor(flexProject, ProgressUtil.subProgressMonitor(monitor, 1));
 			}
@@ -236,7 +228,7 @@ public class ConfigureWebProjectJob extends WorkspaceJob {
 	}
 
 	/**
-	 * Updates the deployment desciptor.
+	 * Updates the deployment descriptor.
 	 * 
 	 * @param flexProject
 	 * @param monitor
@@ -246,23 +238,27 @@ public class ConfigureWebProjectJob extends WorkspaceJob {
 		try {
 			monitor.beginTask("Updating web.xml...", 2);
 
-			if (!isHostedDeploymentMode)
+			if (!isHostedDeploymentMode) {
 				return;
+			}
 
 			// get factory
 			final IArtifactEditFactory artifactEditFactory = ArtifactEditRegistryReader.instance().getArtifactEdit(project.getProjectResource());
-			if (null == artifactEditFactory)
+			if (null == artifactEditFactory) {
 				return;
+			}
 
 			// create edit
 			edit = artifactEditFactory.createArtifactEditForWrite(flexProject);
-			if (null == edit)
+			if (null == edit) {
 				return;
+			}
 
 			// adapt to web edit
 			final WebArtifactEdit webAppEdit = (WebArtifactEdit) edit.getAdapter(WebArtifactEdit.class);
-			if (null == webAppEdit)
+			if (null == webAppEdit) {
 				return;
+			}
 
 			// in add gwt-hosted.html servlet in hosted mode
 			if (false) {

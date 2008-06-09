@@ -24,6 +24,7 @@ import org.eclipse.jdt.core.IImportDeclaration;
 import org.eclipse.jdt.core.IMethod;
 import org.eclipse.jdt.core.ISourceRange;
 import org.eclipse.jdt.core.IType;
+import org.eclipse.jdt.core.ITypeParameter;
 import org.eclipse.jdt.core.JavaModelException;
 import org.eclipse.jdt.core.Signature;
 import org.eclipse.jdt.core.ToolFactory;
@@ -72,6 +73,13 @@ public class AsyncServiceCodeGenerator extends JdtTypeGenerator {
 	/** ASYNC_CALLBACK */
 	private static final String ASYNC_CALLBACK = "com.google.gwt.user.client.rpc.AsyncCallback";
 
+	//  /** GENERATED *
+	//	private static final String GENERATED = "javax.annotations.Generated";
+	//	/** GENERATOR */
+	//	private static final String GENERATOR = GwtCore.PLUGIN_ID.concat(".AsynServiceCodeGenerator");
+	//	/** DATE_FORMAT_ISO8601 */
+	//	private static final DateFormat DATE_FORMAT_ISO8601 = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSSZ");
+
 	/**
 	 * Returns the compilation unit name for the async service interface for the
 	 * specified remote service.
@@ -80,8 +88,9 @@ public class AsyncServiceCodeGenerator extends JdtTypeGenerator {
 	 * @return the async service CU name
 	 */
 	public static String getAsyncCUName(final IType remoteServiceType) {
-		if (remoteServiceType.isBinary())
+		if (remoteServiceType.isBinary()) {
 			return getAsyncTypeNameWithoutParameters(remoteServiceType).concat(".class");
+		}
 		return getAsyncTypeNameWithoutParameters(remoteServiceType).concat(".java");
 	}
 
@@ -113,16 +122,19 @@ public class AsyncServiceCodeGenerator extends JdtTypeGenerator {
 	 * @throws CoreException
 	 */
 	public static boolean isAllowedToGenerateAsyncServiceType(final ICompilationUnit parentCU, final String asyncServiceTypeName) throws CoreException {
-		if (!parentCU.exists())
+		if (!parentCU.exists()) {
 			return true;
+		}
 
 		final IType asyncServiceType = parentCU.getType(asyncServiceTypeName);
-		if (!asyncServiceType.exists())
+		if (!asyncServiceType.exists()) {
 			return true;
+		}
 
 		final ISourceRange javadocRange = asyncServiceType.getJavadocRange();
-		if (null == javadocRange)
+		if (null == javadocRange) {
 			return false;
+		}
 
 		final String text = parentCU.getBuffer().getText(javadocRange.getOffset(), javadocRange.getLength());
 		return text.contains("@generated");
@@ -146,14 +158,25 @@ public class AsyncServiceCodeGenerator extends JdtTypeGenerator {
 	}
 
 	/**
-	 * Appens the async callback parameter to the buffer
+	 * Appends the async callback parameter to the buffer
 	 * 
 	 * @param method
 	 * @param buffer
+	 * @param is50OrHigher
 	 * @throws CoreException
 	 */
-	private void appendAsyncCallbackParameter(final IMethod method, final ImportsManager imports, final StringBuffer buffer) throws CoreException {
+	private void appendAsyncCallbackParameter(final IMethod method, final ImportsManager imports, final StringBuffer buffer, final boolean is50OrHigher) throws CoreException {
 		buffer.append(imports.addImport(ASYNC_CALLBACK));
+		if (is50OrHigher) {
+			final String returnType = method.getReturnType();
+			if (Signature.SIG_VOID.equals(returnType)) {
+				buffer.append("<?>");
+			} else {
+				buffer.append('<');
+				buffer.append(Signature.toString(returnType));
+				buffer.append('>');
+			}
+		}
 		buffer.append(' ');
 		buffer.append(CALLBACK);
 	}
@@ -189,6 +212,16 @@ public class AsyncServiceCodeGenerator extends JdtTypeGenerator {
 		}
 	}
 
+	private void appendMethodTypeParameters(final IMethod method, final StringBuffer methodContent) throws JavaModelException {
+		final ITypeParameter[] parameters = method.getTypeParameters();
+		for (final ITypeParameter typeParameter : parameters) {
+			final String source = typeParameter.getSource();
+			final String elementName = typeParameter.getElementName();
+			methodContent.append(source);
+			methodContent.append(elementName);
+		}
+	}
+
 	@SuppressWarnings("unchecked")
 	private TagElement createGeneratedTagForMethod(final ASTRewrite cuRewrite) {
 		final TagElement generated = cuRewrite.getAST().newTagElement();
@@ -209,11 +242,6 @@ public class AsyncServiceCodeGenerator extends JdtTypeGenerator {
 		return generated;
 	}
 
-	/**
-	 * @param cuRewrite
-	 * @param bd
-	 * @param textEditGroup
-	 */
 	private Javadoc createJavadocIfNecessary(final ASTRewrite cuRewrite, final BodyDeclaration bd, final TextEditGroup textEditGroup) {
 		Javadoc javadoc = bd.getJavadoc();
 		if (null == javadoc) {
@@ -223,13 +251,6 @@ public class AsyncServiceCodeGenerator extends JdtTypeGenerator {
 		return javadoc;
 	}
 
-	/*
-	 * (non-Javadoc)
-	 * 
-	 * @see org.eclipseguru.gwt.core.internal.codegen.JdtTypeGenerator#createTypeMembers(org.eclipse.jdt.core.IType,
-	 *      org.eclipseguru.gwt.core.internal.jdtext.ImportsManager,
-	 *      org.eclipse.core.runtime.SubProgressMonitor)
-	 */
 	@Override
 	protected void createTypeMembers(final IType createdType, final ImportsManager imports, final boolean needsSave, final IProgressMonitor monitor) throws CoreException {
 		monitor.beginTask(NLS.bind("Generating methods in ''{0}''...", createdType.getElementName()), 10);
@@ -241,8 +262,7 @@ public class AsyncServiceCodeGenerator extends JdtTypeGenerator {
 			// add all public methods
 			final IMethod[] methods = remoteServiceType.getMethods();
 			for (final IMethod method : methods) {
-				// skip contructors and binary, static, private or protected
-				// methods
+				// skip constructors and binary, static, private or protected methods
 				if (method.isConstructor() || method.isBinary() || Flags.isStatic(method.getFlags()) || Flags.isPrivate(method.getFlags()) || Flags.isProtected(method.getFlags())) {
 					continue;
 				}
@@ -258,17 +278,41 @@ public class AsyncServiceCodeGenerator extends JdtTypeGenerator {
 					}
 				}
 
-				// declaration
-				methodContent.append("void ");
+				// Java 1.5 features
+				final boolean is50OrHigher = JavaModelUtil.is50OrHigher(createdType.getJavaProject());
+
+				//				// @Generated annotation
+				//				if (is50OrHigher) {
+				//					methodContent.append('@');
+				//					methodContent.append(imports.addImport(GENERATED));
+				//					methodContent.append('(');
+				//					methodContent.append("value={").append('"').append(GENERATOR).append('"').append('}');
+				//					methodContent.append(',');
+				//					methodContent.append("date=").append('"').append(DATE_FORMAT_ISO8601.format(new Date())).append('"');
+				//					methodContent.append(',');
+				//					methodContent.append("comments=").append('"').append("from ").append(remoteServiceType.getFullyQualifiedName('.')).append('[').append(Signature.toString(method.getSignature(), method.getElementName(), method.getParameterNames(), true, true)).append(']').append('"');
+				//					methodContent.append(')');
+				//					methodContent.append(' ');
+				//				}
+
+				// generics declaration
+				if (is50OrHigher && (method.getTypeParameters().length > 0)) {
+					appendMethodTypeParameters(method, methodContent);
+					methodContent.append(' ');
+				}
+
+				// methos declaration
+				methodContent.append(Signature.toString(Signature.SIG_VOID));
+				methodContent.append(' ');
 				methodContent.append(method.getElementName());
 
 				// parameters
 				methodContent.append('(');
 				if (method.getParameterTypes().length > 0) {
 					appendMethodParameters(method, methodContent);
-					methodContent.append(',');
+					methodContent.append(", ");
 				}
-				appendAsyncCallbackParameter(method, imports, methodContent);
+				appendAsyncCallbackParameter(method, imports, methodContent, is50OrHigher);
 				methodContent.append(')');
 
 				// method is abstract and without exceptions
@@ -288,9 +332,9 @@ public class AsyncServiceCodeGenerator extends JdtTypeGenerator {
 
 	/*
 	 * (non-Javadoc)
-	 * 
-	 * @see org.eclipseguru.gwt.core.internal.codegen.JdtTypeGenerator#getFileComment(org.eclipse.jdt.core.ICompilationUnit,
-	 *      java.lang.String)
+	 * @see
+	 * org.eclipseguru.gwt.core.internal.codegen.JdtTypeGenerator#getFileComment
+	 * (org.eclipse.jdt.core.ICompilationUnit, java.lang.String)
 	 */
 	@Override
 	protected String getFileComment(final ICompilationUnit parentCU, final String lineDelimiter) throws CoreException {
@@ -305,8 +349,9 @@ public class AsyncServiceCodeGenerator extends JdtTypeGenerator {
 				buffer.append(scanner.getCurrentTokenSource());
 				next = scanner.getNextToken();
 			}
-			if (buffer.length() > 0)
+			if (buffer.length() > 0) {
 				return buffer.toString();
+			}
 		} catch (final Exception e) {
 			// ignore
 		}
@@ -315,9 +360,9 @@ public class AsyncServiceCodeGenerator extends JdtTypeGenerator {
 
 	/*
 	 * (non-Javadoc)
-	 * 
-	 * @see org.eclipseguru.gwt.core.internal.codegen.JdtTypeGenerator#getTypeComment(org.eclipse.jdt.core.ICompilationUnit,
-	 *      java.lang.String)
+	 * @see
+	 * org.eclipseguru.gwt.core.internal.codegen.JdtTypeGenerator#getTypeComment
+	 * (org.eclipse.jdt.core.ICompilationUnit, java.lang.String)
 	 */
 	@Override
 	protected String getTypeComment(final ICompilationUnit parentCU, final String lineDelimiter) {
@@ -347,14 +392,6 @@ public class AsyncServiceCodeGenerator extends JdtTypeGenerator {
 		return super.getTypeComment(parentCU, lineDelimiter);
 	}
 
-	/**
-	 * @param createdType
-	 * @param needsSave
-	 * @param monitor
-	 * @throws JavaModelException
-	 * @throws CoreException
-	 * @throws ValidateEditException
-	 */
 	private void updateJavadoc(final IType createdType, final boolean needsSave, final IProgressMonitor monitor) throws JavaModelException, CoreException, ValidateEditException {
 		final CompilationUnit cu = createdType.getCompilationUnit().reconcile(AST.JLS3, true, null, null);
 		final ASTRewrite cuRewrite = ASTRewrite.create(cu.getAST());
@@ -450,7 +487,7 @@ public class AsyncServiceCodeGenerator extends JdtTypeGenerator {
 	 */
 	private void writeImports(final ImportsManager imports) throws JavaModelException {
 		final IImportDeclaration[] existingImports = remoteServiceType.getCompilationUnit().getImports();
-		for (final IImportDeclaration declaration : existingImports)
+		for (final IImportDeclaration declaration : existingImports) {
 			if (Flags.isStatic(declaration.getFlags())) {
 				String name = Signature.getSimpleName(declaration.getElementName());
 				final boolean isField = !name.endsWith("()"); //$NON-NLS-1$
@@ -462,5 +499,6 @@ public class AsyncServiceCodeGenerator extends JdtTypeGenerator {
 			} else {
 				imports.addImport(declaration.getElementName());
 			}
+		}
 	}
 }

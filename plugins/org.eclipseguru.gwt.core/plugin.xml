@@ -55,37 +55,62 @@
 		<project-facet id="gwt.web">
 			<label>GWT Web Project</label>
 			<description>
-				Enables the web application to use Google&apos;s Ajax
-				technology.
+				Enables the web application to use Google&apos;s Ajax technology.
 			</description>
+   <default-version
+         version="1.5">
+   </default-version>
 		</project-facet>
 		<project-facet-version facet="gwt.web" version="1.0">
 			<constraint>
 				<and>
 					<requires facet="jst.web" version="[2.2" />
-					<requires facet="jst.java" version="[1.3" />
+					<requires facet="jst.java" version="[1.4" />
 					<conflicts facet="gwt.module" />
 				</and>
 			</constraint>
-			<action id="gwt.web.install" type="install">
-				<config-factory
-					class="com.googlipse.gwt.facet.GwtWebInstallActionConfigFactory" />
-				<delegate
-					class="org.eclipseguru.gwt.core.facet.GwtWebInstallDelegate" />
-			</action>
-			<action id="gwt.web.uninstall" type="uninstall">
-				<config-factory
-					class="org.eclipseguru.gwt.core.facet.GwtWebUninstallActionConfigFactory" />
-				<delegate
-					class="org.eclipseguru.gwt.core.facet.GwtWebUninstallDelegate" />
-			</action>
 		</project-facet-version>
+		<project-facet-version facet="gwt.web" version="1.5">
+			<constraint>
+				<and>
+					<requires facet="jst.web" version="[2.5" />
+					<requires facet="jst.java" version="[5.0" />
+					<conflicts facet="gwt.module" />
+				</and>
+			</constraint>
+		</project-facet-version>
+  <action
+        facet="gwt.web"
+        id="gwt.web.install"
+        type="install"
+        version="1.0,1.5">
+     <delegate
+           class="org.eclipseguru.gwt.core.facet.GwtWebInstallDelegate">
+     </delegate>
+  </action>
+  <action
+        facet="gwt.web"
+        id="gwt.web.uninstall"
+        type="uninstall"
+        version="1.0,1.5">
+     <delegate
+           class="org.eclipseguru.gwt.core.facet.GwtWebUninstallDelegate">
+     </delegate>
+  </action>
+		<preset id="gwt.preset.web.15">
+			<label>Google Web Toolkit Project</label>
+			<facet id="jst.java" version="5.0" />
+			<facet id="jst.web" version="2.5" />
+			<facet id="gwt.web" version="1.5" />
+		</preset>
 		<project-facet id="gwt.module">
 			<label>GWT Module Project</label>
 			<description>
-				Turns a Java project into a GWT module that can be
-				deployed to GWT enabled web applications.
+				Turns a Java project into a GWT module that can be deployed to GWT enabled web applications.
 			</description>
+   <default-version
+         version="1.5">
+   </default-version>
 		</project-facet>
 		<project-facet-version facet="gwt.module" version="1.0">
 			<constraint>
@@ -95,32 +120,45 @@
 					<conflicts facet="gwt.web" />
 				</and>
 			</constraint>
-			<action facet="gwt.module" id="gwt.module.install"
-				type="install">
-				<config-factory
-					class="org.eclipseguru.gwt.core.facet.GwtModuleInstallActionConfigFactory" />
-				<delegate
-					class="org.eclipseguru.gwt.core.facet.GwtModuleInstallDelegate" />
-			</action>
-			<action facet="gwt.module" id="gwt.module.uninstall"
-				type="uninstall">
-				<config-factory
-					class="org.eclipseguru.gwt.core.facet.GwtModuleUninstallActionConfigFactory" />
-				<delegate
-					class="org.eclipseguru.gwt.core.facet.GwtModuleUninstallDelegate" />
-			</action>
 		</project-facet-version>
-		<preset id="gwt.preset.web">
-			<label>Dynamic Web Project using GWT</label>
-			<facet id="jst.java" version="1.4" />
-			<facet id="jst.web" version="2.4" />
-			<facet id="gwt.web" version="1.0" />
+		<project-facet-version facet="gwt.module" version="1.5">
+			<constraint>
+				<and>
+					<requires facet="jst.java" version="[5.0" />
+					<requires facet="jst.utility" version="[1.0" />
+					<conflicts facet="gwt.web" />
+				</and>
+			</constraint>
+		</project-facet-version>
+  <action
+        facet="gwt.module"
+        id="gwt.module.install"
+        type="install"
+        version="1.0,1.5">
+     <delegate
+           class="org.eclipseguru.gwt.core.facet.GwtModuleInstallDelegate">
+     </delegate>
+  </action>
+  <action
+        facet="gwt.module"
+        id="gwt.module.uninstall"
+        type="uninstall"
+        version="1.0,1.5">
+     <delegate
+           class="org.eclipseguru.gwt.core.facet.GwtModuleUninstallDelegate">
+     </delegate>
+  </action>
+		<preset id="gwt.preset.module.15">
+			<label>Google Web Toolkit Module Project</label>
+			<facet id="jst.java" version="5.0" />
+			<facet id="jst.utility" version="1.0" />
+			<facet id="gwt.module" version="1.5" />
 		</preset>
 	</extension>
 	<extension
 		point="org.eclipse.wst.common.project.facet.core.runtimes">
 		<supported>
-			<facet id="gwt.web" version="1.0" />
+			<facet id="gwt.web" version="[1.0" />
 			<runtime-component any="true" />
 		</supported>
 	</extension>
@@ -154,6 +192,12 @@
           id="org.eclipseguru.gwt.core.server.launachableAdapter"
           typeIds="*">
     </launchableAdapter>
+ </extension>
+ <extension
+       point="org.eclipse.jst.j2ee.classpathdep">
+    <filteredClasspathContainer
+          containerID="org.eclipseguru.gwt.core.classpath.container">
+    </filteredClasspathContainer>
  </extension>
 
 </plugin>

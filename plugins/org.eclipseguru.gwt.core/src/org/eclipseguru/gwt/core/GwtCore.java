@@ -62,8 +62,9 @@ public class GwtCore extends Plugin {
 	 * @return the module (maybe <code>null</code>)
 	 */
 	public static GwtModule create(final IFile moduleDescriptor) {
-		if (null == moduleDescriptor)
+		if (null == moduleDescriptor) {
 			return null;
+		}
 
 		return GwtModelManager.createModule(moduleDescriptor, null);
 	}
@@ -75,8 +76,9 @@ public class GwtCore extends Plugin {
 	 * @return the GWT project
 	 */
 	public static GwtProject create(final IProject project) {
-		if (null == project)
+		if (null == project) {
 			return null;
+		}
 
 		final GwtModel model = GwtModelManager.getModelManager().getModel();
 		return model.createProject(project);
@@ -84,8 +86,8 @@ public class GwtCore extends Plugin {
 
 	/**
 	 * Returns the GWT remote service corresponding to the given type, or
-	 * <code>null</code> if unable to associate the given type with a GWT
-	 * remote service.
+	 * <code>null</code> if unable to associate the given type with a GWT remote
+	 * service.
 	 * 
 	 * @param type
 	 *            the remote service type
@@ -93,8 +95,9 @@ public class GwtCore extends Plugin {
 	 * @param type
 	 */
 	public static GwtRemoteService create(final IType type) {
-		if (null == type)
+		if (null == type) {
 			return null;
+		}
 
 		return GwtModelManager.createRemoteService(type, null);
 	}
@@ -106,8 +109,9 @@ public class GwtCore extends Plugin {
 	 * @return the GWT model
 	 */
 	public static GwtModel create(final IWorkspaceRoot root) {
-		if (null == root)
+		if (null == root) {
 			return null;
+		}
 
 		return GwtModelManager.getModelManager().getModel();
 	}
@@ -138,7 +142,7 @@ public class GwtCore extends Plugin {
 	 * @return the runtime of the specified project
 	 */
 	public static GwtRuntime getRuntime(final GwtProject project) {
-		// for now we don't have project specific runtims
+		// for now we don't have project specific runtimes
 		return GwtRuntimeManager.getInstalledRuntimes()[0];
 	}
 
@@ -191,7 +195,8 @@ public class GwtCore extends Plugin {
 	}
 
 	/**
-	 * This constructor is called by the Eclipse framework. <b>DO NOT CALL IT.</b>
+	 * This constructor is called by the Eclipse framework. <b>DO NOT CALL
+	 * IT.</b>
 	 */
 	public GwtCore() {
 		super();
@@ -200,8 +205,8 @@ public class GwtCore extends Plugin {
 
 	/*
 	 * (non-Javadoc)
-	 * 
-	 * @see org.eclipse.core.runtime.Plugin#start(org.osgi.framework.BundleContext)
+	 * @see
+	 * org.eclipse.core.runtime.Plugin#start(org.osgi.framework.BundleContext)
 	 */
 	@Override
 	public void start(final BundleContext context) throws Exception {
@@ -214,8 +219,8 @@ public class GwtCore extends Plugin {
 
 	/*
 	 * (non-Javadoc)
-	 * 
-	 * @see org.eclipse.core.runtime.Plugin#stop(org.osgi.framework.BundleContext)
+	 * @see
+	 * org.eclipse.core.runtime.Plugin#stop(org.osgi.framework.BundleContext)
 	 */
 	@Override
 	public void stop(final BundleContext context) throws Exception {

@@ -129,8 +129,9 @@ public abstract class JdtTypeGenerator {
 			parser.setProject(cu.getJavaProject());
 			parser.setSource(content.toCharArray());
 			final CompilationUnit unit = (CompilationUnit) parser.createAST(null);
-			if ((pack.isDefaultPackage() || (unit.getPackage() != null)) && !unit.types().isEmpty())
+			if ((pack.isDefaultPackage() || (unit.getPackage() != null)) && !unit.types().isEmpty()) {
 				return content;
+			}
 		}
 		final StringBuffer buf = new StringBuffer();
 		if (!pack.isDefaultPackage()) {
@@ -240,8 +241,7 @@ public abstract class JdtTypeGenerator {
 
 			ImportsManager imports = new ImportsManager(astRoot);
 
-			// add an import that will be removed again. Having this import
-			// solves 14661
+			// add an import that will be removed again. Having this import solves 14661 (Eclipse Bugzilla)
 			imports.addImport(JavaModelUtil.concatenateName(parentCU.getParent().getElementName(), getTypeNameWithoutParameters()));
 
 			final String typeContent = constructTypeStub(parentCU, imports, lineDelimiter);
@@ -340,8 +340,9 @@ public abstract class JdtTypeGenerator {
 	}
 
 	private IPackageFragment getPackageFragment() {
-		if (null != currentType)
+		if (null != currentType) {
 			return currentType.getPackageFragment();
+		}
 
 		return null;
 	}
@@ -410,8 +411,9 @@ public abstract class JdtTypeGenerator {
 		final String[] typeParamNames = new String[0];
 		try {
 			final String comment = CodeGeneration.getTypeComment(parentCU, typeName, typeParamNames, lineDelimiter);
-			if ((comment != null) && isValidComment(comment))
+			if ((comment != null) && isValidComment(comment)) {
 				return comment;
+			}
 		} catch (final CoreException e) {
 			GwtCore.logError(NLS.bind("Error while generating type comment for ''{0}''", typeName), e);
 		}

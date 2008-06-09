@@ -70,10 +70,11 @@ public class GwtRuntime {
 	 * @return the jar name
 	 */
 	private String getDevJarName() {
-		if (WINDOWS)
+		if (WINDOWS) {
 			return "gwt-dev-windows.jar";
-		else if (MACOSX)
+		} else if (MACOSX) {
 			return "gwt-dev-mac.jar";
+		}
 
 		// at this point we assume Linux
 		return "gwt-dev-linux.jar";
@@ -94,8 +95,9 @@ public class GwtRuntime {
 	 * @return the VM arguments
 	 */
 	public String[] getGwtRuntimeVmArgs() {
-		if (MACOSX)
+		if (MACOSX) {
 			return new String[] { "-XstartOnFirstThread" };
+		}
 		return NO_VMARGS;
 	}
 
@@ -108,7 +110,22 @@ public class GwtRuntime {
 		return location;
 	}
 
+	private IPath getServletJar() {
+		return location.append("gwt-servlet.jar");
+	}
+
 	private IPath getUserJar() {
 		return location.append("gwt-user.jar");
+	}
+
+	/**
+	 * Returns the absolute path to GWT libraries which should be deployed into
+	 * the <code>WEB-INF/lib</code> folder of web applications.
+	 * 
+	 * @return the absolute path to GWT libraries which should be deployed into
+	 *         the <code>WEB-INF/lib</code> folder
+	 */
+	public IPath[] getWebAppLibraries() {
+		return new IPath[] { getServletJar() };
 	}
 }

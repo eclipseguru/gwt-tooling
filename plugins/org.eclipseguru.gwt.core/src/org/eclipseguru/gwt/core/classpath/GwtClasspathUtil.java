@@ -28,7 +28,6 @@ import org.eclipse.jdt.launching.JavaRuntime;
 import java.text.MessageFormat;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Map;
 
 /**
  * A classpath util.
@@ -41,7 +40,7 @@ public class GwtClasspathUtil {
 	 * @param project
 	 * @param monitor
 	 * @param <code>true</code> if the container was added, <code>false</code>
-	 *            if the project already had a container entry
+	 *        if the project already had a container entry
 	 * @throws CoreException
 	 */
 	public static boolean addGwtContainer(final IProject project, IProgressMonitor monitor) throws CoreException {
@@ -56,8 +55,9 @@ public class GwtClasspathUtil {
 			// check if entry is already present
 			final List<IClasspathEntry> newClasspath = new ArrayList<IClasspathEntry>(oldClasspath.length + 1);
 			for (final IClasspathEntry entry : oldClasspath) {
-				if (isGwtContainer(entry))
+				if (isGwtContainer(entry)) {
 					return false;
+				}
 				newClasspath.add(entry);
 			}
 
@@ -75,11 +75,6 @@ public class GwtClasspathUtil {
 		}
 	}
 
-	/**
-	 * @param entry
-	 * @param containerId
-	 * @return
-	 */
 	private static boolean isContainerEntry(final IClasspathEntry entry, final String containerId) {
 		return (entry.getEntryKind() == IClasspathEntry.CPE_CONTAINER) && (entry.getPath().segmentCount() > 0) && containerId.equals(entry.getPath().segment(0));
 	}
@@ -107,57 +102,12 @@ public class GwtClasspathUtil {
 	}
 
 	/**
-	 * Sets the compilance option for the specified project.
-	 * 
-	 * @param project
-	 * @param compliance
-	 */
-	@SuppressWarnings("unchecked")
-	private static void setComplianceOptions(final IJavaProject project, final String compliance) {
-		final Map map = project.getOptions(false);
-		if (compliance == null) {
-			if (map.size() > 0) {
-				map.remove(JavaCore.COMPILER_COMPLIANCE);
-				map.remove(JavaCore.COMPILER_SOURCE);
-				map.remove(JavaCore.COMPILER_CODEGEN_TARGET_PLATFORM);
-				map.remove(JavaCore.COMPILER_PB_ASSERT_IDENTIFIER);
-				map.remove(JavaCore.COMPILER_PB_ENUM_IDENTIFIER);
-			} else
-				return;
-		} else if (JavaCore.VERSION_1_6.equals(compliance)) {
-			map.put(JavaCore.COMPILER_COMPLIANCE, JavaCore.VERSION_1_6);
-			map.put(JavaCore.COMPILER_SOURCE, JavaCore.VERSION_1_6);
-			map.put(JavaCore.COMPILER_CODEGEN_TARGET_PLATFORM, JavaCore.VERSION_1_6);
-			map.put(JavaCore.COMPILER_PB_ASSERT_IDENTIFIER, JavaCore.ERROR);
-			map.put(JavaCore.COMPILER_PB_ENUM_IDENTIFIER, JavaCore.ERROR);
-		} else if (JavaCore.VERSION_1_5.equals(compliance)) {
-			map.put(JavaCore.COMPILER_COMPLIANCE, JavaCore.VERSION_1_5);
-			map.put(JavaCore.COMPILER_SOURCE, JavaCore.VERSION_1_5);
-			map.put(JavaCore.COMPILER_CODEGEN_TARGET_PLATFORM, JavaCore.VERSION_1_5);
-			map.put(JavaCore.COMPILER_PB_ASSERT_IDENTIFIER, JavaCore.ERROR);
-			map.put(JavaCore.COMPILER_PB_ENUM_IDENTIFIER, JavaCore.ERROR);
-		} else if (JavaCore.VERSION_1_4.equals(compliance)) {
-			map.put(JavaCore.COMPILER_COMPLIANCE, JavaCore.VERSION_1_4);
-			map.put(JavaCore.COMPILER_SOURCE, JavaCore.VERSION_1_3);
-			map.put(JavaCore.COMPILER_CODEGEN_TARGET_PLATFORM, JavaCore.VERSION_1_2);
-			map.put(JavaCore.COMPILER_PB_ASSERT_IDENTIFIER, JavaCore.WARNING);
-			map.put(JavaCore.COMPILER_PB_ENUM_IDENTIFIER, JavaCore.WARNING);
-		} else if (JavaCore.VERSION_1_3.equals(compliance)) {
-			map.put(JavaCore.COMPILER_COMPLIANCE, JavaCore.VERSION_1_3);
-			map.put(JavaCore.COMPILER_SOURCE, JavaCore.VERSION_1_3);
-			map.put(JavaCore.COMPILER_CODEGEN_TARGET_PLATFORM, JavaCore.VERSION_1_1);
-			map.put(JavaCore.COMPILER_PB_ASSERT_IDENTIFIER, JavaCore.IGNORE);
-			map.put(JavaCore.COMPILER_PB_ENUM_IDENTIFIER, JavaCore.IGNORE);
-		}
-		project.setOptions(map);
-	}
-
-	/**
 	 * Updates the JRE container of the specified project to match the GWT
 	 * execution environment.
 	 * 
 	 * @param project
 	 * @param monitor
+	 * @param setAccessRules
 	 * @throws CoreException
 	 */
 	public static void updateJREContainer(final IProject project, IProgressMonitor monitor, final boolean setAccessRules) throws CoreException {
@@ -188,11 +138,6 @@ public class GwtClasspathUtil {
 
 				ProgressUtil.checkCanceled(monitor);
 			}
-
-			// update compliance options
-			monitor.subTask("Setting compliance options...");
-			setComplianceOptions(javaProject, JavaCore.VERSION_1_4);
-
 		} finally {
 			monitor.done();
 		}

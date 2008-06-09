@@ -51,8 +51,9 @@ public class AccessRulesUtil {
 	 * @return the defined accessible JRE types.
 	 */
 	private static synchronized IPath[] getAccessibleJRETypes() {
-		if (null != accessibleJRETypes)
+		if (null != accessibleJRETypes) {
 			return accessibleJRETypes;
+		}
 
 		final Properties properties = new Properties();
 		InputStream stream = null;
@@ -106,7 +107,7 @@ public class AccessRulesUtil {
 	}
 
 	/**
-	 * No need to instanciate.
+	 * No need to instantiate.
 	 */
 	private AccessRulesUtil() {
 		// empty
