@@ -8,6 +8,7 @@
  * 
  * Contributors:
  *     EclipseGuru - initial API and implementation
+ *     dobesv - contributed patch for issue 2
  *******************************************************************************/
 package org.eclipseguru.gwt.core.internal.codegen;
 
@@ -49,7 +50,11 @@ import org.eclipse.osgi.util.NLS;
 import org.eclipse.text.edits.TextEdit;
 import org.eclipse.text.edits.TextEditGroup;
 
+import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.Iterator;
+import java.util.List;
+import java.util.Set;
 
 /**
  * A utility class for generating code
@@ -79,6 +84,80 @@ public class AsyncServiceCodeGenerator extends JdtTypeGenerator {
 	//	private static final String GENERATOR = GwtCore.PLUGIN_ID.concat(".AsynServiceCodeGenerator");
 	//	/** DATE_FORMAT_ISO8601 */
 	//	private static final DateFormat DATE_FORMAT_ISO8601 = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSSZ");
+
+	/**
+	 * Add all methods from the given interface and its super interfaces to the
+	 * given list.
+	 * 
+	 * @param type
+	 *            Interface to get the methods of
+	 * @param output
+	 *            List to add the methods to
+	 * @throws CoreException
+	 *             If an error occurs
+	 */
+	private static void collectAllInterfaceAndSuperMethods(final IType type, final List<IMethod> output, final Set<String> methodSigs) throws CoreException {
+		for (final IMethod method : type.getMethods()) {
+			// Don't repeat the same method
+			final String methodSig = method.getElementName() + method.getSignature();
+			if (!methodSigs.add(methodSig)) {
+				continue;
+			}
+
+			output.add(method);
+		}
+		for (final String superInterfaceName : type.getSuperInterfaceNames()) {
+			final String[][] resolvedType = type.resolveType(superInterfaceName);
+			if (resolvedType != null) {
+				for (final String[] typeSegments : resolvedType) {
+					final IType superInterface = type.getJavaProject().findType(Signature.toQualifiedName(typeSegments));
+					if (superInterface != null) {
+						collectAllInterfaceAndSuperMethods(superInterface, output, methodSigs);
+					}
+				}
+			}
+		}
+	}
+
+	/**
+	 * Collects imports including imports from super-interfaces of the specified
+	 * type.
+	 * 
+	 * @param type
+	 * @param imports
+	 * @throws JavaModelException
+	 */
+	private static void collectImports(final IType type, final ImportsManager imports) throws JavaModelException {
+		final ICompilationUnit compilationUnit = type.getCompilationUnit();
+		if (compilationUnit != null) {
+			final IImportDeclaration[] existingImports = compilationUnit.getImports();
+			for (final IImportDeclaration declaration : existingImports) {
+				if (Flags.isStatic(declaration.getFlags())) {
+					String name = Signature.getSimpleName(declaration.getElementName());
+					final boolean isField = !name.endsWith("()"); //$NON-NLS-1$
+					if (!isField) {
+						name = name.substring(0, name.length() - 2);
+					}
+					final String qualifier = Signature.getQualifier(declaration.getElementName());
+					imports.addStaticImport(qualifier, name, isField);
+				} else {
+					imports.addImport(declaration.getElementName());
+				}
+			}
+		}
+
+		for (final String superInterfaceName : type.getSuperInterfaceNames()) {
+			final String[][] resolvedType = type.resolveType(superInterfaceName);
+			if (resolvedType != null) {
+				for (final String[] typeSegments : resolvedType) {
+					final IType superInterface = type.getJavaProject().findType(Signature.toQualifiedName(typeSegments));
+					if (superInterface != null) {
+						collectImports(superInterface, imports);
+					}
+				}
+			}
+		}
+	}
 
 	/**
 	 * Returns the compilation unit name for the async service interface for the
@@ -276,7 +355,7 @@ public class AsyncServiceCodeGenerator extends JdtTypeGenerator {
 			writeImports(imports);
 
 			// add all public methods
-			final IMethod[] methods = remoteServiceType.getMethods();
+			final IMethod[] methods = getMethods();
 			for (final IMethod method : methods) {
 				// skip constructors and binary, static, private or protected methods
 				if (method.isConstructor() || method.isBinary() || Flags.isStatic(method.getFlags()) || Flags.isPrivate(method.getFlags()) || Flags.isProtected(method.getFlags())) {
@@ -288,7 +367,7 @@ public class AsyncServiceCodeGenerator extends JdtTypeGenerator {
 				// javadoc
 				final ISourceRange javadocRange = method.getJavadocRange();
 				if (null != javadocRange) {
-					final IBuffer buffer = remoteServiceType.getOpenable().getBuffer();
+					final IBuffer buffer = method.getOpenable().getBuffer();
 					if (buffer != null) {
 						methodContent.append(buffer.getText(javadocRange.getOffset(), javadocRange.getLength()));
 					}
@@ -372,6 +451,15 @@ public class AsyncServiceCodeGenerator extends JdtTypeGenerator {
 			// ignore
 		}
 		return super.getFileComment(parentCU, lineDelimiter);
+	}
+
+	/**
+	 * Return all methods of the remote service type and its super interfaces.
+	 */
+	IMethod[] getMethods() throws CoreException {
+		final List<IMethod> result = new ArrayList<IMethod>();
+		collectAllInterfaceAndSuperMethods(remoteServiceType, result, new HashSet<String>());
+		return result.toArray(new IMethod[result.size()]);
 	}
 
 	/*
@@ -502,19 +590,6 @@ public class AsyncServiceCodeGenerator extends JdtTypeGenerator {
 	 * @throws JavaModelException
 	 */
 	private void writeImports(final ImportsManager imports) throws JavaModelException {
-		final IImportDeclaration[] existingImports = remoteServiceType.getCompilationUnit().getImports();
-		for (final IImportDeclaration declaration : existingImports) {
-			if (Flags.isStatic(declaration.getFlags())) {
-				String name = Signature.getSimpleName(declaration.getElementName());
-				final boolean isField = !name.endsWith("()"); //$NON-NLS-1$
-				if (!isField) {
-					name = name.substring(0, name.length() - 2);
-				}
-				final String qualifier = Signature.getQualifier(declaration.getElementName());
-				imports.addStaticImport(qualifier, name, isField);
-			} else {
-				imports.addImport(declaration.getElementName());
-			}
-		}
+		collectImports(remoteServiceType, imports);
 	}
 }
