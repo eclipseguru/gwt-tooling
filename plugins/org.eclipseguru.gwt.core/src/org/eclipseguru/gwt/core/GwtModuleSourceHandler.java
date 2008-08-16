@@ -8,6 +8,7 @@
  * 
  * Contributors:
  *     EclipseGuru - initial API and implementation
+ *     dobesv - contributed patch for issue 58
  *******************************************************************************/
 package org.eclipseguru.gwt.core;
 
@@ -33,6 +34,7 @@ import javax.xml.parsers.SAXParserFactory;
  * An XML event handler for parsing a GWT module source file.
  */
 public class GwtModuleSourceHandler extends DefaultHandler {
+
 	/**
 	 * An exception indicating that the source is invalid.
 	 */
@@ -69,6 +71,9 @@ public class GwtModuleSourceHandler extends DefaultHandler {
 		}
 	}
 
+	/** default source path */
+	private static final String[] DEFAULT_SOURCE_PATHS = new String[] { "client" };
+
 	static final String ELEM_MODULE = "module"; //$NON-NLS-1$
 	static final String ELEM_INHERITS = "inherits"; //$NON-NLS-1$
 	static final String ELEM_ENTRY_POINT = "entry-point"; //$NON-NLS-1$
@@ -89,6 +94,7 @@ public class GwtModuleSourceHandler extends DefaultHandler {
 
 	private String entryPointClass;
 	private final List<String> inheritedModules = new ArrayList<String>(4);
+	private final List<String> sourcePaths = new ArrayList<String>();
 
 	/**
 	 * Creates a new SAX parser for use within this instance.
@@ -120,9 +126,8 @@ public class GwtModuleSourceHandler extends DefaultHandler {
 
 	/*
 	 * (non-Javadoc)
-	 * 
 	 * @see org.xml.sax.ContentHandler#endElement(java.lang.String,
-	 *      java.lang.String, java.lang.String)
+	 * java.lang.String, java.lang.String)
 	 */
 	@Override
 	public void endElement(final String uri, final String localName, final String qName) throws SAXException {
@@ -139,8 +144,9 @@ public class GwtModuleSourceHandler extends DefaultHandler {
 
 	private SAXParserFactory getFactory() {
 		synchronized (this) {
-			if (factory != null)
+			if (factory != null) {
 				return factory;
+			}
 			factory = SAXParserFactory.newInstance();
 			factory.setNamespaceAware(true);
 		}
@@ -154,12 +160,24 @@ public class GwtModuleSourceHandler extends DefaultHandler {
 		return inheritedModules.toArray(new String[inheritedModules.size()]);
 	}
 
+	/**
+	 * @return the sourcePaths
+	 */
+	public String[] getSourcePaths() {
+		if (sourcePaths.isEmpty()) {
+			return DEFAULT_SOURCE_PATHS; // default source path
+		} else {
+			return sourcePaths.toArray(new String[sourcePaths.size()]);
+		}
+	}
+
 	protected boolean parseContents(final InputSource contents) throws IOException, ParserConfigurationException, SAXException {
 		// Parse the file into we have what we need (or an error occurs).
 		try {
 			factory = getFactory();
-			if (factory == null)
+			if (factory == null) {
 				return false;
+			}
 			final SAXParser parser = createParser(factory);
 			// to support external entities specified as relative URIs
 			// (see https://bugs.eclipse.org/bugs/show_bug.cgi?id=63298)
@@ -192,13 +210,22 @@ public class GwtModuleSourceHandler extends DefaultHandler {
 		}
 	}
 
+	/**
+	 * @param attributes
+	 */
+	private void processSource(final Attributes attributes) {
+		final String sourcePath = attributes.getValue(ATTR_PATH);
+		if (null != sourcePath) {
+			sourcePaths.add(sourcePath);
+		}
+	}
+
 	/*
 	 * Resolve external entity definitions to an empty string. This is to speed
 	 * up processing of files with external DTDs. Not resolving the contents of
 	 * the DTD is ok, as only the System ID of the DTD declaration is used.
-	 * 
 	 * @see org.xml.sax.helpers.DefaultHandler#resolveEntity(java.lang.String,
-	 *      java.lang.String)
+	 * java.lang.String)
 	 */
 	@Override
 	public InputSource resolveEntity(final String publicId, final String systemId) throws SAXException {
@@ -207,9 +234,8 @@ public class GwtModuleSourceHandler extends DefaultHandler {
 
 	/*
 	 * (non-Javadoc)
-	 * 
 	 * @see org.xml.sax.ContentHandler#startElement(java.lang.String,
-	 *      java.lang.String, java.lang.String, org.xml.sax.Attributes)
+	 * java.lang.String, java.lang.String, org.xml.sax.Attributes)
 	 */
 	@Override
 	public final void startElement(final String uri, final String elementName, final String qualifiedName, final Attributes attributes) throws SAXException {
@@ -227,6 +253,8 @@ public class GwtModuleSourceHandler extends DefaultHandler {
 					processEntryPoint(attributes);
 				} else if (ELEM_INHERITS.equals(elementName)) {
 					processInherits(attributes);
+				} else if (ELEM_SOURCE.equals(elementName)) {
+					processSource(attributes);
 				}
 				break;
 

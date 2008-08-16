@@ -8,6 +8,7 @@
  * 
  * Contributors:
  *     EclipseGuru - initial API and implementation
+ *     dobesv - contributed patch for issue 58
  *******************************************************************************/
 package org.eclipseguru.gwt.core;
 
@@ -27,8 +28,6 @@ import org.eclipse.jdt.core.Signature;
 
 import java.util.ArrayList;
 import java.util.List;
-
-import com.googlipse.gwt.common.Constants;
 
 /**
  * A GWT remote services
@@ -55,34 +54,38 @@ public class GwtRemoteService extends GwtElement {
 			}
 
 			// get the "client" folder
-			final IFolder folder = ((IFolder) module.getModulePackage().getResource()).getFolder(Constants.CLIENT_PACKAGE);
-			if (!folder.exists()) {
-				continue;
-			}
-
-			// check for service definitions
-			folder.accept(new IResourceProxyVisitor() {
-				public boolean visit(final IResourceProxy proxy) throws CoreException {
-					switch (proxy.getType()) {
-						case IResource.FOLDER:
-							return true;
-
-						case IResource.FILE:
-							if (!JavaCore.isJavaLikeFileName(proxy.getName()))
-								return false;
-
-							final IFile file = (IFile) proxy.requestResource();
-							if (!module.isModuleResource(file))
-								return false;
-
-							final ICompilationUnit cu = JavaCore.createCompilationUnitFrom(file);
-							if ((null != cu) && module.getModulePackage().getJavaProject().isOnClasspath(cu)) {
-								GwtRemoteService.findRemoteServices(cu, remoteServiceFiles);
-							}
-					}
-					return false;
+			for (final String sourcePath : module.getSourcePaths()) {
+				final IFolder folder = ((IFolder) module.getModulePackage().getResource()).getFolder(sourcePath);
+				if (!folder.exists()) {
+					continue;
 				}
-			}, IResource.DEPTH_INFINITE);
+
+				// check for service definitions
+				folder.accept(new IResourceProxyVisitor() {
+					public boolean visit(final IResourceProxy proxy) throws CoreException {
+						switch (proxy.getType()) {
+							case IResource.FOLDER:
+								return true;
+
+							case IResource.FILE:
+								if (!JavaCore.isJavaLikeFileName(proxy.getName())) {
+									return false;
+								}
+
+								final IFile file = (IFile) proxy.requestResource();
+								if (!module.isModuleResource(file)) {
+									return false;
+								}
+
+								final ICompilationUnit cu = JavaCore.createCompilationUnitFrom(file);
+								if ((null != cu) && module.getModulePackage().getJavaProject().isOnClasspath(cu)) {
+									GwtRemoteService.findRemoteServices(cu, remoteServiceFiles);
+								}
+						}
+						return false;
+					}
+				}, IResource.DEPTH_INFINITE);
+			}
 		}
 		return remoteServiceFiles;
 	}
@@ -125,14 +128,16 @@ public class GwtRemoteService extends GwtElement {
 	 */
 	public static boolean isRemoteService(final IType someType) throws JavaModelException {
 		// ignore non-interfaces
-		if (!someType.isInterface())
+		if (!someType.isInterface()) {
 			return false;
+		}
 
 		// for every interface implemented by that type
 		for (final String aSuperInterfaceSignature : someType.getSuperInterfaceTypeSignatures()) {
 			final String simpleName = GwtUtil.getTypeNameWithoutParameters(Signature.getSignatureSimpleName(aSuperInterfaceSignature));
-			if (simpleName.equals(GwtRemoteService.REMOTE_SERVICE_CLASS_SIMPLE_NAME))
+			if (simpleName.equals(GwtRemoteService.REMOTE_SERVICE_CLASS_SIMPLE_NAME)) {
 				return true;
+			}
 		}
 
 		return false;
@@ -200,7 +205,6 @@ public class GwtRemoteService extends GwtElement {
 
 	/*
 	 * (non-Javadoc)
-	 * 
 	 * @see org.eclipseguru.gwt.core.GwtElement#getType()
 	 */
 	@Override

@@ -8,6 +8,7 @@
  * 
  * Contributors:
  *     EclipseGuru - initial API and implementation
+ *     dobesv - contributed patch for issue 58
  *******************************************************************************/
 package org.eclipseguru.gwt.core;
 
@@ -54,14 +55,17 @@ public class GwtModule extends GwtElement {
 	 */
 	public static boolean isEntryPoint(final IType someType) throws JavaModelException {
 		// ignore non-classes
-		if (!someType.isClass())
+		if (!someType.isClass()) {
 			return false;
+		}
 
 		// for every interface implemented by that type
 		final IType[] stypes = someType.newSupertypeHierarchy(null).getAllSuperInterfaces(someType);
-		for (final IType element : stypes)
-			if (element.getFullyQualifiedName().equals(ENTRY_POINT_TYPE))
+		for (final IType element : stypes) {
+			if (element.getFullyQualifiedName().equals(ENTRY_POINT_TYPE)) {
 				return true;
+			}
+		}
 
 		return false;
 	}
@@ -174,24 +178,28 @@ public class GwtModule extends GwtElement {
 	 * @return
 	 */
 	/* package */GwtRemoteService createRemoteService(final IType type) {
-		// TODO Auto-generated method stub
 		return new GwtRemoteService(type, this);
 	}
 
 	@Override
 	public boolean equals(final Object obj) {
-		if (this == obj)
+		if (this == obj) {
 			return true;
-		if (obj == null)
+		}
+		if (obj == null) {
 			return false;
-		if (!GwtModule.class.isAssignableFrom(obj.getClass()))
+		}
+		if (!GwtModule.class.isAssignableFrom(obj.getClass())) {
 			return false;
+		}
 		final GwtModule other = (GwtModule) obj;
 		if (moduleId == null) {
-			if (other.moduleId != null)
+			if (other.moduleId != null) {
 				return false;
-		} else if (!moduleId.equals(other.moduleId))
+			}
+		} else if (!moduleId.equals(other.moduleId)) {
 			return false;
+		}
 		return true;
 	}
 
@@ -203,13 +211,15 @@ public class GwtModule extends GwtElement {
 	 */
 	private synchronized IType findEntryPointType() throws GwtModelException {
 		// check if already set
-		if (null != entryPointType)
+		if (null != entryPointType) {
 			return entryPointType;
+		}
 
 		// get entry point type name
 		final String entryPointClass = getEntryPointTypeName();
-		if (null == entryPointClass)
+		if (null == entryPointClass) {
 			return null;
+		}
 
 		try {
 			return getProject().getJavaProject().findType(entryPointClass);
@@ -226,8 +236,9 @@ public class GwtModule extends GwtElement {
 	 */
 	private synchronized String findEntryPointTypeName() throws GwtModelException {
 		// check if already set
-		if (null != entryPointTypeName)
+		if (null != entryPointTypeName) {
 			return entryPointTypeName;
+		}
 
 		// get type name from module source
 		return getModuleSourceInfo().getEntryPointClass();
@@ -240,8 +251,9 @@ public class GwtModule extends GwtElement {
 	 * @throws CoreException
 	 */
 	private synchronized GwtModule[] findInheritedModules() throws GwtModelException {
-		if (null != inheritedModules)
+		if (null != inheritedModules) {
 			return inheritedModules;
+		}
 
 		final GwtModuleSourceHandler info = getModuleSourceInfo();
 
@@ -405,9 +417,31 @@ public class GwtModule extends GwtElement {
 		return GwtUtil.getSimpleName(moduleId);
 	}
 
+	/**
+	 * Returns the source paths of the module as defined in the module
+	 * descriptor.
+	 * <p>
+	 * If the module descriptor does not define custom source paths a default
+	 * will be returned which is an array containing the string
+	 * <code>"client"</code>
+	 * </p>
+	 * <p>
+	 * Note, the paths are returned as defined in the module descriptor and
+	 * should be considered relative to the {@link #getModuleDescriptor() module
+	 * descriptor}.
+	 * </p>
+	 * 
+	 * @return the source paths of the module as defined in the module
+	 *         descriptor or an array containing the string
+	 *         <code>"client"</code>
+	 * @throws GwtModelException
+	 */
+	public String[] getSourcePaths() throws GwtModelException {
+		return getModuleSourceInfo().getSourcePaths();
+	}
+
 	/*
 	 * (non-Javadoc)
-	 * 
 	 * @see org.eclipseguru.gwt.core.GwtElement#getType()
 	 */
 	@Override
@@ -445,23 +479,25 @@ public class GwtModule extends GwtElement {
 	 *            the full, absolute path rooted at the workspace root
 	 * @return <code>true</code> if the path points to a resource within the
 	 *         module, <code>false</code> otherwise
+	 * @throws GwtModelException
 	 */
-	public boolean isModulePath(final IPath fullPath) {
+	public boolean isModulePath(final IPath fullPath) throws GwtModelException {
 		final IPath moduleRoot = isBinary() ? modulePackage.getPath() : ((IFile) moduleDescriptor).getParent().getFullPath();
 
 		// client folder
-		if (moduleRoot.append(Constants.CLIENT_PACKAGE).isPrefixOf(fullPath))
-			return true;
+		final GwtModuleSourceHandler info = getModuleSourceInfo();
+		for (final String sourcePath : info.getSourcePaths()) {
+			if (moduleRoot.append(sourcePath).isPrefixOf(fullPath)) {
+				return true;
+			}
+		}
 
 		// public folder
-		else if (moduleRoot.append(Constants.PUBLIC_FOLDER).isPrefixOf(fullPath))
+		if (moduleRoot.append(Constants.PUBLIC_FOLDER).isPrefixOf(fullPath)) {
 			return true;
-
-		// server folder
-		else if (moduleRoot.append(Constants.SERVER_PACKAGE).isPrefixOf(fullPath))
+		} else if (moduleRoot.append(Constants.SERVER_PACKAGE).isPrefixOf(fullPath)) {
 			return true;
-
-		// TODO: support customizable folders specified in module descriptor
+		}
 
 		return false;
 	}
@@ -475,15 +511,15 @@ public class GwtModule extends GwtElement {
 	 * @param resource
 	 * @return <code>true</code> if the resource is a module resource,
 	 *         <code>false</code> otherwise
+	 * @throws GwtModelException
 	 * @see #isModulePath(IPath)
 	 */
-	public boolean isModuleResource(final IResource resource) {
+	public boolean isModuleResource(final IResource resource) throws GwtModelException {
 		return isModulePath(resource.getFullPath());
 	}
 
 	/*
 	 * (non-Javadoc)
-	 * 
 	 * @see java.lang.Object#toString()
 	 */
 	@Override

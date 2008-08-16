@@ -8,6 +8,7 @@
  * 
  * Contributors:
  *     EclipseGuru - initial API and implementation
+ *     dobesv - contributed patch for issue 58
  *******************************************************************************/
 package org.eclipseguru.gwt.core.builder;
 
@@ -120,20 +121,23 @@ public class GwtProjectPublisher extends WorkspaceJob {
 		}
 
 		private boolean ignoreError(final String errorMsg) {
-			if (errorMsg.equals("Build failed"))
+			if (errorMsg.equals("Build failed")) {
 				return true;
-			if (errorMsg.equals("Failure while parsing XML"))
+			}
+			if (errorMsg.equals("Failure while parsing XML")) {
 				return true;
-			if (errorMsg.contains("Unexpected exception while processing element"))
+			}
+			if (errorMsg.contains("Unexpected exception while processing element")) {
 				return true;
+			}
 			return false;
 		}
 
 		/*
 		 * (non-Javadoc)
-		 * 
-		 * @see org.eclipse.debug.core.IStreamListener#streamAppended(java.lang.String,
-		 *      org.eclipse.debug.core.model.IStreamMonitor)
+		 * @see
+		 * org.eclipse.debug.core.IStreamListener#streamAppended(java.lang.String
+		 * , org.eclipse.debug.core.model.IStreamMonitor)
 		 */
 		public void streamAppended(final String text, final IStreamMonitor monitor) {
 			collectedOutput.append(text);
@@ -169,8 +173,9 @@ public class GwtProjectPublisher extends WorkspaceJob {
 	 */
 	private void compileModule(final GwtProject gwtProject, final GwtModule module, final IFolder targetFolder, final IProgressMonitor monitor) throws CoreException {
 		// check for local install
-		if (null == targetFolder.getLocation())
+		if (null == targetFolder.getLocation()) {
 			throw new CoreException(GwtCore.newErrorStatus("Target Folder must be on the local filesystem!"));
+		}
 
 		// determine the marker resource
 		final IResource markerResource = (module.getModuleDescriptor() instanceof IResource) ? (IResource) module.getModuleDescriptor() : module.getProjectResource();
@@ -285,7 +290,7 @@ public class GwtProjectPublisher extends WorkspaceJob {
 				// try to wait for the compiler
 				monitor.subTask(MessageFormat.format("Waiting for the GWT Compiler to finish compiling module ''{0}''...", module.getName()));
 				int i = 0;
-				while (!gwtLaunch.isTerminated() && (i < 300)) {
+				while (!gwtLaunch.isTerminated() && (i < 600)) {
 					ProgressUtil.checkCanceled(monitor);
 					try {
 						compilerLaunchFinishes.await(1, TimeUnit.SECONDS);
@@ -296,7 +301,7 @@ public class GwtProjectPublisher extends WorkspaceJob {
 					}
 				}
 				if (!gwtLaunch.isTerminated()) {
-					ResourceUtil.createProblem(markerResource, "GWT Compiler: Took too long to complete. Compile results might be undefined.");
+					ResourceUtil.createProblem(markerResource, "GWT Compiler: Took too long (>" + i + " seconds) to complete. Compile results might be undefined.");
 				}
 			} finally {
 				compilerLaunchLock.unlock();
@@ -395,8 +400,9 @@ public class GwtProjectPublisher extends WorkspaceJob {
 				}
 			});
 			final IStatus canWrite = makeEditable(resources);
-			if (!canWrite.isOK())
+			if (!canWrite.isOK()) {
 				throw new CoreException(canWrite);
+			}
 
 			// compile the modules
 			for (final GwtModule module : modules) {
@@ -474,8 +480,9 @@ public class GwtProjectPublisher extends WorkspaceJob {
 		// we need a "smart" publish that just generates
 		// the (module.nocache.html)
 		// http://groups.google.com/group/Google-Web-Toolkit/browse_thread/thread/aa3a8d942e493c26/69a1a5689cb56e2b#69a1a5689cb56e2b
-		if (module.isBinary())
+		if (module.isBinary()) {
 			return;
+		}
 
 		try {
 			monitor.beginTask(NLS.bind("Publishing {0}", module.getSimpleName()), 10);
@@ -493,8 +500,9 @@ public class GwtProjectPublisher extends WorkspaceJob {
 
 	/*
 	 * (non-Javadoc)
-	 * 
-	 * @see org.eclipse.core.resources.WorkspaceJob#runInWorkspace(org.eclipse.core.runtime.IProgressMonitor)
+	 * @see
+	 * org.eclipse.core.resources.WorkspaceJob#runInWorkspace(org.eclipse.core
+	 * .runtime.IProgressMonitor)
 	 */
 	@Override
 	public IStatus runInWorkspace(IProgressMonitor monitor) throws CoreException {
