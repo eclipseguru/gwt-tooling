@@ -290,7 +290,7 @@ public class GwtProjectPublisher extends WorkspaceJob {
 				// try to wait for the compiler
 				monitor.subTask(MessageFormat.format("Waiting for the GWT Compiler to finish compiling module ''{0}''...", module.getName()));
 				int i = 0;
-				while (!gwtLaunch.isTerminated() && (i < 600)) {
+				while (!gwtLaunch.isTerminated() && (i < 1800)) {
 					ProgressUtil.checkCanceled(monitor);
 					try {
 						compilerLaunchFinishes.await(1, TimeUnit.SECONDS);
