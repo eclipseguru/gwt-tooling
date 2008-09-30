@@ -347,7 +347,7 @@ public class AsyncServiceCodeGenerator extends JdtTypeGenerator {
 	}
 
 	@Override
-	protected void createTypeMembers(final IType createdType, final ImportsManager imports, final boolean needsSave, final IProgressMonitor monitor) throws CoreException {
+	protected void createTypeMembers(final IType createdType, final ImportsManager imports, final IProgressMonitor monitor) throws CoreException {
 		monitor.beginTask(NLS.bind("Generating methods in ''{0}''...", createdType.getElementName()), 10);
 		try {
 
@@ -418,7 +418,7 @@ public class AsyncServiceCodeGenerator extends JdtTypeGenerator {
 			}
 
 			// update Javadoc
-			updateJavadoc(createdType, needsSave, ProgressUtil.subProgressMonitor(monitor, 1));
+			updateJavadoc(createdType, ProgressUtil.subProgressMonitor(monitor, 1));
 
 		} finally {
 			monitor.done();
@@ -496,7 +496,7 @@ public class AsyncServiceCodeGenerator extends JdtTypeGenerator {
 		return super.getTypeComment(parentCU, lineDelimiter);
 	}
 
-	private void updateJavadoc(final IType createdType, final boolean needsSave, final IProgressMonitor monitor) throws JavaModelException, CoreException, ValidateEditException {
+	private void updateJavadoc(final IType createdType, final IProgressMonitor monitor) throws JavaModelException, CoreException, ValidateEditException {
 		final CompilationUnit cu = createdType.getCompilationUnit().reconcile(AST.JLS3, true, null, null);
 		final ASTRewrite cuRewrite = ASTRewrite.create(cu.getAST());
 		final TextEditGroup textEditGroup = new TextEditGroup("Updating JavaDoc of interface " + createdType.getElementName());
@@ -512,7 +512,7 @@ public class AsyncServiceCodeGenerator extends JdtTypeGenerator {
 
 		// apply edit
 		final TextEdit edit = cuRewrite.rewriteAST();
-		JavaModelUtil.applyEdit(createdType.getCompilationUnit(), edit, needsSave, ProgressUtil.subProgressMonitor(monitor, 1));
+		JavaModelUtil.applyEdit(createdType.getCompilationUnit(), edit, false, ProgressUtil.subProgressMonitor(monitor, 1));
 	}
 
 	private void updateMethodJavadoc(final ASTRewrite cuRewrite, final MethodDeclaration md, final TextEditGroup textEditGroup) {

@@ -72,35 +72,36 @@ public class ImportsManager {
 	 * Removes unused imports from the specified compiliation unit.
 	 * <p>
 	 * Adapted from
-	 * <code>org.eclipse.jdt.ui.wizards.NewTypeWizardPage#removeUnusedImports</code>.
+	 * <code>org.eclipse.jdt.ui.wizards.NewTypeWizardPage#removeUnusedImports</code>
+	 * .
 	 * </p>
 	 * 
 	 * @param cu
 	 *            the compilation unit
 	 * @param existingImports
 	 *            the set of existing imports
-	 * @param needsSave
-	 *            if the compilation unit needs to be saved
 	 * @throws CoreException
 	 *             if an error occured
 	 */
-	public static void removeUnusedImports(final ICompilationUnit cu, final Set existingImports, final boolean needsSave) throws CoreException {
+	public static void removeUnusedImports(final ICompilationUnit cu, final Set existingImports) throws CoreException {
 		final ASTParser parser = ASTParser.newParser(AST.JLS3);
 		parser.setSource(cu);
 		parser.setResolveBindings(true);
 
 		final CompilationUnit root = (CompilationUnit) parser.createAST(null);
-		if (root.getProblems().length == 0)
+		if (root.getProblems().length == 0) {
 			return;
+		}
 
 		final List importsDecls = root.imports();
-		if (importsDecls.isEmpty())
+		if (importsDecls.isEmpty()) {
 			return;
+		}
 		final ImportsManager imports = new ImportsManager(root);
 
 		final int importsEnd = ASTNodes.getExclusiveEnd((ASTNode) importsDecls.get(importsDecls.size() - 1));
 		final IProblem[] problems = root.getProblems();
-		for (final IProblem curr : problems)
+		for (final IProblem curr : problems) {
 			if (curr.getSourceEnd() < importsEnd) {
 				final int id = curr.getID();
 				// not visible problems hide unused -> remove both
@@ -125,7 +126,8 @@ public class ImportsManager {
 					}
 				}
 			}
-		imports.create(needsSave, null);
+		}
+		imports.create(null);
 	}
 
 	/** importsRewrite */
@@ -192,13 +194,12 @@ public class ImportsManager {
 	/**
 	 * Creates and applys the changes on the underlying compilation unit.
 	 * 
-	 * @param needsSave
 	 * @param monitor
 	 * @throws CoreException
 	 */
-	public void create(final boolean needsSave, final IProgressMonitor monitor) throws CoreException {
+	public void create(final IProgressMonitor monitor) throws CoreException {
 		final TextEdit edit = importsRewrite.rewriteImports(monitor);
-		JavaModelUtil.applyEdit(importsRewrite.getCompilationUnit(), edit, needsSave, null);
+		JavaModelUtil.applyEdit(importsRewrite.getCompilationUnit(), edit, false, null);
 	}
 
 	public ICompilationUnit getCompilationUnit() {

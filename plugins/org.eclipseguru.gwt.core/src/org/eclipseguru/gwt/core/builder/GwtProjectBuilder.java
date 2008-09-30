@@ -41,7 +41,6 @@ import org.eclipse.jdt.core.ICompilationUnit;
 import org.eclipse.jdt.core.IPackageFragment;
 import org.eclipse.jdt.core.IType;
 import org.eclipse.jdt.core.JavaCore;
-import org.eclipse.jdt.core.WorkingCopyOwner;
 import org.eclipse.jdt.internal.corext.util.Resources;
 import org.eclipse.osgi.util.NLS;
 
@@ -85,8 +84,9 @@ public class GwtProjectBuilder extends IncrementalProjectBuilder {
 
 		/*
 		 * (non-Javadoc)
-		 * 
-		 * @see org.eclipse.core.resources.IResourceDeltaVisitor#visit(org.eclipse.core.resources.IResourceDelta)
+		 * @see
+		 * org.eclipse.core.resources.IResourceDeltaVisitor#visit(org.eclipse
+		 * .core.resources.IResourceDelta)
 		 */
 		public boolean visit(final IResourceDelta delta) throws CoreException {
 			// ignore removed resources
@@ -141,15 +141,10 @@ public class GwtProjectBuilder extends IncrementalProjectBuilder {
 		}
 	}
 
-	/** WORKING_COPY_OWNER */
-	private static final WorkingCopyOwner WORKING_COPY_OWNER = new WorkingCopyOwner() {
-	};
-
 	/*
 	 * (non-Javadoc)
-	 * 
 	 * @see org.eclipse.core.resources.IncrementalProjectBuilder#build(int,
-	 *      java.util.Map, org.eclipse.core.runtime.IProgressMonitor)
+	 * java.util.Map, org.eclipse.core.runtime.IProgressMonitor)
 	 */
 	@Override
 	protected IProject[] build(final int kind, final Map args, IProgressMonitor monitor) throws CoreException {
@@ -251,8 +246,9 @@ public class GwtProjectBuilder extends IncrementalProjectBuilder {
 
 	/*
 	 * (non-Javadoc)
-	 * 
-	 * @see org.eclipse.core.resources.IncrementalProjectBuilder#clean(org.eclipse.core.runtime.IProgressMonitor)
+	 * @see
+	 * org.eclipse.core.resources.IncrementalProjectBuilder#clean(org.eclipse
+	 * .core.runtime.IProgressMonitor)
 	 */
 	@Override
 	protected void clean(IProgressMonitor monitor) throws CoreException {
@@ -351,10 +347,10 @@ public class GwtProjectBuilder extends IncrementalProjectBuilder {
 			}
 
 			// make cu a working copy
-			asyncServiceCu = asyncServiceCu.getWorkingCopy(WORKING_COPY_OWNER, ProgressUtil.subProgressMonitor(monitor, 1));
+			asyncServiceCu.becomeWorkingCopy(ProgressUtil.subProgressMonitor(monitor, 1));
 
 			// create the async service type
-			generator.createType(asyncServiceCu, false, ProgressUtil.subProgressMonitor(monitor, 10));
+			generator.createType(asyncServiceCu, ProgressUtil.subProgressMonitor(monitor, 10));
 
 			// save
 			asyncServiceCu.commitWorkingCopy(true, ProgressUtil.subProgressMonitor(monitor, 1));

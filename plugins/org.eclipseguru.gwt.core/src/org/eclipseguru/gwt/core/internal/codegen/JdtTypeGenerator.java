@@ -210,7 +210,7 @@ public abstract class JdtTypeGenerator {
 	 * </p>
 	 * 
 	 * @param parentCU
-	 *            if the
+	 *            the parent compilation unit (must be a working copy)
 	 * @param needsSave
 	 *            indicates if the compilation unit should be saved
 	 * @param monitor
@@ -220,7 +220,10 @@ public abstract class JdtTypeGenerator {
 	 *             Thrown when the creation failed.
 	 */
 	@SuppressWarnings("unchecked")
-	public void createType(final ICompilationUnit parentCU, final boolean needsSave, IProgressMonitor monitor) throws CoreException {
+	public void createType(final ICompilationUnit parentCU, IProgressMonitor monitor) throws CoreException {
+		if (!parentCU.isWorkingCopy()) {
+			throw new CoreException(GwtCore.newErrorStatus("compilation unit '" + parentCU.getElementName() + "' must be a working copy"));
+		}
 		monitor = ProgressUtil.monitor(monitor);
 		try {
 			final String lineDelimiter = GwtUtil.getLineSeparator(parentCU.getJavaProject().getProject());
@@ -246,7 +249,13 @@ public abstract class JdtTypeGenerator {
 
 			final String typeContent = constructTypeStub(parentCU, imports, lineDelimiter);
 
-			final AbstractTypeDeclaration typeNode = (AbstractTypeDeclaration) astRoot.types().get(0);
+			// check that we have the types
+			final List types = astRoot.types();
+			if (types.isEmpty()) {
+				throw new CoreException(GwtCore.newErrorStatus("compilation unit '" + parentCU.getElementName() + "' AST has no types; content follows: " + cuContent));
+			}
+
+			final AbstractTypeDeclaration typeNode = (AbstractTypeDeclaration) types.get(0);
 			final int start = ((ASTNode) typeNode.modifiers().get(0)).getStartPosition();
 			final int end = typeNode.getStartPosition() + typeNode.getLength();
 
@@ -258,7 +267,7 @@ public abstract class JdtTypeGenerator {
 
 			// add imports for superclass/interfaces, so types can be resolved
 			// correctly
-			imports.create(needsSave, new SubProgressMonitor(monitor, 1));
+			imports.create(new SubProgressMonitor(monitor, 1));
 
 			JavaModelUtil.reconcile(parentCU);
 
@@ -268,26 +277,22 @@ public abstract class JdtTypeGenerator {
 			astRoot = ImportsManager.createASTForImports(parentCU);
 			imports = new ImportsManager(astRoot);
 
-			createTypeMembers(createdType, imports, needsSave, new SubProgressMonitor(monitor, 1));
+			createTypeMembers(createdType, imports, new SubProgressMonitor(monitor, 1));
 
 			// add imports
-			imports.create(needsSave, ProgressUtil.subProgressMonitor(monitor, 1));
+			imports.create(ProgressUtil.subProgressMonitor(monitor, 1));
 
-			ImportsManager.removeUnusedImports(parentCU, existingImports, needsSave);
+			ImportsManager.removeUnusedImports(parentCU, existingImports);
 
 			JavaModelUtil.reconcile(parentCU);
 
 			// format the compilation unit
 			final TextEdit edit = CodeFormatterUtil.format2(CodeFormatter.K_COMPILATION_UNIT, parentCU.getBuffer().getContents(), 0, lineDelimiter, new HashMap(parentCU.getJavaProject().getOptions(true)));
 			if (edit != null) {
-				JavaModelUtil.applyEdit(parentCU, edit, needsSave, ProgressUtil.subProgressMonitor(monitor, 1));
+				JavaModelUtil.applyEdit(parentCU, edit, false, ProgressUtil.subProgressMonitor(monitor, 1));
 			}
 
-			if (needsSave) {
-				parentCU.commitWorkingCopy(true, ProgressUtil.subProgressMonitor(monitor, 1));
-			} else {
-				monitor.worked(1);
-			}
+			monitor.worked(1);
 		} finally {
 			monitor.done();
 		}
@@ -311,8 +316,6 @@ public abstract class JdtTypeGenerator {
 	 *            the new type created via <code>createType</code>
 	 * @param imports
 	 *            an import manager which can be used to add new imports
-	 * @param needsSave
-	 *            indicates if the underlying CU should be saved
 	 * @param monitor
 	 *            a progress monitor to report progress. Must not be
 	 *            <code>null</code>
@@ -320,7 +323,7 @@ public abstract class JdtTypeGenerator {
 	 *             Thrown when the creation failed.
 	 * @see #createType(ICompilationUnit, boolean, IProgressMonitor)
 	 */
-	protected abstract void createTypeMembers(IType createdType, ImportsManager imports, boolean needsSave, IProgressMonitor monitor) throws CoreException;
+	protected abstract void createTypeMembers(IType createdType, ImportsManager imports, IProgressMonitor monitor) throws CoreException;
 
 	/**
 	 * Hook method that gets called from <code>createType</code> to retrieve a
