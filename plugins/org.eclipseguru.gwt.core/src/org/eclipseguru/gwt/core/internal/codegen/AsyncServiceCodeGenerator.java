@@ -476,7 +476,7 @@ public class AsyncServiceCodeGenerator extends JdtTypeGenerator {
 			if (null != javadocRange) {
 				final IBuffer buffer = remoteServiceType.getOpenable().getBuffer();
 				if (buffer != null) {
-					final String javadoc = buffer.getText(javadocRange.getOffset(), javadocRange.getLength() - 1);
+					final String javadoc = buffer.getText(javadocRange.getOffset(), javadocRange.getLength());
 					if ((null != javadoc) && (javadoc.trim().length() > 0)) {
 						final String[] lines = Strings.convertIntoLines(javadoc);
 						final StringBuffer result = new StringBuffer();
