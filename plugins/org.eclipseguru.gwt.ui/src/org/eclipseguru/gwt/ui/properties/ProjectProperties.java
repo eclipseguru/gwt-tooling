@@ -301,7 +301,7 @@ public class ProjectProperties extends PropertyPage implements IWorkbenchPropert
 		outputLocationDialogField.setLabelText("Output folder:");
 
 		autoBuildModulesDialogField = new SelectionButtonDialogField(SWT.CHECK);
-		autoBuildModulesDialogField.setLabelText("Compile modules automatically");
+		autoBuildModulesDialogField.setLabelText("Compile modules when project is built automatically");
 
 		deploymentPathDialogField = new StringDialogField();
 		deploymentPathDialogField.setDialogFieldListener(new DeploymentPathDialogFieldAdapter());
