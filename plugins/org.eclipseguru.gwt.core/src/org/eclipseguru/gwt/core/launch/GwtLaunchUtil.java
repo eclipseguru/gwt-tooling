@@ -70,8 +70,9 @@ public class GwtLaunchUtil implements GwtLaunchConstants {
 	 * @throws JavaModelException
 	 */
 	public static void addSourceFolderToClasspath(final GwtProject gwtProject, final List<String> classpath, final boolean processReferencedProjects) throws JavaModelException {
-		if ((null == gwtProject) || !gwtProject.exists())
+		if ((null == gwtProject) || !gwtProject.exists()) {
 			return;
+		}
 
 		addSourceFolderToClasspath(gwtProject.getJavaProject(), classpath);
 
@@ -94,15 +95,17 @@ public class GwtLaunchUtil implements GwtLaunchConstants {
 	 * @param classpath
 	 * @throws JavaModelException
 	 */
-	public static void addSourceFolderToClasspath(final IJavaProject project, final List<String> classpath) throws JavaModelException {
-		if ((null == project) || !project.exists())
+	private static void addSourceFolderToClasspath(final IJavaProject project, final List<String> classpath) throws JavaModelException {
+		if ((null == project) || !project.exists()) {
 			return;
+		}
 
 		final IPackageFragmentRoot[] packageFragmentRoots = project.getPackageFragmentRoots();
-		for (final IPackageFragmentRoot packageFragmentRoot : packageFragmentRoots)
+		for (final IPackageFragmentRoot packageFragmentRoot : packageFragmentRoots) {
 			if (packageFragmentRoot.getKind() == IPackageFragmentRoot.K_SOURCE) {
 				classpath.add(packageFragmentRoot.getResource().getLocation().toOSString());
 			}
+		}
 	}
 
 	/**
@@ -114,8 +117,8 @@ public class GwtLaunchUtil implements GwtLaunchConstants {
 	 * 
 	 * @param moduleId
 	 *            the module id
-	 * @return the default URL (maybe <code>null</code> if the specified
-	 *         module id was <code>null</code>)
+	 * @return the default URL (maybe <code>null</code> if the specified module
+	 *         id was <code>null</code>)
 	 */
 	public static String computeDefaultUrl(final String moduleId) {
 		return moduleId + "/" + GwtUtil.getSimpleName(moduleId) + ".html";
@@ -321,8 +324,9 @@ public class GwtLaunchUtil implements GwtLaunchConstants {
 			if (projectName.length() > 0) {
 				final IProject project = ResourcesPlugin.getWorkspace().getRoot().getProject(projectName);
 				final GwtProject gwtProject = GwtCore.create(project);
-				if ((gwtProject != null) && gwtProject.exists())
+				if ((gwtProject != null) && gwtProject.exists()) {
 					return gwtProject;
+				}
 			}
 		}
 		return null;
