@@ -11,6 +11,8 @@
  *******************************************************************************/
 package org.eclipseguru.gwt.core.preferences;
 
+import org.eclipseguru.gwt.core.launch.GwtLaunchConstants;
+
 /**
  * Interface with core preference constants.
  */
@@ -35,6 +37,13 @@ public interface GwtCorePreferenceConstants {
 
 	/** PREF_VM_ARGS */
 	String PREF_COMPILER_VM_ARGS = "compilerVmArgs";
+
+	/**
+	 * PREF_COMPILER_STYLE
+	 * 
+	 * @see GwtLaunchConstants#JAVSCRIPT_STYLES
+	 */
+	String PREF_COMPILER_JAVASCRIPT_STYLE = "compilerJavascriptStyle";
 
 	/**
 	 * Defines path to a custom module template.

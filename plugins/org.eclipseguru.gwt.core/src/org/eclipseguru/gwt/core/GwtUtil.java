@@ -11,6 +11,7 @@
  *******************************************************************************/
 package org.eclipseguru.gwt.core;
 
+import org.eclipseguru.gwt.core.launch.GwtLaunchConstants;
 import org.eclipseguru.gwt.core.preferences.GwtCorePreferenceConstants;
 
 import org.eclipse.core.resources.IProject;
@@ -46,6 +47,26 @@ public class GwtUtil {
 
 	/** NO_VM_ARGS */
 	private static final String NO_VM_ARGS = ""; //$NON-NLS-1$
+
+	/**
+	 * Returns the GWT compiler style for the specified project.
+	 * <p>
+	 * Note, the content is used in the GWT compiler Java command as style
+	 * argument
+	 * </p>
+	 * 
+	 * @param project
+	 * @return the GWT compiler style for the specified project
+	 * @see GwtLaunchConstants#JAVSCRIPT_STYLES
+	 */
+	public static String getCompilerJavascriptStyle(final GwtProject project) {
+		final IEclipsePreferences projectPreferences = project.getProjectPreferences();
+		if (null == projectPreferences) {
+			return GwtLaunchConstants.JAVSCRIPT_STYLE_OBFUSCATED;
+		}
+
+		return projectPreferences.get(GwtCorePreferenceConstants.PREF_COMPILER_JAVASCRIPT_STYLE, GwtLaunchConstants.JAVSCRIPT_STYLE_OBFUSCATED);
+	}
 
 	/**
 	 * Returns the GWT compiler Java VM arguments for the specified project.

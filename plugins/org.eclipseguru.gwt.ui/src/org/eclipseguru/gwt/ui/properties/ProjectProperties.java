@@ -16,6 +16,7 @@ import org.eclipseguru.gwt.core.GwtModule;
 import org.eclipseguru.gwt.core.GwtProject;
 import org.eclipseguru.gwt.core.GwtUtil;
 import org.eclipseguru.gwt.core.j2ee.ConfigureWebProjectJob;
+import org.eclipseguru.gwt.core.launch.GwtLaunchConstants;
 import org.eclipseguru.gwt.core.preferences.GwtCorePreferenceConstants;
 import org.eclipseguru.gwt.ui.dialogs.ModuleSelectionDialog;
 
@@ -46,6 +47,7 @@ import org.eclipse.jdt.internal.ui.wizards.NewWizardMessages;
 import org.eclipse.jdt.internal.ui.wizards.TypedElementSelectionValidator;
 import org.eclipse.jdt.internal.ui.wizards.TypedViewerFilter;
 import org.eclipse.jdt.internal.ui.wizards.buildpaths.FolderSelectionDialog;
+import org.eclipse.jdt.internal.ui.wizards.dialogfields.ComboDialogField;
 import org.eclipse.jdt.internal.ui.wizards.dialogfields.DialogField;
 import org.eclipse.jdt.internal.ui.wizards.dialogfields.IDialogFieldListener;
 import org.eclipse.jdt.internal.ui.wizards.dialogfields.IListAdapter;
@@ -99,6 +101,14 @@ public class ProjectProperties extends PropertyPage implements IWorkbenchPropert
 	private final class HostedModeDialogFieldAdapter implements IDialogFieldListener {
 		public void dialogFieldChanged(final DialogField field) {
 			hostedModeDialogFieldChanged(field);
+		}
+	}
+
+	private class JavascriptStyleDialogFieldAdapter implements IDialogFieldListener {
+
+		// ---------- IDialogFieldListener --------
+		public void dialogFieldChanged(final DialogField field) {
+			javascriptStyleDialogFieldChanged(field);
 		}
 	}
 
@@ -164,27 +174,23 @@ public class ProjectProperties extends PropertyPage implements IWorkbenchPropert
 	private SelectionButtonDialogField hostedModeDialogField;
 
 	private ListDialogField modulesListDialogField;
-
 	private StringButtonDialogField outputLocationDialogField;
-
 	private StringDialogField deploymentPathDialogField;
-
 	private StringButtonDialogField vmArgsDialogField;
+	private ComboDialogField javascriptStyleDialogField;
 
 	private GwtProject currentProject;
 
 	private boolean isHosted;
 
 	private IPath outputLocationPath;
-
-	IPath deploymentPath;
-
-	String vmArgs = "";
+	private IPath deploymentPath;
+	private String javascriptStyle = "";
+	private String vmArgs = "";
 
 	private final StatusInfo outputLocationStatus = new StatusInfo();
-
 	private final StatusInfo deploymentPathStatus = new StatusInfo();
-
+	private final StatusInfo javascriptStyleStatus = new StatusInfo();
 	private final StatusInfo vmArgsStatus = new StatusInfo();
 
 	private boolean isRebuildNecessary;
@@ -260,7 +266,7 @@ public class ProjectProperties extends PropertyPage implements IWorkbenchPropert
 			LayoutUtil.doDefaultLayout(deployment, new DialogField[] { hostedModeDialogField, deploymentPathDialogField }, false, 5, 5);
 			LayoutUtil.setHorizontalGrabbing(deploymentPathDialogField.getTextControl(deployment));
 
-			LayoutUtil.doDefaultLayout(modules, new DialogField[] { modulesListDialogField, outputLocationDialogField, autoBuildModulesDialogField, vmArgsDialogField }, true, 5, 5);
+			LayoutUtil.doDefaultLayout(modules, new DialogField[] { modulesListDialogField, outputLocationDialogField, autoBuildModulesDialogField, javascriptStyleDialogField, vmArgsDialogField }, true, 5, 5);
 			LayoutUtil.setHorizontalGrabbing(modulesListDialogField.getListControl(modules));
 			((GridData) modulesListDialogField.getListControl(modules).getLayoutData()).grabExcessVerticalSpace = true;
 			modules.setLayoutData(new GridData(SWT.FILL, SWT.FILL, true, true));
@@ -268,7 +274,7 @@ public class ProjectProperties extends PropertyPage implements IWorkbenchPropert
 			LayoutUtil.setHorizontalGrabbing(vmArgsDialogField.getTextControl(deployment));
 
 		} else {
-			LayoutUtil.doDefaultLayout(deployment, new DialogField[] { outputLocationDialogField, autoBuildModulesDialogField, vmArgsDialogField }, false, 5, 5);
+			LayoutUtil.doDefaultLayout(deployment, new DialogField[] { outputLocationDialogField, autoBuildModulesDialogField, javascriptStyleDialogField, vmArgsDialogField }, false, 5, 5);
 			LayoutUtil.setHorizontalGrabbing(outputLocationDialogField.getTextControl(deployment));
 		}
 
@@ -301,6 +307,11 @@ public class ProjectProperties extends PropertyPage implements IWorkbenchPropert
 		deploymentPathDialogField.setDialogFieldListener(new DeploymentPathDialogFieldAdapter());
 		deploymentPathDialogField.setLabelText("Deployment path:");
 
+		javascriptStyleDialogField = new ComboDialogField(SWT.READ_ONLY);
+		javascriptStyleDialogField.setLabelText("Compiler JavaScript Style:");
+		javascriptStyleDialogField.setItems(GwtLaunchConstants.JAVSCRIPT_STYLES);
+		javascriptStyleDialogField.setDialogFieldListener(new JavascriptStyleDialogFieldAdapter());
+
 		vmArgsDialogField = new StringButtonDialogField(new VMArgsDialogFieldAdapter());
 		vmArgsDialogField.setLabelText("Compiler VM Args:");
 		vmArgsDialogField.setButtonLabel("Variables...");
@@ -331,8 +342,8 @@ public class ProjectProperties extends PropertyPage implements IWorkbenchPropert
 
 			/*
 			 * (non-Javadoc)
-			 * 
-			 * @see org.eclipse.core.runtime.jobs.Job#belongsTo(java.lang.Object)
+			 * @see
+			 * org.eclipse.core.runtime.jobs.Job#belongsTo(java.lang.Object)
 			 */
 			@Override
 			public boolean belongsTo(final Object family) {
@@ -342,8 +353,9 @@ public class ProjectProperties extends PropertyPage implements IWorkbenchPropert
 			//$NON-NLS-1$
 			/*
 			 * (non-Javadoc)
-			 * 
-			 * @see org.eclipse.core.runtime.jobs.Job#run(org.eclipse.core.runtime.IProgressMonitor)
+			 * @see
+			 * org.eclipse.core.runtime.jobs.Job#run(org.eclipse.core.runtime
+			 * .IProgressMonitor)
 			 */
 			@Override
 			protected IStatus run(final IProgressMonitor monitor) {
@@ -390,6 +402,15 @@ public class ProjectProperties extends PropertyPage implements IWorkbenchPropert
 
 	private IStatus findMostSevereStatus() {
 		return StatusUtil.getMostSevere(new IStatus[] { outputLocationStatus, deploymentPathStatus, vmArgsStatus });
+	}
+
+	/**
+	 * Returns the current compiler Javascript style.
+	 * 
+	 * @return the compiler Javascript style
+	 */
+	public String getCompilerJavascriptStyle() {
+		return javascriptStyleDialogField.getText();
 	}
 
 	/**
@@ -505,12 +526,24 @@ public class ProjectProperties extends PropertyPage implements IWorkbenchPropert
 		deploymentPath = GwtUtil.getDeploymentPath(project);
 		deploymentPathDialogField.setText(deploymentPath.makeAbsolute().toString());
 
+		// Javascript style
+		javascriptStyle = GwtUtil.getCompilerJavascriptStyle(project);
+		javascriptStyleDialogField.selectItem(javascriptStyle);
+
 		// VM args
 		vmArgs = GwtUtil.getCompilerVmArgs(project);
 		vmArgsDialogField.setText(vmArgs);
 
 		// no rebuild after fresh initialization
 		isRebuildNecessary = false;
+	}
+
+	void javascriptStyleDialogFieldChanged(final DialogField field) {
+		if (field == javascriptStyleDialogField) {
+			updateJavascriptStyleStatus();
+			isRebuildNecessary = true;
+		}
+		doStatusLineUpdate();
 	}
 
 	private void outputChangeControlPressed(final DialogField field) {
@@ -532,7 +565,6 @@ public class ProjectProperties extends PropertyPage implements IWorkbenchPropert
 
 	/*
 	 * (non-Javadoc)
-	 * 
 	 * @see org.eclipse.jface.preference.PreferencePage#performOk()
 	 */
 	@Override
@@ -578,6 +610,9 @@ public class ProjectProperties extends PropertyPage implements IWorkbenchPropert
 		// VM arguments
 		projectPreferences.put(GwtCorePreferenceConstants.PREF_COMPILER_VM_ARGS, getCompilerVmArgs());
 
+		// style
+		projectPreferences.put(GwtCorePreferenceConstants.PREF_COMPILER_JAVASCRIPT_STYLE, getCompilerJavascriptStyle());
+
 		// flush changes
 		try {
 			projectPreferences.flush();
@@ -600,8 +635,9 @@ public class ProjectProperties extends PropertyPage implements IWorkbenchPropert
 
 	/*
 	 * (non-Javadoc)
-	 * 
-	 * @see org.eclipse.jdt.internal.ui.wizards.IStatusChangeListener#statusChanged(org.eclipse.core.runtime.IStatus)
+	 * @see
+	 * org.eclipse.jdt.internal.ui.wizards.IStatusChangeListener#statusChanged
+	 * (org.eclipse.core.runtime.IStatus)
 	 */
 	public void statusChanged(final IStatus status) {
 		setValid(!status.matches(IStatus.ERROR));
@@ -626,11 +662,21 @@ public class ProjectProperties extends PropertyPage implements IWorkbenchPropert
 		deploymentPathStatus.setOK();
 	}
 
+	private void updateJavascriptStyleStatus() {
+		javascriptStyle = "";
+
+		// TODO: validate JavaScript style
+		// ...
+
+		javascriptStyle = getCompilerJavascriptStyle();
+		javascriptStyleStatus.setOK();
+	}
+
 	private void updateOutputLocationStatus() {
 		outputLocationPath = null;
 
 		final String text = outputLocationDialogField.getText();
-		if ("".equals(text)) { //$NON-NLS-1$
+		if ("".equals(text)) {
 			outputLocationStatus.setError(NewWizardMessages.BuildPathsBlock_error_EnterBuildPath);
 			return;
 		}
@@ -697,7 +743,7 @@ public class ProjectProperties extends PropertyPage implements IWorkbenchPropert
 		}
 	}
 
-	private void vmArgsDialogFieldChanged(final DialogField field) {
+	void vmArgsDialogFieldChanged(final DialogField field) {
 		if (field == vmArgsDialogField) {
 			updateVmArgsStatus();
 			isRebuildNecessary = true;

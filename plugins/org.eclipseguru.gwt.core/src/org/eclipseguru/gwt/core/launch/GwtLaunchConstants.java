@@ -19,6 +19,7 @@ import org.eclipse.jdt.launching.IJavaLaunchConfigurationConstants;
  * Shared launch constants.
  */
 public interface GwtLaunchConstants {
+
 	/** the GWT Browser launch type */
 	String TYPE_GWT_BROWSER = GwtCore.PLUGIN_ID + ".launch.browser";
 
@@ -72,10 +73,19 @@ public interface GwtLaunchConstants {
 	 */
 	String[] LOG_LEVELS = new String[] { "ERROR", "WARN", "INFO", "TRACE", "DEBUG", "SPAM", "ALL" };
 
+	/** Javascript style (value <code>OBFUSCATED</code>) */
+	String JAVSCRIPT_STYLE_OBFUSCATED = "OBFUSCATED";
+
+	/** Javascript style (value <code>PRETTY</code>) */
+	String JAVSCRIPT_STYLE_PRETTY = "PRETTY";
+
+	/** Javascript style (value <code>DETAILED</code>) */
+	String JAVSCRIPT_STYLE_DETAILED = "DETAILED";
+
 	/**
 	 * The available values for the {@link #ATTR_STYLE style attribute} (values
-	 * <code>OBFUSCATED</code>, <code>PRETTY</code> and
-	 * <code>DETAILED</code>).
+	 * {@value #JAVSCRIPT_STYLE_OBFUSCATED}, {@value #JAVSCRIPT_STYLE_PRETTY}
+	 * and {@value #JAVSCRIPT_STYLE_DETAILED}).
 	 */
-	String[] JAVSCRIPT_STYLES = new String[] { "OBFUSCATED", "PRETTY", "DETAILED" };
+	String[] JAVSCRIPT_STYLES = new String[] { JAVSCRIPT_STYLE_OBFUSCATED, JAVSCRIPT_STYLE_PRETTY, JAVSCRIPT_STYLE_DETAILED };
 }

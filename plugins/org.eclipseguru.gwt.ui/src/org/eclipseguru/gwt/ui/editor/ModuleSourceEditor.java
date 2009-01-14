@@ -55,7 +55,6 @@ public class ModuleSourceEditor extends FormEditor {
 
 	/*
 	 * (non-Javadoc)
-	 * 
 	 * @see org.eclipse.ui.forms.editor.FormEditor#addPages()
 	 */
 	@Override
@@ -70,7 +69,7 @@ public class ModuleSourceEditor extends FormEditor {
 
 			createModelFromInput(getEditorInput());
 
-			setActivePage(IDX_SOURCE_PAGE);
+			//setActivePage(IDX_SOURCE_PAGE);
 		} catch (final PartInitException e) {
 			GwtUi.logError("Problem creating sourc editor", e);
 		}
@@ -113,8 +112,9 @@ public class ModuleSourceEditor extends FormEditor {
 
 	/*
 	 * (non-Javadoc)
-	 * 
-	 * @see org.eclipse.ui.part.MultiPageEditorPart#createSite(org.eclipse.ui.IEditorPart)
+	 * @see
+	 * org.eclipse.ui.part.MultiPageEditorPart#createSite(org.eclipse.ui.IEditorPart
+	 * )
 	 */
 	@Override
 	protected IEditorSite createSite(final IEditorPart editor) {
@@ -140,8 +140,8 @@ public class ModuleSourceEditor extends FormEditor {
 
 	/*
 	 * (non-Javadoc)
-	 * 
-	 * @see org.eclipse.ui.part.EditorPart#doSave(org.eclipse.core.runtime.IProgressMonitor)
+	 * @seeorg.eclipse.ui.part.EditorPart#doSave(org.eclipse.core.runtime.
+	 * IProgressMonitor)
 	 */
 	@Override
 	public void doSave(final IProgressMonitor monitor) {
@@ -150,7 +150,6 @@ public class ModuleSourceEditor extends FormEditor {
 
 	/*
 	 * (non-Javadoc)
-	 * 
 	 * @see org.eclipse.ui.part.EditorPart#doSaveAs()
 	 */
 	@Override
@@ -160,17 +159,18 @@ public class ModuleSourceEditor extends FormEditor {
 
 	/*
 	 * (non-Javadoc)
-	 * 
 	 * @see org.eclipse.ui.part.MultiPageEditorPart#getAdapter(java.lang.Class)
 	 */
 	@Override
 	public Object getAdapter(final Class adapter) {
 		final Object result = super.getAdapter(adapter);
-		if (null != result)
+		if (null != result) {
 			return result;
+		}
 
-		if (((Class<?>) adapter).isAssignableFrom(ITextEditor.class))
+		if (((Class<?>) adapter).isAssignableFrom(ITextEditor.class)) {
 			return sourceEditor;
+		}
 
 		return result;
 	}
@@ -199,7 +199,6 @@ public class ModuleSourceEditor extends FormEditor {
 
 	/*
 	 * (non-Javadoc)
-	 * 
 	 * @see org.eclipse.ui.part.EditorPart#isSaveAsAllowed()
 	 */
 	@Override
@@ -223,7 +222,6 @@ public class ModuleSourceEditor extends FormEditor {
 
 	/*
 	 * (non-Javadoc)
-	 * 
 	 * @see org.eclipse.ui.part.EditorPart#setInput(org.eclipse.ui.IEditorInput)
 	 */
 	@Override

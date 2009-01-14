@@ -199,9 +199,13 @@ public class GwtProjectBuilder extends IncrementalProjectBuilder {
 				updateAsyncFiles(remoteServices, ProgressUtil.subProgressMonitor(monitor, 1));
 			}
 
-			// compile modules
-			monitor.subTask("Compiling modules ...");
-			compileProjectModules(gwtProject, projectModules, delta, ProgressUtil.subProgressMonitor(monitor, 1));
+			// compile modules if this is not an auto build
+			if ((kind != AUTO_BUILD) || GwtUtil.isAutoBuildModules(gwtProject)) {
+				monitor.subTask("Compiling modules ...");
+				compileProjectModules(gwtProject, projectModules, delta, ProgressUtil.subProgressMonitor(monitor, 1));
+			} else {
+				monitor.worked(1);
+			}
 
 			// check modules
 			monitor.subTask("Validating modules ...");
@@ -281,10 +285,6 @@ public class GwtProjectBuilder extends IncrementalProjectBuilder {
 	}
 
 	private void compileProjectModules(final GwtProject gwtProject, final GwtModule[] projectModules, final IResourceDelta delta, final IProgressMonitor monitor) throws CoreException {
-		if (!GwtUtil.isAutoBuildModules(gwtProject)) {
-			return;
-		}
-
 		// TODO we should be smart and support incremental builds
 		try {
 			new GwtProjectPublisher(gwtProject).runInWorkspace(monitor);

@@ -358,8 +358,8 @@ public class GwtProjectPublisher extends WorkspaceJob {
 		args.add("-out");
 		args.add(targetFolder.getLocation().toOSString());
 
-		// args.add("-style");
-		// args.add("PRETTY");
+		args.add("-style");
+		args.add(GwtUtil.getCompilerJavascriptStyle(module.getProject()));
 
 		args.add(module.getModuleId());
 
