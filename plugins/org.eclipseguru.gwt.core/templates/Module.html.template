@@ -16,12 +16,6 @@
 			a:visited{color:#551a8b}
 			a:active{color:#ff0000}
 		</style>
-
-		<!--                                           -->
-		<!-- The module reference below is the link    -->
-		<!-- between html and your Web Toolkit module  -->		
-		<!--                                           -->
-		<meta name='gwt:module' content='@basePackage.@className'>
 		
 	</head>
 
@@ -33,11 +27,11 @@
 	<body>
 
 		<!--                                            -->
-		<!-- This script is required bootstrap stuff.   -->
-		<!-- You can put it in the HEAD, but startup    -->
-		<!-- is slightly faster if you include it here. -->
+		<!-- The module script reference below is the   -->
+		<!-- link between html and your Web Toolkit     -->		
+		<!-- module.                                    -->
 		<!--                                            -->
-		<script language="javascript" src="gwt.js"></script>
+		<script language="javascript" src="@basePackage.@className.nocache.js"></script>
 
 		<!-- OPTIONAL: include this if you want history support -->
 		<iframe id="__gwt_historyFrame" style="width:0;height:0;border:0"></iframe>
