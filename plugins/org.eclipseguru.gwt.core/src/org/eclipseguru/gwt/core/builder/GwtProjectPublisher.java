@@ -151,9 +151,10 @@ public class GwtProjectPublisher extends WorkspaceJob {
 	/** project */
 	private final GwtProject project;
 
-	/**
-	 * @param name
-	 */
+	public GwtProjectPublisher(final GwtModule module) {
+		this(module.getProject());
+	}
+
 	public GwtProjectPublisher(final GwtProject project) {
 		super(MessageFormat.format("GWT Compiling and Publishing {0}", project.getName()));
 		this.project = project;
@@ -413,11 +414,10 @@ public class GwtProjectPublisher extends WorkspaceJob {
 					// we need a "smart" publish that just generates
 					// the (module.nocache.html)
 					// http://groups.google.com/group/Google-Web-Toolkit/browse_thread/thread/aa3a8d942e493c26/69a1a5689cb56e2b#69a1a5689cb56e2b
-					if (false) {
-						publishHostedModuleFull(module, targetFolder, ProgressUtil.subProgressMonitor(monitor, 1));
-					} else {
-						compileModule(gwtProject, module, targetFolder, ProgressUtil.subProgressMonitor(monitor, 1));
-					}
+					//if (false) {
+					//	publishHostedModuleFull(module, targetFolder, ProgressUtil.subProgressMonitor(monitor, 1));
+					//}
+					compileModule(gwtProject, module, targetFolder, ProgressUtil.subProgressMonitor(monitor, 1));
 
 				} else {
 					ResourceUtil.createProblem(gwtProject.getProjectResource(), NLS.bind("Could not resolve module ''{0}''.", module.getModuleId()));
@@ -461,38 +461,6 @@ public class GwtProjectPublisher extends WorkspaceJob {
 				}
 			});
 
-		} finally {
-			monitor.done();
-		}
-	}
-
-	/**
-	 * Publishes a module.
-	 * 
-	 * @param module
-	 * @param targetFolder
-	 * @param monitor
-	 * @throws CoreException
-	 * @deprecated this is no longer in use (it's much simpler now in GWT 1.4)
-	 */
-	@Deprecated
-	private void publishHostedModuleFull(final GwtModule module, final IFolder targetFolder, final IProgressMonitor monitor) throws CoreException {
-		// we need a "smart" publish that just generates
-		// the (module.nocache.html)
-		// http://groups.google.com/group/Google-Web-Toolkit/browse_thread/thread/aa3a8d942e493c26/69a1a5689cb56e2b#69a1a5689cb56e2b
-		if (module.isBinary()) {
-			return;
-		}
-
-		try {
-			monitor.beginTask(NLS.bind("Publishing {0}", module.getSimpleName()), 10);
-			final IResource resource = ((IFile) module.getModuleDescriptor()).getParent();
-			if ((null != resource) && (resource.getType() == IResource.FOLDER)) {
-				final IFolder publicFolder = ((IFolder) resource).getFolder(Constants.PUBLIC_FOLDER);
-				ResourceUtil.copyFolderContent(publicFolder, targetFolder.getFullPath(), ProgressUtil.subProgressMonitor(monitor, 1));
-			} else {
-				ResourceUtil.createProblem(targetFolder.getProject(), NLS.bind("Could not publish module ''{0}'' (invalid workspace resource).", module.getSimpleName()));
-			}
 		} finally {
 			monitor.done();
 		}

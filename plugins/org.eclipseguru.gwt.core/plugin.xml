@@ -199,5 +199,15 @@
           containerID="org.eclipseguru.gwt.core.classpath.container">
     </filteredClasspathContainer>
  </extension>
+ <extension
+       point="org.eclipse.ant.core.antTasks">
+    <antTask
+          class="org.eclipseguru.gwt.core.internal.ant.CompileGwtModuleTask"
+          eclipseRuntime="true"
+          headless="true"
+          library="gwt-anttasks.jar"
+          name="gwt.compilemodule">
+    </antTask>
+ </extension>
 
 </plugin>
