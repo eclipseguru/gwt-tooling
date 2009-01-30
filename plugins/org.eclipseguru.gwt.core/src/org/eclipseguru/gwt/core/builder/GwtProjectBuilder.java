@@ -199,8 +199,8 @@ public class GwtProjectBuilder extends IncrementalProjectBuilder {
 				updateAsyncFiles(remoteServices, ProgressUtil.subProgressMonitor(monitor, 1));
 			}
 
-			// compile modules if this is not an auto build
-			if ((kind != AUTO_BUILD) || GwtUtil.isAutoBuildModules(gwtProject)) {
+			// compile modules if enabled
+			if (GwtUtil.isAutoBuildModules(gwtProject)) {
 				monitor.subTask("Compiling modules ...");
 				compileProjectModules(gwtProject, projectModules, delta, ProgressUtil.subProgressMonitor(monitor, 1));
 			} else {
