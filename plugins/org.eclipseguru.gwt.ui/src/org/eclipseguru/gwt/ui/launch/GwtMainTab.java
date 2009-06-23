@@ -1,11 +1,11 @@
 /*******************************************************************************
  * Copyright (c) 2006, 2008 EclipseGuru and others.
  * All rights reserved.
- * 
- * This program and the accompanying materials are made available under the terms of the 
+ *
+ * This program and the accompanying materials are made available under the terms of the
  * Eclipse Public License v1.0 which accompanies this distribution, and is available at
  * http://www.eclipse.org/legal/epl-v10.html
- * 
+ *
  * Contributors:
  *     EclipseGuru - initial API and implementation
  *******************************************************************************/
@@ -31,7 +31,6 @@ import org.eclipse.debug.core.ILaunchConfiguration;
 import org.eclipse.debug.core.ILaunchConfigurationWorkingCopy;
 import org.eclipse.debug.ui.AbstractLaunchConfigurationTab;
 import org.eclipse.jdt.core.IJavaElement;
-import org.eclipse.jdt.internal.ui.util.PixelConverter;
 import org.eclipse.jdt.internal.ui.wizards.dialogfields.DialogField;
 import org.eclipse.jdt.internal.ui.wizards.dialogfields.IDialogFieldListener;
 import org.eclipse.jdt.internal.ui.wizards.dialogfields.IStringButtonAdapter;
@@ -42,6 +41,7 @@ import org.eclipse.jdt.internal.ui.wizards.dialogfields.StringDialogField;
 import org.eclipse.jdt.launching.IJavaLaunchConfigurationConstants;
 import org.eclipse.jface.dialogs.Dialog;
 import org.eclipse.jface.dialogs.ErrorDialog;
+import org.eclipse.jface.layout.PixelConverter;
 import org.eclipse.jface.viewers.ISelection;
 import org.eclipse.jface.viewers.IStructuredSelection;
 import org.eclipse.jface.window.Window;
@@ -93,8 +93,9 @@ public class GwtMainTab extends AbstractLaunchConfigurationTab implements GwtLau
 		private boolean restoreCustomUrl;
 
 		public void dialogFieldChanged(final DialogField field) {
-			if (inUpdate)
+			if (inUpdate) {
 				return;
+			}
 			try {
 				inUpdate = true;
 
@@ -135,8 +136,9 @@ public class GwtMainTab extends AbstractLaunchConfigurationTab implements GwtLau
 
 	/*
 	 * (non-Javadoc)
-	 * 
-	 * @see org.eclipse.debug.ui.ILaunchConfigurationTab#createControl(org.eclipse.swt.widgets.Composite)
+	 * @see
+	 * org.eclipse.debug.ui.ILaunchConfigurationTab#createControl(org.eclipse
+	 * .swt.widgets.Composite)
 	 */
 	public void createControl(final Composite parent) {
 		final Composite result = new Composite(parent, SWT.NONE);
@@ -241,8 +243,9 @@ public class GwtMainTab extends AbstractLaunchConfigurationTab implements GwtLau
 						final IJavaElement je = (IJavaElement) obj;
 						return je.getResource();
 					}
-					if (obj instanceof IResource)
+					if (obj instanceof IResource) {
 						return (IResource) obj;
+					}
 				}
 			}
 			final IEditorPart part = page.getActiveEditor();
@@ -256,7 +259,6 @@ public class GwtMainTab extends AbstractLaunchConfigurationTab implements GwtLau
 
 	/*
 	 * (non-Javadoc)
-	 * 
 	 * @see org.eclipse.debug.ui.AbstractLaunchConfigurationTab#getImage()
 	 */
 	@Override
@@ -266,7 +268,6 @@ public class GwtMainTab extends AbstractLaunchConfigurationTab implements GwtLau
 
 	/*
 	 * (non-Javadoc)
-	 * 
 	 * @see org.eclipse.debug.ui.ILaunchConfigurationTab#getName()
 	 */
 	public String getName() {
@@ -303,8 +304,9 @@ public class GwtMainTab extends AbstractLaunchConfigurationTab implements GwtLau
 
 	/*
 	 * (non-Javadoc)
-	 * 
-	 * @see org.eclipse.debug.ui.ILaunchConfigurationTab#initializeFrom(org.eclipse.debug.core.ILaunchConfiguration)
+	 * @see
+	 * org.eclipse.debug.ui.ILaunchConfigurationTab#initializeFrom(org.eclipse
+	 * .debug.core.ILaunchConfiguration)
 	 */
 	public void initializeFrom(final ILaunchConfiguration config) {
 		updateModuleFromConfig(config);
@@ -322,8 +324,9 @@ public class GwtMainTab extends AbstractLaunchConfigurationTab implements GwtLau
 	 * @param config
 	 */
 	private void initializeGwtModule(final GwtModule gwtModule, final ILaunchConfigurationWorkingCopy config) {
-		if (null == gwtModule)
+		if (null == gwtModule) {
 			return;
+		}
 
 		config.setAttribute(ATTR_PROJECT_NAME, gwtModule.getProjectName());
 		config.setAttribute(ATTR_MODULE_ID, gwtModule.getModuleId());
@@ -338,16 +341,18 @@ public class GwtMainTab extends AbstractLaunchConfigurationTab implements GwtLau
 	 * @param config
 	 */
 	private void initializeProject(final IProject project, final ILaunchConfigurationWorkingCopy config) {
-		if (null == project)
+		if (null == project) {
 			return;
+		}
 
 		config.setAttribute(ATTR_PROJECT_NAME, project.getName());
 	}
 
 	/*
 	 * (non-Javadoc)
-	 * 
-	 * @see org.eclipse.debug.ui.AbstractLaunchConfigurationTab#isValid(org.eclipse.debug.core.ILaunchConfiguration)
+	 * @see
+	 * org.eclipse.debug.ui.AbstractLaunchConfigurationTab#isValid(org.eclipse
+	 * .debug.core.ILaunchConfiguration)
 	 */
 	@Override
 	public boolean isValid(final ILaunchConfiguration launchConfig) {
@@ -436,8 +441,9 @@ public class GwtMainTab extends AbstractLaunchConfigurationTab implements GwtLau
 
 	/*
 	 * (non-Javadoc)
-	 * 
-	 * @see org.eclipse.debug.ui.ILaunchConfigurationTab#performApply(org.eclipse.debug.core.ILaunchConfigurationWorkingCopy)
+	 * @see
+	 * org.eclipse.debug.ui.ILaunchConfigurationTab#performApply(org.eclipse
+	 * .debug.core.ILaunchConfigurationWorkingCopy)
 	 */
 	public void performApply(final ILaunchConfigurationWorkingCopy config) {
 		config.setAttribute(ATTR_MODULE_ID, moduleDialogField.getText());
@@ -454,8 +460,9 @@ public class GwtMainTab extends AbstractLaunchConfigurationTab implements GwtLau
 
 	/*
 	 * (non-Javadoc)
-	 * 
-	 * @see org.eclipse.debug.ui.ILaunchConfigurationTab#setDefaults(org.eclipse.debug.core.ILaunchConfigurationWorkingCopy)
+	 * @see
+	 * org.eclipse.debug.ui.ILaunchConfigurationTab#setDefaults(org.eclipse.
+	 * debug.core.ILaunchConfigurationWorkingCopy)
 	 */
 	public void setDefaults(final ILaunchConfigurationWorkingCopy config) {
 		// empty defaults
@@ -468,12 +475,13 @@ public class GwtMainTab extends AbstractLaunchConfigurationTab implements GwtLau
 
 		// do we have a context?
 		final IResource resource = getContext();
-		if (null != resource)
+		if (null != resource) {
 			if (GwtUtil.isModuleDescriptor(resource)) {
 				initializeGwtModule(GwtCore.create((IFile) resource), config);
 			} else {
 				initializeProject(resource.getProject(), config);
 			}
+		}
 	}
 
 	/**
