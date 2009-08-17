@@ -111,13 +111,13 @@
 				label="Compile and Publish"
 				menubarPath="org.eclipseguru.gwt.ui.menu.tools/build" />
 			<action
-				class="org.eclipseguru.gwt.ui.actions.UpdateJREContainerAccessRulesAction"
+				class="org.eclipseguru.gwt.ui.actions.UpdateProjectBuildPathAction"
 				enablesFor="1"
 				id="org.eclipseguru.gwt.ui.actions.updateProjectBuildPath"
 				label="Add GWT to Build Path"
 				menubarPath="org.eclipseguru.gwt.ui.menu.tools/admin" />
 			<action
-				class="org.eclipseguru.gwt.ui.actions.UpdateProjectBuildPathAction"
+				class="org.eclipseguru.gwt.ui.actions.UpdateJREContainerAccessRulesAction"
 				enablesFor="1"
 				id="org.eclipseguru.gwt.ui.actions.updateJREContainerAccessRules"
 				label="Update JRE Access Rules"
