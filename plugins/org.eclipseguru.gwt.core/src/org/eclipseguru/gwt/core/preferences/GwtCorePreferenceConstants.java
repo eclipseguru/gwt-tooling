@@ -38,9 +38,6 @@ public interface GwtCorePreferenceConstants {
 	/** PREF_VM_ARGS */
 	String PREF_COMPILER_VM_ARGS = "compilerVmArgs";
 
-	/** PREF_VM_ARGS */
-	String DEFAULT_COMPILER_VM_ARGS = "-Xmx512m";
-
 	/**
 	 * PREF_COMPILER_STYLE
 	 * 

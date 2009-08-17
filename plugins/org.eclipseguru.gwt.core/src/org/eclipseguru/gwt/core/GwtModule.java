@@ -1,11 +1,11 @@
 /*******************************************************************************
  * Copyright (c) 2006, 2008 EclipseGuru and others.
  * All rights reserved.
- * 
- * This program and the accompanying materials are made available under the terms of the 
+ *
+ * This program and the accompanying materials are made available under the terms of the
  * Eclipse Public License v1.0 which accompanies this distribution, and is available at
  * http://www.eclipse.org/legal/epl-v10.html
- * 
+ *
  * Contributors:
  *     EclipseGuru - initial API and implementation
  *     dobesv - contributed patch for issue 58
@@ -263,6 +263,22 @@ public class GwtModule extends GwtElement {
 		// resolve modules
 		final GwtModule[] resolvedModules = GwtModelManager.findModules(inheritedModuleIds, getProject());
 		return null != resolvedModules ? resolvedModules : GwtModelManager.NO_MODULES;
+	}
+
+	/**
+	 * Returns the optional alternate module name.
+	 * <p>
+	 * The alternate module name is defined in the module descriptor on the
+	 * <code>module</code> element using the <code>rename-to</code> attribute.
+	 * It will be used for renaming modules at deploy/compile time.
+	 * </p>
+	 * 
+	 * @return the optional alternate module name (maybe <code>null</code> if
+	 *         not defined)
+	 * @throws GwtModelException
+	 */
+	public String getAlternateName() throws GwtModelException {
+		return getModuleSourceInfo().getAlternateModuleName();
 	}
 
 	/**

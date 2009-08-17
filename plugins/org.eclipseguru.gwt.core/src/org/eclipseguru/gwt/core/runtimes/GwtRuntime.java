@@ -1,11 +1,11 @@
 /*******************************************************************************
  * Copyright (c) 2006, 2008 EclipseGuru and others.
  * All rights reserved.
- * 
- * This program and the accompanying materials are made available under the terms of the 
+ *
+ * This program and the accompanying materials are made available under the terms of the
  * Eclipse Public License v1.0 which accompanies this distribution, and is available at
  * http://www.eclipse.org/legal/epl-v10.html
- * 
+ *
  * Contributors:
  *     EclipseGuru - initial API and implementation
  *******************************************************************************/
@@ -23,8 +23,11 @@ import org.eclipse.jdt.core.JavaCore;
  */
 public class GwtRuntime {
 
+	/** STRINGS */
+	private static final String[] DEFAULT_VMARGS_MACOSX = new String[] { "-XstartOnFirstThread", "-Xmx256m" };
+
 	/** NO_VMARGS */
-	private static final String[] NO_VMARGS = new String[0];
+	private static final String[] DEFAULT_VMARGS = new String[] { "-Xmx256m" };
 
 	/** NO_ATTRIBUTES */
 	private static final IClasspathAttribute[] NO_ATTRIBUTES = new IClasspathAttribute[0];
@@ -96,9 +99,9 @@ public class GwtRuntime {
 	 */
 	public String[] getGwtRuntimeVmArgs() {
 		if (MACOSX) {
-			return new String[] { "-XstartOnFirstThread" };
+			return DEFAULT_VMARGS_MACOSX;
 		}
-		return NO_VMARGS;
+		return DEFAULT_VMARGS;
 	}
 
 	/**

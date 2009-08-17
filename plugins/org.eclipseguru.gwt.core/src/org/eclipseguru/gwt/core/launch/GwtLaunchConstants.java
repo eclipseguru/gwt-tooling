@@ -1,11 +1,11 @@
 /*******************************************************************************
  * Copyright (c) 2006, 2008 EclipseGuru and others.
  * All rights reserved.
- * 
- * This program and the accompanying materials are made available under the terms of the 
+ *
+ * This program and the accompanying materials are made available under the terms of the
  * Eclipse Public License v1.0 which accompanies this distribution, and is available at
  * http://www.eclipse.org/legal/epl-v10.html
- * 
+ *
  * Contributors:
  *     EclipseGuru - initial API and implementation
  *******************************************************************************/
@@ -64,6 +64,12 @@ public interface GwtLaunchConstants {
 	 * id to launch.
 	 */
 	int ERR_UNSPECIFIED_MODULE_ID = -101;
+
+	/**
+	 * Status code indicating a launch configuration specifies a module which
+	 * could not be found in the project it specifies.
+	 */
+	int ERR_MODULE_NOT_FOUND = -102;
 
 	/**
 	 * The available values for the {@link #ATTR_LOG_LEVEL log level attribute}

@@ -1,17 +1,18 @@
 /*******************************************************************************
  * Copyright (c) 2006, 2008 EclipseGuru and others.
  * All rights reserved.
- * 
- * This program and the accompanying materials are made available under the terms of the 
+ *
+ * This program and the accompanying materials are made available under the terms of the
  * Eclipse Public License v1.0 which accompanies this distribution, and is available at
  * http://www.eclipse.org/legal/epl-v10.html
- * 
+ *
  * Contributors:
  *     EclipseGuru - initial API and implementation
  *******************************************************************************/
 package org.eclipseguru.gwt.core.launch;
 
 import org.eclipseguru.gwt.core.GwtCore;
+import org.eclipseguru.gwt.core.GwtModelException;
 import org.eclipseguru.gwt.core.GwtModule;
 import org.eclipseguru.gwt.core.GwtProject;
 import org.eclipseguru.gwt.core.GwtUtil;
@@ -111,17 +112,39 @@ public class GwtLaunchUtil implements GwtLaunchConstants {
 	/**
 	 * Returns a default URL for the module with the specified id.
 	 * <p>
-	 * Note, the URL is not guaranteed to work on all systems and for all module
-	 * ids.
+	 * Note, the URL is not guaranteed to work on all systems and for all
+	 * modules.
 	 * </p>
 	 * 
-	 * @param moduleId
-	 *            the module id
+	 * @param module
+	 *            the GWT module
 	 * @return the default URL (maybe <code>null</code> if the specified module
-	 *         id was <code>null</code>)
+	 *         was <code>null</code>)
+	 * @throws CoreException
 	 */
-	public static String computeDefaultUrl(final String moduleId) {
-		return moduleId + "/" + GwtUtil.getSimpleName(moduleId) + ".html";
+	public static String computeDefaultUrl(final GwtModule module) throws CoreException {
+		if (null == module) {
+			return null;
+		}
+		final String alternateName = module.getAlternateName();
+		if ((null != alternateName) && (alternateName.trim().length() > 0)) {
+			return alternateName + "/" + module.getSimpleName() + ".html";
+		}
+
+		return module.getModuleId() + "/" + module.getSimpleName() + ".html";
+	}
+
+	private static String computeStartupUrl(final ILaunchConfiguration configuration, final GwtProject project, final String moduleId) throws CoreException, GwtModelException {
+		final boolean customUrl = getCustomUrl(configuration);
+		String url = customUrl ? getUrl(configuration) : null;
+		if ((null == url) || (url.trim().length() == 0)) {
+			final GwtModule module = project.getModule(moduleId);
+			if (module == null) {
+				abort("Module not found", null, GwtLaunchConstants.ERR_UNSPECIFIED_MODULE_ID);
+			}
+			url = computeDefaultUrl(module);
+		}
+		return url;
 	}
 
 	/**
@@ -199,6 +222,7 @@ public class GwtLaunchUtil implements GwtLaunchConstants {
 
 		// read project settings
 		final GwtProject project = verifyProject(configuration);
+		final String moduleId = verifyModuleId(configuration);
 		final IPath outputLocation = GwtUtil.getOutputLocation(project);
 		final IFolder targetFolder = project.getProjectResource().getFolder(outputLocation);
 
@@ -230,18 +254,16 @@ public class GwtLaunchUtil implements GwtLaunchConstants {
 			args.add(targetFolder.getLocation().append(".gen").toOSString());
 
 			// output folder
-			args.add("-out");
+			args.add("-war");
 			args.add(targetFolder.getLocation().toOSString());
 		}
 
 		// url
-		final boolean customUrl = getCustomUrl(configuration);
-		String url = customUrl ? getUrl(configuration) : null;
-		if ((null == url) || (url.trim().length() == 0)) {
-			final String moduleId = verifyModuleId(configuration);
-			url = computeDefaultUrl(moduleId);
-		}
-		args.add(url);
+		args.add("-startupUrl");
+		args.add(computeStartupUrl(configuration, project, moduleId));
+
+		// module id
+		args.add(moduleId);
 
 		return args.toArray(new String[args.size()]);
 	}

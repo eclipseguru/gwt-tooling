@@ -33,6 +33,9 @@ import org.eclipse.wst.common.project.facet.core.ProjectFacetsManager;
  */
 public class GwtUtil {
 
+	/** NO_VMARGS */
+	private static final String NO_VMARGS = "";//$NON-NLS-1$
+
 	/** DEFAULT_PACKAGE */
 	private static final String DEFAULT_PACKAGE_NAME = ""; //$NON-NLS-1$
 
@@ -79,10 +82,10 @@ public class GwtUtil {
 	public static String getCompilerVmArgs(final GwtProject project) {
 		final IEclipsePreferences projectPreferences = project.getProjectPreferences();
 		if (null == projectPreferences) {
-			return GwtCorePreferenceConstants.DEFAULT_COMPILER_VM_ARGS;
+			return NO_VMARGS;
 		}
 
-		return projectPreferences.get(GwtCorePreferenceConstants.PREF_COMPILER_VM_ARGS, GwtCorePreferenceConstants.DEFAULT_COMPILER_VM_ARGS);
+		return projectPreferences.get(GwtCorePreferenceConstants.PREF_COMPILER_VM_ARGS, NO_VMARGS);
 	}
 
 	/**

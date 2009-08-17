@@ -1,11 +1,11 @@
 /*******************************************************************************
  * Copyright (c) 2006, 2008 EclipseGuru and others.
  * All rights reserved.
- * 
- * This program and the accompanying materials are made available under the terms of the 
+ *
+ * This program and the accompanying materials are made available under the terms of the
  * Eclipse Public License v1.0 which accompanies this distribution, and is available at
  * http://www.eclipse.org/legal/epl-v10.html
- * 
+ *
  * Contributors:
  *     EclipseGuru - initial API and implementation
  *     dobesv - contributed patch for issue 58
@@ -61,14 +61,6 @@ public class GwtModuleSourceHandler extends DefaultHandler {
 		 * All serializable objects should have a stable serialVersionUID
 		 */
 		private static final long serialVersionUID = 1L;
-
-		/**
-		 * Constructs an instance of <code>StopParsingException</code> with a
-		 * <code>null</code> detail message.
-		 */
-		public StopParsingException() {
-			super((String) null);
-		}
 	}
 
 	/** default source path */
@@ -88,6 +80,7 @@ public class GwtModuleSourceHandler extends DefaultHandler {
 	static final String ATTR_CLASS = "class"; //$NON-NLS-1$
 	static final String ATTR_SRC = "src"; //$NON-NLS-1$
 	static final String ATTR_VALUES = "values"; //$NON-NLS-1$
+	static final String ATTR_RENAME_TO = "rename-to"; //$NON-NLS-1$
 
 	private SAXParserFactory factory;
 	private int level = -1;
@@ -95,6 +88,8 @@ public class GwtModuleSourceHandler extends DefaultHandler {
 	private String entryPointClass;
 	private final List<String> inheritedModules = new ArrayList<String>(4);
 	private final List<String> sourcePaths = new ArrayList<String>();
+
+	private String alternateModuleName;
 
 	/**
 	 * Creates a new SAX parser for use within this instance.
@@ -133,6 +128,13 @@ public class GwtModuleSourceHandler extends DefaultHandler {
 	public void endElement(final String uri, final String localName, final String qName) throws SAXException {
 		super.endElement(uri, localName, qName);
 		level--;
+	}
+
+	/**
+	 * @return the alternateModuleName
+	 */
+	public String getAlternateModuleName() {
+		return alternateModuleName;
 	}
 
 	/**
@@ -189,10 +191,6 @@ public class GwtModuleSourceHandler extends DefaultHandler {
 		return true;
 	}
 
-	/**
-	 * @param attributes
-	 * @throws InvalidModuleSourceException
-	 */
 	private void processEntryPoint(final Attributes attributes) throws InvalidModuleSourceException {
 		if (null != entryPointClass) {
 			throw new InvalidModuleSourceException("entry point defined more than once");
@@ -200,9 +198,6 @@ public class GwtModuleSourceHandler extends DefaultHandler {
 		entryPointClass = attributes.getValue(ATTR_CLASS);
 	}
 
-	/**
-	 * @param attributes
-	 */
 	private void processInherits(final Attributes attributes) {
 		final String moduleId = attributes.getValue(ATTR_NAME);
 		if (null != moduleId) {
@@ -210,9 +205,13 @@ public class GwtModuleSourceHandler extends DefaultHandler {
 		}
 	}
 
-	/**
-	 * @param attributes
-	 */
+	private void processModule(final Attributes attributes) throws InvalidModuleSourceException {
+		if (null != alternateModuleName) {
+			throw new InvalidModuleSourceException("rename-to defined more than once");
+		}
+		alternateModuleName = attributes.getValue(ATTR_RENAME_TO);
+	}
+
 	private void processSource(final Attributes attributes) {
 		final String sourcePath = attributes.getValue(ATTR_PATH);
 		if (null != sourcePath) {
@@ -232,11 +231,6 @@ public class GwtModuleSourceHandler extends DefaultHandler {
 		return new InputSource(new StringReader("")); //$NON-NLS-1$
 	}
 
-	/*
-	 * (non-Javadoc)
-	 * @see org.xml.sax.ContentHandler#startElement(java.lang.String,
-	 * java.lang.String, java.lang.String, org.xml.sax.Attributes)
-	 */
 	@Override
 	public final void startElement(final String uri, final String elementName, final String qualifiedName, final Attributes attributes) throws SAXException {
 		level++;
@@ -246,6 +240,7 @@ public class GwtModuleSourceHandler extends DefaultHandler {
 				if (!ELEM_MODULE.equals(elementName)) {
 					throw new InvalidModuleSourceException(MessageFormat.format("Root element is not ''{0}''.", ELEM_MODULE));
 				}
+				processModule(attributes);
 				break;
 
 			case 1:
@@ -257,12 +252,6 @@ public class GwtModuleSourceHandler extends DefaultHandler {
 					processSource(attributes);
 				}
 				break;
-
-			default:
-				// avoid compile warnings
-				if (false) {
-					throw new StopParsingException();
-				}
 		}
 	}
 }

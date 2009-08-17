@@ -1,11 +1,11 @@
 /*******************************************************************************
  * Copyright (c) 2006, 2008 EclipseGuru and others.
  * All rights reserved.
- * 
- * This program and the accompanying materials are made available under the terms of the 
+ *
+ * This program and the accompanying materials are made available under the terms of the
  * Eclipse Public License v1.0 which accompanies this distribution, and is available at
  * http://www.eclipse.org/legal/epl-v10.html
- * 
+ *
  * Contributors:
  *     EclipseGuru - initial API and implementation
  *******************************************************************************/
@@ -608,7 +608,12 @@ public class ProjectProperties extends PropertyPage implements IWorkbenchPropert
 		projectPreferences.put(GwtCorePreferenceConstants.PREF_DEPLOYMENT_PATH, deploymentPath.makeAbsolute().toString());
 
 		// VM arguments
-		projectPreferences.put(GwtCorePreferenceConstants.PREF_COMPILER_VM_ARGS, getCompilerVmArgs());
+		final String compilerVmArgs = getCompilerVmArgs();
+		if ((null != compilerVmArgs) && (compilerVmArgs.trim().length() > 0)) {
+			projectPreferences.put(GwtCorePreferenceConstants.PREF_COMPILER_VM_ARGS, compilerVmArgs);
+		} else {
+			projectPreferences.remove(GwtCorePreferenceConstants.PREF_COMPILER_VM_ARGS);
+		}
 
 		// style
 		projectPreferences.put(GwtCorePreferenceConstants.PREF_COMPILER_JAVASCRIPT_STYLE, getCompilerJavascriptStyle());

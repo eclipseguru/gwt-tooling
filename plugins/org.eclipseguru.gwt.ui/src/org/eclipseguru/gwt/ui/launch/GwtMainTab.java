@@ -115,7 +115,27 @@ public class GwtMainTab extends AbstractLaunchConfigurationTab implements GwtLau
 
 				// we update this all the time (just to keep it in sync)
 				if (initialized && !customUrlDialogField.isSelected()) {
-					urlDialogField.setTextWithoutUpdate(GwtLaunchUtil.computeDefaultUrl(moduleDialogField.getText()));
+					urlDialogField.setTextWithoutUpdate("");
+					final String projectName = projectDialogField.getText();
+					if (projectName.trim().length() > 0) {
+						final IProject project = ResourcesPlugin.getWorkspace().getRoot().getProject(projectName);
+						if (project.exists()) {
+							// get module
+							final String moduleId = moduleDialogField.getText();
+							if (moduleId.trim().length() > 0) {
+								try {
+									final GwtProject gwtProject = GwtCore.create(project);
+									final GwtModule module = gwtProject.getModule(moduleId);
+									if (null != module) {
+										urlDialogField.setTextWithoutUpdate(GwtLaunchUtil.computeDefaultUrl(module));
+									}
+								} catch (final CoreException e) {
+									urlDialogField.setTextWithoutUpdate("Error: " + e.getMessage());
+								}
+							}
+						}
+					}
+
 				}
 
 				updateLaunchConfigurationDialog();

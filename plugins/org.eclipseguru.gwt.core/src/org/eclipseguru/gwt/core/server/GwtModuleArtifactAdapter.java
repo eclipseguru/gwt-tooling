@@ -1,11 +1,11 @@
 /*******************************************************************************
  * Copyright (c) 2006, 2008 EclipseGuru and others.
  * All rights reserved.
- * 
- * This program and the accompanying materials are made available under the terms of the 
+ *
+ * This program and the accompanying materials are made available under the terms of the
  * Eclipse Public License v1.0 which accompanies this distribution, and is available at
  * http://www.eclipse.org/legal/epl-v10.html
- * 
+ *
  * Contributors:
  *     EclipseGuru - initial API and implementation
  *******************************************************************************/
@@ -18,6 +18,7 @@ import org.eclipseguru.gwt.core.launch.GwtLaunchUtil;
 
 import org.eclipse.core.resources.IFile;
 import org.eclipse.core.resources.IProject;
+import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IAdaptable;
 import org.eclipse.core.runtime.IPath;
 import org.eclipse.wst.server.core.IModule;
@@ -37,44 +38,52 @@ public class GwtModuleArtifactAdapter extends ModuleArtifactAdapterDelegate {
 	 * @return
 	 */
 	protected static IModule getWebModule(final IProject project) {
-		if (null == project)
+		if (null == project) {
 			return null;
+		}
 
 		final IModule[] modules = ServerUtil.getModules("jst.web");
-		if ((null == modules) || (modules.length == 0))
+		if ((null == modules) || (modules.length == 0)) {
 			return null;
-		for (final IModule module : modules)
-			if (project.equals(module.getProject()))
+		}
+		for (final IModule module : modules) {
+			if (project.equals(module.getProject())) {
 				return module;
+			}
+		}
 		return null;
 	}
 
-	/*
-	 * (non-Javadoc)
-	 * 
-	 * @see org.eclipse.wst.server.core.model.ModuleArtifactAdapterDelegate#getModuleArtifact(java.lang.Object)
-	 */
 	@Override
 	public IModuleArtifact getModuleArtifact(final Object obj) {
-		if (!(obj instanceof IAdaptable))
+		if (!(obj instanceof IAdaptable)) {
 			return null;
+		}
 
 		final IFile file = (IFile) ((IAdaptable) obj).getAdapter(IFile.class);
-		if (null == file)
+		if (null == file) {
 			return null;
+		}
 
-		if (!GwtUtil.isModuleDescriptor(file))
+		if (!GwtUtil.isModuleDescriptor(file)) {
 			return null;
+		}
 
 		final GwtModule gwtModule = GwtCore.create(file);
-		if (null == gwtModule)
+		if (null == gwtModule) {
 			return null;
+		}
 
 		final IModule webModule = getWebModule(gwtModule.getProjectResource());
-		if (null == webModule)
+		if (null == webModule) {
 			return null;
+		}
 
-		final IPath path = GwtUtil.getDeploymentPath(gwtModule.getProject()).append(GwtLaunchUtil.computeDefaultUrl(gwtModule.getModuleId()));
-		return new GwtBrowserResource(webModule, path, gwtModule);
+		try {
+			final IPath path = GwtUtil.getDeploymentPath(gwtModule.getProject()).append(GwtLaunchUtil.computeDefaultUrl(gwtModule));
+			return new GwtBrowserResource(webModule, path, gwtModule);
+		} catch (final CoreException e) {
+			return null;
+		}
 	}
 }

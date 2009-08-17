@@ -1,11 +1,11 @@
 /*******************************************************************************
  * Copyright (c) 2006, 2008 EclipseGuru and others.
  * All rights reserved.
- * 
- * This program and the accompanying materials are made available under the terms of the 
+ *
+ * This program and the accompanying materials are made available under the terms of the
  * Eclipse Public License v1.0 which accompanies this distribution, and is available at
  * http://www.eclipse.org/legal/epl-v10.html
- * 
+ *
  * Contributors:
  *     EclipseGuru - initial API and implementation
  *     dobesv - contributed patch for issue 58
@@ -356,7 +356,7 @@ public class GwtProjectPublisher extends WorkspaceJob {
 		args.add("-gen");
 		args.add(targetFolder.getLocation().append(".gen").toOSString());
 
-		args.add("-out");
+		args.add("-war");
 		args.add(targetFolder.getLocation().toOSString());
 
 		args.add("-style");
@@ -376,7 +376,21 @@ public class GwtProjectPublisher extends WorkspaceJob {
 	 * @throws CoreException
 	 */
 	private String[] prepareGwtCompilerVmArguments(final GwtModule module) throws CoreException {
-		return DebugPlugin.parseArguments(VariablesPlugin.getDefault().getStringVariableManager().performStringSubstitution(GwtUtil.getCompilerVmArgs(module.getProject())));
+		final List<String> vmArgs = new ArrayList<String>();
+
+		// configured arguments first
+		vmArgs.addAll(Arrays.asList(DebugPlugin.parseArguments(VariablesPlugin.getDefault().getStringVariableManager().performStringSubstitution(GwtUtil.getCompilerVmArgs(module.getProject())))));
+
+		// GWT runtime entries only if not already present
+		final GwtRuntime runtime = GwtCore.getRuntime(module.getProject());
+		final String[] runtimeVmArgs = runtime.getGwtRuntimeVmArgs();
+		for (final String arg : runtimeVmArgs) {
+			if (!vmArgs.contains(arg)) {
+				vmArgs.add(arg);
+			}
+		}
+
+		return vmArgs.toArray(new String[vmArgs.size()]);
 	}
 
 	/**
