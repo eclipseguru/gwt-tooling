@@ -1,11 +1,11 @@
 /*******************************************************************************
  * Copyright (c) 2006, 2008 EclipseGuru and others.
  * All rights reserved.
- * 
- * This program and the accompanying materials are made available under the terms of the 
+ *
+ * This program and the accompanying materials are made available under the terms of the
  * Eclipse Public License v1.0 which accompanies this distribution, and is available at
  * http://www.eclipse.org/legal/epl-v10.html
- * 
+ *
  * Contributors:
  *     EclipseGuru - initial API and implementation
  *******************************************************************************/
@@ -45,9 +45,6 @@ public class GwtUtil {
 	/** GWT_MODULE_SOURCE_EXTENSION */
 	public static final String GWT_MODULE_SOURCE_EXTENSION = ".gwt.xml"; //$NON-NLS-1$
 
-	/** NO_VM_ARGS */
-	private static final String NO_VM_ARGS = ""; //$NON-NLS-1$
-
 	/**
 	 * Returns the GWT compiler style for the specified project.
 	 * <p>
@@ -82,10 +79,10 @@ public class GwtUtil {
 	public static String getCompilerVmArgs(final GwtProject project) {
 		final IEclipsePreferences projectPreferences = project.getProjectPreferences();
 		if (null == projectPreferences) {
-			return NO_VM_ARGS;
+			return GwtCorePreferenceConstants.DEFAULT_COMPILER_VM_ARGS;
 		}
 
-		return projectPreferences.get(GwtCorePreferenceConstants.PREF_COMPILER_VM_ARGS, NO_VM_ARGS);
+		return projectPreferences.get(GwtCorePreferenceConstants.PREF_COMPILER_VM_ARGS, GwtCorePreferenceConstants.DEFAULT_COMPILER_VM_ARGS);
 	}
 
 	/**

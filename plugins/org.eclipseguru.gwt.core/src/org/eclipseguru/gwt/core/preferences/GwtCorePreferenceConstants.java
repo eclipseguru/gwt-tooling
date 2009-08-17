@@ -1,11 +1,11 @@
 /*******************************************************************************
  * Copyright (c) 2006, 2008 EclipseGuru and others.
  * All rights reserved.
- * 
- * This program and the accompanying materials are made available under the terms of the 
+ *
+ * This program and the accompanying materials are made available under the terms of the
  * Eclipse Public License v1.0 which accompanies this distribution, and is available at
  * http://www.eclipse.org/legal/epl-v10.html
- * 
+ *
  * Contributors:
  *     EclipseGuru - initial API and implementation
  *******************************************************************************/
@@ -37,6 +37,9 @@ public interface GwtCorePreferenceConstants {
 
 	/** PREF_VM_ARGS */
 	String PREF_COMPILER_VM_ARGS = "compilerVmArgs";
+
+	/** PREF_VM_ARGS */
+	String DEFAULT_COMPILER_VM_ARGS = "-Xmx512m";
 
 	/**
 	 * PREF_COMPILER_STYLE

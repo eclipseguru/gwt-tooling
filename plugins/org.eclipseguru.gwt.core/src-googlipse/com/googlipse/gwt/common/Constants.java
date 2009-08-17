@@ -1,13 +1,13 @@
 /*
  * Copyright 2006 TG. (techieguy@gmail.com)
  * Copyright 2006 Eclipse Guru (eclipseguru@gmail.com)
- * 
+ *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
- * 
+ *
  *     http://www.apache.org/licenses/LICENSE-2.0
- * 
+ *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -37,7 +37,7 @@ public class Constants {
 	public static final int UNEXPECTED_ERROR = 50001;
 
 	public static final String GWT_SHELL_CLASS = "com.google.gwt.dev.GWTShell";
-	public static final String GWT_COMPILER_CLASS = "com.google.gwt.dev.GWTCompiler";
+	public static final String GWT_COMPILER_CLASS = "com.google.gwt.dev.Compiler";
 
 	public static final String GWT_XML_EXT = "gwt.xml";
 

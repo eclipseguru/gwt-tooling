@@ -2,7 +2,7 @@ Manifest-Version: 1.0
 Bundle-ManifestVersion: 2
 Bundle-Name: GWT Tooling Core
 Bundle-SymbolicName: org.eclipseguru.gwt.core;singleton:=true
-Bundle-Version: 1.5.7.qualifier
+Bundle-Version: 1.6.0.qualifier
 Bundle-Activator: org.eclipseguru.gwt.core.GwtCore
 Bundle-Vendor: EclipseGuru
 Require-Bundle: org.eclipse.core.runtime,
