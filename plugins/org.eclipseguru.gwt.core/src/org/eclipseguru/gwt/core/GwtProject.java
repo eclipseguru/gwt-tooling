@@ -1,17 +1,16 @@
 /*******************************************************************************
  * Copyright (c) 2006, 2008 EclipseGuru and others.
  * All rights reserved.
- * 
- * This program and the accompanying materials are made available under the terms of the 
+ *
+ * This program and the accompanying materials are made available under the terms of the
  * Eclipse Public License v1.0 which accompanies this distribution, and is available at
  * http://www.eclipse.org/legal/epl-v10.html
- * 
+ *
  * Contributors:
  *     EclipseGuru - initial API and implementation
  *******************************************************************************/
 package org.eclipseguru.gwt.core;
 
-import org.eclipseguru.gwt.core.facet.GwtFacetConstants;
 import org.eclipseguru.gwt.core.preferences.GwtCorePreferenceConstants;
 
 import org.eclipse.core.resources.IFile;
@@ -36,8 +35,6 @@ import org.eclipse.jdt.core.JavaCore;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.StringTokenizer;
-
-import com.googlipse.gwt.common.Constants;
 
 /**
  * A GWT Project
@@ -77,19 +74,6 @@ public class GwtProject extends GwtElement {
 	}
 
 	/**
-	 * Indicates if a project has the
-	 * {@value GwtFacetConstants#FACET_ID_GWT_MODULE} facet assigned.
-	 * 
-	 * @param project
-	 * @return <code>true</code> if a project has the
-	 *         {@value GwtFacetConstants#FACET_ID_GWT_MODULE} facet assigned,
-	 *         <code>false</code> otherwise
-	 */
-	public static boolean hasGwtModuleFacet(final IProject project) {
-		return GwtUtil.hasFacet(project, GwtFacetConstants.FACET_ID_GWT_MODULE);
-	}
-
-	/**
 	 * Indicates if the project is a valid GWT project, i.e. has the GWT nature
 	 * attached and enabled.
 	 * 
@@ -98,27 +82,15 @@ public class GwtProject extends GwtElement {
 	 *         <code>false</code> otherwise
 	 */
 	public static boolean hasGwtNature(final IProject project) {
-		if (!project.isAccessible())
+		if (!project.isAccessible()) {
 			return false;
+		}
 		try {
 			return project.isNatureEnabled(GwtCore.NATURE_ID);
 		} catch (final CoreException e) {
 			// project is closed or does not exists
 			return false;
 		}
-	}
-
-	/**
-	 * Indicates if a project has the
-	 * {@value GwtFacetConstants#FACET_ID_GWT_WEB} facet assigned.
-	 * 
-	 * @param project
-	 * @return <code>true</code> if a project has the
-	 *         {@value GwtFacetConstants#FACET_ID_GWT_WEB} facet assigned,
-	 *         <code>false</code> otherwise
-	 */
-	public static boolean hasGwtWebFacet(final IProject project) {
-		return GwtUtil.hasFacet(project, GwtFacetConstants.FACET_ID_GWT_WEB);
 	}
 
 	/** project */
@@ -185,7 +157,7 @@ public class GwtProject extends GwtElement {
 	protected GwtModule[] findIncludedModules() {
 		final IWorkspaceRoot root = ResourcesPlugin.getWorkspace().getRoot();
 		final GwtModel model = (GwtModel) getParent();
-		final IEclipsePreferences preferences = new ProjectScope(project).getNode(Constants.PLUGIN_ID);
+		final IEclipsePreferences preferences = new ProjectScope(project).getNode(GwtCore.PLUGIN_ID);
 		final List<GwtModule> modules = new ArrayList<GwtModule>(5);
 		final String includedModulesString = preferences.get(GwtCorePreferenceConstants.PREF_INCLUDED_MODULES, null);
 		if (null != includedModulesString) {
@@ -264,20 +236,22 @@ public class GwtProject extends GwtElement {
 	}
 
 	/**
-	 * Returns the module with the specified id, returns <code>null</code> if
-	 * no such module could be found in this project.
+	 * Returns the module with the specified id, returns <code>null</code> if no
+	 * such module could be found in this project.
 	 * 
 	 * @param moduleId
-	 * @return the module with the specified id or <code>null</code> if no
-	 *         such module could be found in this project.
+	 * @return the module with the specified id or <code>null</code> if no such
+	 *         module could be found in this project.
 	 * @throws GwtModelException
 	 *             if an error occured while accessing the project
 	 */
 	public GwtModule getModule(final String moduleId) throws GwtModelException {
 		final GwtModule[] modules = getModules();
-		for (final GwtModule module : modules)
-			if (module.getModuleId().equals(moduleId))
+		for (final GwtModule module : modules) {
+			if (module.getModuleId().equals(moduleId)) {
 				return module;
+			}
+		}
 		return null;
 	}
 
@@ -318,9 +292,10 @@ public class GwtProject extends GwtElement {
 	 * @return the project preferences (maybe <code>null</code>)
 	 */
 	public IEclipsePreferences getProjectPreferences() {
-		if (!hasGwtNature(project))
+		if (!hasGwtNature(project)) {
 			return null;
-		return new ProjectScope(project).getNode(Constants.PLUGIN_ID);
+		}
+		return new ProjectScope(project).getNode(GwtCore.PLUGIN_ID);
 	}
 
 	/**
@@ -334,7 +309,6 @@ public class GwtProject extends GwtElement {
 
 	/*
 	 * (non-Javadoc)
-	 * 
 	 * @see org.eclipseguru.gwt.core.GwtElement#getType()
 	 */
 	@Override
@@ -348,7 +322,7 @@ public class GwtProject extends GwtElement {
 	 * @param project
 	 */
 	public void setIncludedModules(final List modules) {
-		final IEclipsePreferences projectPreferences = new ProjectScope(project).getNode(Constants.PLUGIN_ID);
+		final IEclipsePreferences projectPreferences = new ProjectScope(project).getNode(GwtCore.PLUGIN_ID);
 		final StringBuilder builder = new StringBuilder();
 		for (int i = 0; i < modules.size(); i++) {
 			final GwtModule module = (GwtModule) modules.get(i);

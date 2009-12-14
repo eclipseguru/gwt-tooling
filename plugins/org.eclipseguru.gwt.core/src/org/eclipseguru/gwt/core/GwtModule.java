@@ -32,12 +32,19 @@ import java.io.InputStream;
 
 import javax.xml.parsers.ParserConfigurationException;
 
-import com.googlipse.gwt.common.Constants;
-
 /**
  * A GWT Module
  */
 public class GwtModule extends GwtElement {
+
+	/** FOLDER_NAME_SERVER */
+	private static final String FOLDER_NAME_SERVER = "server";
+
+	/** FOLDER_NAME_PUBLIC */
+	private static final String FOLDER_NAME_PUBLIC = "public";
+
+	/** FILE_EXTENSION_GWT_MODULE_DESCRIPTOR */
+	private static final String FILE_EXTENSION_GWT_MODULE_DESCRIPTOR = "gwt.xml";
 
 	/** ENTRY_POINT_TYPE */
 	public static final String ENTRY_POINT_TYPE = "com.google.gwt.core.client.EntryPoint";
@@ -131,7 +138,7 @@ public class GwtModule extends GwtElement {
 			if (moduleIdBuilder.length() > 0) {
 				moduleIdBuilder.append('.');
 			}
-			moduleIdBuilder.append(moduleDescriptor.getName().substring(0, moduleDescriptor.getName().length() - Constants.GWT_XML_EXT.length() - 1));
+			moduleIdBuilder.append(moduleDescriptor.getName().substring(0, moduleDescriptor.getName().length() - FILE_EXTENSION_GWT_MODULE_DESCRIPTOR.length() - 1));
 		} else {
 			final String path = moduleDescriptor.getFullPath().makeRelative().toString();
 			moduleIdBuilder.append(path.substring(0, path.length() - GwtUtil.GWT_MODULE_SOURCE_EXTENSION.length()).replace('/', '.'));
@@ -509,9 +516,9 @@ public class GwtModule extends GwtElement {
 		}
 
 		// public folder
-		if (moduleRoot.append(Constants.PUBLIC_FOLDER).isPrefixOf(fullPath)) {
+		if (moduleRoot.append(FOLDER_NAME_PUBLIC).isPrefixOf(fullPath)) {
 			return true;
-		} else if (moduleRoot.append(Constants.SERVER_PACKAGE).isPrefixOf(fullPath)) {
+		} else if (moduleRoot.append(FOLDER_NAME_SERVER).isPrefixOf(fullPath)) {
 			return true;
 		}
 

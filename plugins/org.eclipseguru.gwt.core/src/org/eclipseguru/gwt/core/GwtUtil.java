@@ -18,15 +18,12 @@ import org.eclipse.core.resources.IProject;
 import org.eclipse.core.resources.IResource;
 import org.eclipse.core.resources.IStorage;
 import org.eclipse.core.resources.ProjectScope;
-import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IPath;
 import org.eclipse.core.runtime.Path;
 import org.eclipse.core.runtime.Platform;
 import org.eclipse.core.runtime.preferences.IEclipsePreferences;
 import org.eclipse.core.runtime.preferences.IScopeContext;
 import org.eclipse.core.runtime.preferences.InstanceScope;
-import org.eclipse.wst.common.project.facet.core.IFacetedProject;
-import org.eclipse.wst.common.project.facet.core.ProjectFacetsManager;
 
 /**
  * A core utility
@@ -236,27 +233,6 @@ public class GwtUtil {
 			return typeNameWithParameters;
 		} else {
 			return typeNameWithParameters.substring(0, angleBracketOffset);
-		}
-	}
-
-	/**
-	 * Indicates if a project has the specified facet assigned.
-	 * 
-	 * @param project
-	 * @return <code>true</code> if a project has the facet assigned,
-	 *         <code>false</code> otherwise
-	 */
-	public static boolean hasFacet(final IProject project, final String facteId) {
-		try {
-			final IFacetedProject facetsManager = ProjectFacetsManager.create(project);
-			if (null == facetsManager) {
-				return false;
-			}
-
-			return facetsManager.hasProjectFacet(ProjectFacetsManager.getProjectFacet(facteId));
-		} catch (final CoreException e) {
-			// fail gracefully
-			return false;
 		}
 	}
 

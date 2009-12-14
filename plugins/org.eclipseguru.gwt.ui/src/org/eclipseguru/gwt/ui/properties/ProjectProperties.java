@@ -15,10 +15,8 @@ import org.eclipseguru.gwt.core.GwtCore;
 import org.eclipseguru.gwt.core.GwtModule;
 import org.eclipseguru.gwt.core.GwtProject;
 import org.eclipseguru.gwt.core.GwtUtil;
-import org.eclipseguru.gwt.core.j2ee.ConfigureWebProjectJob;
 import org.eclipseguru.gwt.core.launch.GwtLaunchConstants;
 import org.eclipseguru.gwt.core.preferences.GwtCorePreferenceConstants;
-import org.eclipseguru.gwt.ui.dialogs.ModuleSelectionDialog;
 
 import org.eclipse.core.resources.IContainer;
 import org.eclipse.core.resources.IFolder;
@@ -58,7 +56,6 @@ import org.eclipse.jdt.internal.ui.wizards.dialogfields.SelectionButtonDialogFie
 import org.eclipse.jdt.internal.ui.wizards.dialogfields.StringButtonDialogField;
 import org.eclipse.jdt.internal.ui.wizards.dialogfields.StringDialogField;
 import org.eclipse.jface.dialogs.Dialog;
-import org.eclipse.jface.dialogs.ErrorDialog;
 import org.eclipse.jface.dialogs.IDialogConstants;
 import org.eclipse.jface.dialogs.MessageDialog;
 import org.eclipse.jface.viewers.ILabelProvider;
@@ -79,9 +76,6 @@ import org.eclipse.ui.dialogs.PropertyPage;
 import org.eclipse.ui.model.WorkbenchContentProvider;
 import org.eclipse.ui.model.WorkbenchLabelProvider;
 import org.eclipse.ui.views.navigator.ResourceComparator;
-import org.eclipse.wst.common.componentcore.ComponentCore;
-import org.eclipse.wst.common.componentcore.resources.IVirtualComponent;
-import org.eclipse.wst.common.componentcore.resources.IVirtualReference;
 import org.osgi.service.prefs.BackingStoreException;
 
 import java.util.ArrayList;
@@ -120,10 +114,8 @@ public class ProjectProperties extends PropertyPage implements IWorkbenchPropert
 
 			switch (index) {
 				case IDX_BUTTON_ML_ADD:
-					handleModuleListAddButtonPressed();
 					break;
 				case IDX_BUTTON_ML_REMOVE:
-					handleModuleListRemoveButtonPressed();
 					break;
 			}
 
@@ -254,29 +246,8 @@ public class ProjectProperties extends PropertyPage implements IWorkbenchPropert
 		deployment.setLayoutData(new GridData(SWT.FILL, SWT.NONE, true, false));
 
 		final IProject project = getProject().getProjectResource();
-		if (GwtProject.hasGwtModuleFacet(project)) {
-			LayoutUtil.doDefaultLayout(deployment, new DialogField[] { hostedModeDialogField, outputLocationDialogField, autoBuildModulesDialogField }, false, 5, 5);
-			LayoutUtil.setHorizontalGrabbing(outputLocationDialogField.getTextControl(deployment));
-		} else if (GwtProject.hasGwtWebFacet(project)) {
-
-			final Group modules = new Group(result, SWT.NONE);
-			modules.setText("Modules");
-			modules.setLayoutData(new GridData(SWT.FILL, SWT.NONE, true, false));
-
-			LayoutUtil.doDefaultLayout(deployment, new DialogField[] { hostedModeDialogField, deploymentPathDialogField }, false, 5, 5);
-			LayoutUtil.setHorizontalGrabbing(deploymentPathDialogField.getTextControl(deployment));
-
-			LayoutUtil.doDefaultLayout(modules, new DialogField[] { modulesListDialogField, outputLocationDialogField, autoBuildModulesDialogField, javascriptStyleDialogField, vmArgsDialogField }, true, 5, 5);
-			LayoutUtil.setHorizontalGrabbing(modulesListDialogField.getListControl(modules));
-			((GridData) modulesListDialogField.getListControl(modules).getLayoutData()).grabExcessVerticalSpace = true;
-			modules.setLayoutData(new GridData(SWT.FILL, SWT.FILL, true, true));
-			LayoutUtil.setHorizontalGrabbing(outputLocationDialogField.getTextControl(modules));
-			LayoutUtil.setHorizontalGrabbing(vmArgsDialogField.getTextControl(deployment));
-
-		} else {
-			LayoutUtil.doDefaultLayout(deployment, new DialogField[] { outputLocationDialogField, autoBuildModulesDialogField, javascriptStyleDialogField, vmArgsDialogField }, false, 5, 5);
-			LayoutUtil.setHorizontalGrabbing(outputLocationDialogField.getTextControl(deployment));
-		}
+		LayoutUtil.doDefaultLayout(deployment, new DialogField[] { outputLocationDialogField, autoBuildModulesDialogField, javascriptStyleDialogField, vmArgsDialogField }, false, 5, 5);
+		LayoutUtil.setHorizontalGrabbing(outputLocationDialogField.getTextControl(deployment));
 
 		Dialog.applyDialogFont(result);
 		return result;
@@ -327,15 +298,7 @@ public class ProjectProperties extends PropertyPage implements IWorkbenchPropert
 	}
 
 	/**
-	 * Configures the flexible web project structure.
-	 */
-	private void doFlexProjectSetup() {
-		final ConfigureWebProjectJob flexProjectJob = new ConfigureWebProjectJob(getProject(), outputLocationPath, deploymentPath, isHosted);
-		flexProjectJob.schedule();
-	}
-
-	/**
-	 * Schedules a rebuild.s
+	 * Schedules a rebuild.
 	 */
 	private void doFullBuild() {
 		final Job buildJob = new Job("Building Projects...") {
@@ -459,31 +422,6 @@ public class ProjectProperties extends PropertyPage implements IWorkbenchPropert
 		}
 
 		return currentProject;
-	}
-
-	private void handleModuleListAddButtonPressed() {
-		final GwtProject project = getProject();
-		try {
-			final List<GwtProject> projects = new ArrayList<GwtProject>(5);
-			final IVirtualComponent component = ComponentCore.createComponent(project.getProjectResource());
-			final IVirtualReference[] references = component.getReferences();
-			for (final IVirtualReference reference : references) {
-				final IProject referencedProject = reference.getReferencedComponent().getProject();
-				if (GwtProject.hasGwtNature(referencedProject)) {
-					projects.add(GwtCore.create(referencedProject));
-				}
-			}
-
-			final ModuleSelectionDialog dialog = new ModuleSelectionDialog(getShell(), projects.toArray(new GwtProject[projects.size()]));
-			if (dialog.open() == Window.OK) {
-				final GwtModule module = dialog.getSelectedModule();
-				modulesListDialogField.addElement(module);
-				isRebuildNecessary = true;
-			}
-
-		} catch (final CoreException e) {
-			ErrorDialog.openError(getShell(), "Error", "We are sorry, an internal error occured.", e.getStatus());
-		}
 	}
 
 	private void handleModuleListRemoveButtonPressed() {
@@ -623,11 +561,6 @@ public class ProjectProperties extends PropertyPage implements IWorkbenchPropert
 			projectPreferences.flush();
 		} catch (final BackingStoreException e) {
 			// problem with pref store - quietly ignore
-		}
-
-		// setup the flexible project structure
-		if (GwtProject.hasGwtWebFacet(project.getProjectResource())) {
-			doFlexProjectSetup();
 		}
 
 		// build

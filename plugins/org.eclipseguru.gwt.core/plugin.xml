@@ -5,7 +5,7 @@
 		<initializer
 			class="org.eclipseguru.gwt.core.preferences.GwtCorePreferenceInitializer" />
 	</extension>
-	<extension point="org.eclipse.core.runtime.contentTypes">
+	<extension point="org.eclipse.core.contenttype.contentTypes">
 		<content-type base-type="org.eclipse.core.runtime.xml"
 			default-charset="UTF-8" file-extensions="xml,gwt.xml" id="modulesource"
 			name="GWT Module Source XML" priority="high">

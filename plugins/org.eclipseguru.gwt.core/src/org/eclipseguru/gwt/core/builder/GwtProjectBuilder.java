@@ -1,11 +1,11 @@
 /*******************************************************************************
  * Copyright (c) 2006, 2008 EclipseGuru and others.
  * All rights reserved.
- * 
- * This program and the accompanying materials are made available under the terms of the 
+ *
+ * This program and the accompanying materials are made available under the terms of the
  * Eclipse Public License v1.0 which accompanies this distribution, and is available at
  * http://www.eclipse.org/legal/epl-v10.html
- * 
+ *
  * Contributors:
  *     EclipseGuru - initial API and implementation
  *******************************************************************************/
@@ -48,8 +48,6 @@ import java.text.MessageFormat;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
-
-import com.googlipse.gwt.common.Constants;
 
 /**
  * This is the builder for GWT projects.
@@ -215,7 +213,7 @@ public class GwtProjectBuilder extends IncrementalProjectBuilder {
 
 		} catch (final Exception e) {
 			forgetLastBuiltState();
-			throw new CoreException(new Status(IStatus.ERROR, Constants.PLUGIN_ID, IResourceStatus.BUILD_FAILED, "An error occured during building: " + e.toString(), e));
+			throw new CoreException(new Status(IStatus.ERROR, GwtCore.PLUGIN_ID, IResourceStatus.BUILD_FAILED, "An error occured during building: " + e.toString(), e));
 		} finally {
 			monitor.done();
 		}

@@ -73,8 +73,6 @@ import java.util.concurrent.locks.Condition;
 import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantLock;
 
-import com.googlipse.gwt.common.Constants;
-
 /**
  * Compiles and publishes GWT projects.
  */
@@ -147,6 +145,9 @@ public class GwtProjectPublisher extends WorkspaceJob {
 			return errorMsg.replace('\r', ' ').replace('\n', ' ').trim();
 		}
 	}
+
+	/** GWT_DEV_COMPILER */
+	private static final String GWT_DEV_COMPILER_CLASS = "com.google.gwt.dev.Compiler";
 
 	/** project */
 	private final GwtProject project;
@@ -248,7 +249,7 @@ public class GwtProjectPublisher extends WorkspaceJob {
 
 		// launch
 		if (!classpath.isEmpty()) {
-			final VMRunnerConfiguration vmConfig = new VMRunnerConfiguration(Constants.GWT_COMPILER_CLASS, classpath.toArray(new String[classpath.size()]));
+			final VMRunnerConfiguration vmConfig = new VMRunnerConfiguration(GWT_DEV_COMPILER_CLASS, classpath.toArray(new String[classpath.size()]));
 			vmConfig.setWorkingDirectory(targetFolder.getLocation().toOSString());
 			vmConfig.setProgramArguments(prepareGwtCompileArguments(module, targetFolder));
 			vmConfig.setVMArguments(prepareGwtCompilerVmArguments(module));
@@ -551,7 +552,7 @@ public class GwtProjectPublisher extends WorkspaceJob {
 		} catch (final OperationCanceledException e) {
 			return Status.CANCEL_STATUS;
 		} catch (final Exception e) {
-			return new Status(IStatus.ERROR, Constants.PLUGIN_ID, IResourceStatus.BUILD_FAILED, MessageFormat.format("An error occured during publishing of project {0}.", project.getName()), e);
+			return new Status(IStatus.ERROR, GwtCore.PLUGIN_ID, IResourceStatus.BUILD_FAILED, MessageFormat.format("An error occured during publishing of project {0}.", project.getName()), e);
 		} finally {
 			monitor.done();
 		}
