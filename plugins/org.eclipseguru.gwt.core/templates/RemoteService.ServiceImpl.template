@@ -1,8 +1,0 @@
-package @basePackage.server;
-
-import @basePackage.client.@serviceName;
-import com.google.gwt.user.server.rpc.RemoteServiceServlet;
-
-public class @serviceNameImpl extends RemoteServiceServlet implements @serviceName {
-
-}

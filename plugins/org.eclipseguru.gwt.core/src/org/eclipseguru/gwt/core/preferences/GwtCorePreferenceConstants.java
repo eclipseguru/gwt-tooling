@@ -23,6 +23,9 @@ public interface GwtCorePreferenceConstants {
 	 */
 	String PREF_GWT_HOME = "gwtHome";
 
+	/** the node containing the runtime definitions */
+	String PREF_GWT_RUNTIMES = "runtimes";
+
 	/** PREF_HOSTED_DEPLOY_MODE */
 	String PREF_HOSTED_DEPLOY_MODE = "hostedDeployMode";
 
@@ -45,10 +48,8 @@ public interface GwtCorePreferenceConstants {
 	 */
 	String PREF_COMPILER_JAVASCRIPT_STYLE = "compilerJavascriptStyle";
 
-	/**
-	 * Defines path to a custom module template.
-	 */
-	String PREF_CUSTOM_MODULE_TEMPLATE_PATH = "customModuleTemplatePath";
-
 	String PREF_AUTO_BUILD_MODULES = "autoBuildModules";
+
+	/** the location key of a GWT runtime */
+	String PREF_LOCATION = "location";
 }

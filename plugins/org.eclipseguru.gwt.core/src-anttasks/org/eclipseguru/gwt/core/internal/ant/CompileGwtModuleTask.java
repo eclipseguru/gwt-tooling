@@ -1,11 +1,11 @@
 /***************************************************************************************************
  * Copyright (c) 2006, 2008 Eclipse Guru and others.
- * All rights reserved. 
+ * All rights reserved.
  *
- * This program and the accompanying materials are made available under the terms of the 
+ * This program and the accompanying materials are made available under the terms of the
  * Eclipse Public License v1.0 which accompanies this distribution, and is available at
  * http://www.eclipse.org/legal/epl-v10.html
- * 
+ *
  * Contributors: Eclipse Guru - initial API and implementation
  *               Eclipse.org - ideas, concepts and code from existing Eclipse projects
  **************************************************************************************************/
@@ -21,7 +21,7 @@ import org.apache.tools.ant.BuildException;
 import org.apache.tools.ant.Task;
 
 /**
- * 
+ * Ant Task for compiling a GWT module.
  */
 public class CompileGwtModuleTask extends Task {
 

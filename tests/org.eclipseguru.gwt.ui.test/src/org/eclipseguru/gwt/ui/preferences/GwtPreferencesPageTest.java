@@ -1,5 +1,5 @@
 /**
- * 
+ *
  */
 package org.eclipseguru.gwt.ui.preferences;
 
@@ -27,7 +27,7 @@ import org.junit.Test;
 
 /**
  * @author Hugo A. Garcia
- * 
+ *
  */
 public class GwtPreferencesPageTest {
 
@@ -64,13 +64,6 @@ public class GwtPreferencesPageTest {
 	public void checkGwtHomeDirectoryPathFromPreferecesNotSet() {
 		String path = page
 				.getPathFromPreferencesFor(GwtCorePreferenceConstants.PREF_GWT_HOME);
-		assertTrue(path.isEmpty());
-	}
-
-	@Test
-	public void checkXhtmlTemplatePathFromPreferecesNotSet() {
-		String path = page
-				.getPathFromPreferencesFor(GwtCorePreferenceConstants.PREF_CUSTOM_MODULE_TEMPLATE_PATH);
 		assertTrue(path.isEmpty());
 	}
 
@@ -172,72 +165,6 @@ public class GwtPreferencesPageTest {
 		assertFalse(page.isValid());
 		field.setText(gwtPath);
 		assertTrue(page.isValid() & page.isGwtJarFound());
-		gwtJarFile.delete();
-		gwtDirectory.delete();
-		field.setText("");
-	}
-
-	@Test
-	public void GetXhtmlTemplatePathFromTextFieldReturnsNullIfNotSet() {
-		IPath path = page.getCustomModuleTemplatePath();
-		assertNull(path);
-	}
-
-	@Test
-	public void GetXhtmlTemplatePathFromTextField() throws IOException {
-		gwtDirectory.mkdir();
-		File xhtml = new File(gwtPath + File.separator + "template.xhtml");
-		xhtml.createNewFile();
-		StringButtonDialogField xhtmlField = page.getCustomModuleTemplatePathField();
-		String expected = xhtml.getAbsolutePath();
-		xhtmlField.setText(expected);
-		String actual = page.getCustomModuleTemplatePathFromTextField().toOSString();
-		assertEquals(expected, actual);
-		xhtml.delete();
-		gwtDirectory.delete();
-		xhtmlField.setText("");
-	}
-
-	@Test
-	public void setCustomXhtmlTemplatePreference() throws IOException {
-		gwtDirectory.mkdir();
-		gwtJarFile.createNewFile();
-		field.setText(gwtPath);
-
-		File xhtml = new File(gwtPath + File.separator + "template.xhtml");
-		xhtml.createNewFile();
-		StringButtonDialogField xhtmlField = page.getCustomModuleTemplatePathField();
-		xhtmlField.setText(xhtml.getAbsolutePath());
-
-		page.performOk();
-		Preferences pluginPreferences = GwtCore.getGwtCore()
-				.getPluginPreferences();
-		String actual = page.getCustomModuleTemplatePath().toPortableString();
-		String expected = pluginPreferences
-				.getString(GwtCorePreferenceConstants.PREF_CUSTOM_MODULE_TEMPLATE_PATH);
-		assertEquals(actual, expected);
-
-		gwtJarFile.delete();
-		xhtml.delete();
-		gwtDirectory.delete();
-		field.setText("");
-		xhtmlField.setText("");
-	}
-	
-	@Test
-	public void doNotSaveXhtmlPreferenceIfNotSet() throws IOException {
-		gwtDirectory.mkdir();
-		gwtJarFile.createNewFile();
-		field.setText(gwtPath);
-
-		page.performOk();
-		Preferences pluginPreferences = GwtCore.getGwtCore()
-				.getPluginPreferences();
-		String actual = pluginPreferences
-		.getString(GwtCorePreferenceConstants.PREF_CUSTOM_MODULE_TEMPLATE_PATH);
-		String expected = "";
-		assertEquals(expected, actual);
-
 		gwtJarFile.delete();
 		gwtDirectory.delete();
 		field.setText("");

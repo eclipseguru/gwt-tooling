@@ -1,11 +1,11 @@
 /*******************************************************************************
  * Copyright (c) 2006, 2008 EclipseGuru and others.
  * All rights reserved.
- * 
- * This program and the accompanying materials are made available under the terms of the 
+ *
+ * This program and the accompanying materials are made available under the terms of the
  * Eclipse Public License v1.0 which accompanies this distribution, and is available at
  * http://www.eclipse.org/legal/epl-v10.html
- * 
+ *
  * Contributors:
  *     EclipseGuru - initial API and implementation
  *******************************************************************************/
@@ -23,38 +23,34 @@ import org.eclipse.jdt.core.IJavaProject;
 import org.eclipse.jdt.core.JavaCore;
 
 /**
- * The GWT classpath copntainer initializer.
+ * The GWT classpath container initializer.
  */
 public class GwtContainerInitializer extends ClasspathContainerInitializer {
 
-	/*
-	 * (non-Javadoc)
-	 * @see
-	 * org.eclipse.jdt.core.ClasspathContainerInitializer#getDescription(org
-	 * .eclipse.core.runtime.IPath, org.eclipse.jdt.core.IJavaProject)
-	 */
 	@Override
 	public String getDescription(final IPath containerPath, final IJavaProject project) {
-		// TODO: container specific toolkit
-		return "Google Web Toolkit";
+		final StringBuilder description = new StringBuilder(100);
+		description.append("Google Web Toolkit");
+		final int size = containerPath.segmentCount();
+		if (size > 1) {
+			description.append(" [").append(containerPath.segment(1)).append("]");
+		}
+		return description.toString();
 	}
 
-	/*
-	 * (non-Javadoc)
-	 * @see
-	 * org.eclipse.jdt.core.ClasspathContainerInitializer#initialize(org.eclipse
-	 * .core.runtime.IPath, org.eclipse.jdt.core.IJavaProject)
-	 */
 	@Override
 	public void initialize(final IPath containerPath, final IJavaProject project) throws CoreException {
 		final int size = containerPath.segmentCount();
 		if (size > 0) {
 			if (containerPath.segment(0).equals(GwtCore.GWT_CONTAINER)) {
-				final GwtRuntime gwtRuntime = GwtRuntimeManager.getInstalledRuntimes()[0];
 				GwtContainer container = null;
-				if (!gwtRuntime.getLocation().isEmpty()) {
-					container = new GwtContainer(gwtRuntime, containerPath);
+				if (size > 1) {
+					final GwtRuntime gwtRuntime = GwtRuntimeManager.findInstalledRuntime(containerPath.segment(1));
+					if ((null != gwtRuntime) && !gwtRuntime.getLocation().isEmpty()) {
+						container = new GwtContainer(gwtRuntime, containerPath);
+					}
 				}
+
 				JavaCore.setClasspathContainer(containerPath, new IJavaProject[] { project }, new IClasspathContainer[] { container }, null);
 			}
 		}

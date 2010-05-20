@@ -1,11 +1,11 @@
 /*******************************************************************************
  * Copyright (c) 2006, 2008 EclipseGuru and others.
  * All rights reserved.
- * 
- * This program and the accompanying materials are made available under the terms of the 
+ *
+ * This program and the accompanying materials are made available under the terms of the
  * Eclipse Public License v1.0 which accompanies this distribution, and is available at
  * http://www.eclipse.org/legal/epl-v10.html
- * 
+ *
  * Contributors:
  *     EclipseGuru - initial API and implementation
  *******************************************************************************/
@@ -32,7 +32,6 @@ import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Control;
 import org.eclipse.swt.widgets.DirectoryDialog;
 import org.eclipse.swt.widgets.Display;
-import org.eclipse.swt.widgets.FileDialog;
 import org.eclipse.ui.IWorkbench;
 import org.eclipse.ui.IWorkbenchPreferencePage;
 
@@ -55,36 +54,10 @@ public class GwtPreferencesPage extends PreferencePage implements IWorkbenchPref
 	private final StatusInfo gwtHomeDirectoryStatus = new StatusInfo();
 
 	/**
-	 * Field containing input from user for path to template.
-	 */
-	private StringButtonDialogField customModuleTemplatePathField;
-
-	/**
-	 * Path to the custom module template.
-	 */
-	private IPath customModuleTemplatePath;
-
-	/** status info for the custom module template path */
-	private final StatusInfo customModuleTemplatePathStatus = new StatusInfo();
-
-	/**
 	 * Creates a new instance.
 	 */
 	public GwtPreferencesPage() {
 		setDescription("General settings for GWT development:");
-	}
-
-	private void browseForCustomModuleTemplateFile() {
-		final FileDialog fileDialog = new FileDialog(getShell(), SWT.OPEN);
-		fileDialog.setText("Select Module Template");
-		final String currentPath = customModuleTemplatePathField.getText();
-		if (currentPath.length() > 0) {
-			fileDialog.setFileName(currentPath);
-		}
-		final String directory = fileDialog.open();
-		if (directory != null) {
-			customModuleTemplatePathField.setText(directory);
-		}
 	}
 
 	/**
@@ -97,16 +70,18 @@ public class GwtPreferencesPage extends PreferencePage implements IWorkbenchPref
 		String directory = fileDialog.open();
 		if (directory != null) {
 			directory = directory.trim();
-			if (directory.length() > 0)
+			if (directory.length() > 0) {
 				return directory;
+			}
 		}
 		return "";
 	}
 
 	/*
 	 * (non-Javadoc)
-	 * 
-	 * @see org.eclipse.jface.preference.PreferencePage#createContents(org.eclipse.swt.widgets.Composite)
+	 * @see
+	 * org.eclipse.jface.preference.PreferencePage#createContents(org.eclipse
+	 * .swt.widgets.Composite)
 	 */
 	@Override
 	protected Control createContents(final Composite parent) {
@@ -124,17 +99,6 @@ public class GwtPreferencesPage extends PreferencePage implements IWorkbenchPref
 		gwtHomeDirectoryDialogField.setButtonLabel("Browse...");
 		gwtHomeDirectoryDialogField.setText(getPathFromPreferencesFor(GwtCorePreferenceConstants.PREF_GWT_HOME));
 
-		customModuleTemplatePathField = new StringButtonDialogField(new IStringButtonAdapter() {
-			public void changeControlPressed(final DialogField field) {
-				if (field == customModuleTemplatePathField) {
-					browseForCustomModuleTemplateFile();
-				}
-			}
-		});
-		customModuleTemplatePathField.setLabelText("Custom Module Template:");
-		customModuleTemplatePathField.setButtonLabel("Browse...");
-		customModuleTemplatePathField.setText(getPathFromPreferencesFor(GwtCorePreferenceConstants.PREF_CUSTOM_MODULE_TEMPLATE_PATH));
-
 		// we add the update listeners last to avoid coming up with errors
 		gwtHomeDirectoryDialogField.setDialogFieldListener(new IDialogFieldListener() {
 			public void dialogFieldChanged(final DialogField field) {
@@ -144,18 +108,9 @@ public class GwtPreferencesPage extends PreferencePage implements IWorkbenchPref
 				doStatusLineUpdate();
 			}
 		});
-		customModuleTemplatePathField.setDialogFieldListener(new IDialogFieldListener() {
-			public void dialogFieldChanged(final DialogField field) {
-				if (field == customModuleTemplatePathField) {
-					updateCustomModuleTemplatePath();
-					doStatusLineUpdate();
-				}
-			}
-		});
 
-		LayoutUtil.doDefaultLayout(composite, new DialogField[] { gwtHomeDirectoryDialogField, customModuleTemplatePathField }, true);
+		LayoutUtil.doDefaultLayout(composite, new DialogField[] { gwtHomeDirectoryDialogField }, true);
 		LayoutUtil.setHorizontalGrabbing(gwtHomeDirectoryDialogField.getTextControl(composite));
-		LayoutUtil.setHorizontalGrabbing(customModuleTemplatePathField.getTextControl(composite));
 		return composite;
 	}
 
@@ -167,22 +122,7 @@ public class GwtPreferencesPage extends PreferencePage implements IWorkbenchPref
 	}
 
 	private IStatus findMostSevereStatus() {
-		return StatusUtil.getMostSevere(new IStatus[] { gwtHomeDirectoryStatus, customModuleTemplatePathStatus });
-	}
-
-	IPath getCustomModuleTemplatePath() {
-		return customModuleTemplatePath;
-	}
-
-	StringButtonDialogField getCustomModuleTemplatePathField() {
-		return customModuleTemplatePathField;
-	}
-
-	IPath getCustomModuleTemplatePathFromTextField() {
-		final String text = customModuleTemplatePathField.getText();
-		if (text.trim().length() != 0)
-			return new Path(customModuleTemplatePathField.getText()).makeAbsolute();
-		return null;
+		return StatusUtil.getMostSevere(new IStatus[] { gwtHomeDirectoryStatus });
 	}
 
 	IPath getGwtHomeDirectory() {
@@ -200,28 +140,31 @@ public class GwtPreferencesPage extends PreferencePage implements IWorkbenchPref
 	 */
 	IPath getGwtHomeDirectoryPathFromTextField() {
 		final String text = gwtHomeDirectoryDialogField.getText();
-		if (text.length() != 0)
+		if (text.length() != 0) {
 			return new Path(gwtHomeDirectoryDialogField.getText()).makeAbsolute();
+		}
 		return null;
 	}
 
 	String getPathFromPreferencesFor(final String preference) {
 		final Preferences pluginPreferences = GwtCore.getGwtCore().getPluginPreferences();
 		final String preferenceValue = pluginPreferences.getString(preference);
-		if ((null == preferenceValue) || (preferenceValue.trim().length() == 0))
+		if ((null == preferenceValue) || (preferenceValue.trim().length() == 0)) {
 			return "";
+		}
 
 		final IPath path = Path.fromPortableString(preferenceValue);
-		if (path.isEmpty())
+		if (path.isEmpty()) {
 			return "";
+		}
 
 		return path.toOSString();
 	}
 
 	/*
 	 * (non-Javadoc)
-	 * 
-	 * @see org.eclipse.ui.IWorkbenchPreferencePage#init(org.eclipse.ui.IWorkbench)
+	 * @see
+	 * org.eclipse.ui.IWorkbenchPreferencePage#init(org.eclipse.ui.IWorkbench)
 	 */
 	public void init(final IWorkbench workbench) {
 		// empty
@@ -235,21 +178,16 @@ public class GwtPreferencesPage extends PreferencePage implements IWorkbenchPref
 
 	/*
 	 * (non-Javadoc)
-	 * 
 	 * @see org.eclipse.jface.preference.PreferencePage#performOk()
 	 */
 	@Override
 	public boolean performOk() {
-		if (null == gwtHomeDirectory)
+		if (null == gwtHomeDirectory) {
 			return false;
+		}
 
 		final Preferences pluginPreferences = GwtCore.getGwtCore().getPluginPreferences();
 		pluginPreferences.setValue(GwtCorePreferenceConstants.PREF_GWT_HOME, gwtHomeDirectory.toPortableString());
-		if (null != customModuleTemplatePath) {
-			pluginPreferences.setValue(GwtCorePreferenceConstants.PREF_CUSTOM_MODULE_TEMPLATE_PATH, customModuleTemplatePath.toPortableString());
-		} else {
-			pluginPreferences.setToDefault(GwtCorePreferenceConstants.PREF_CUSTOM_MODULE_TEMPLATE_PATH);
-		}
 
 		GwtCore.getGwtCore().savePluginPreferences();
 
@@ -258,21 +196,13 @@ public class GwtPreferencesPage extends PreferencePage implements IWorkbenchPref
 
 	/*
 	 * (non-Javadoc)
-	 * 
-	 * @see org.eclipse.jdt.internal.ui.wizards.IStatusChangeListener#statusChanged(org.eclipse.core.runtime.IStatus)
+	 * @see
+	 * org.eclipse.jdt.internal.ui.wizards.IStatusChangeListener#statusChanged
+	 * (org.eclipse.core.runtime.IStatus)
 	 */
 	public void statusChanged(final IStatus status) {
 		setValid(!status.matches(IStatus.ERROR));
 		StatusUtil.applyToStatusLine(this, status);
-	}
-
-	private void updateCustomModuleTemplatePath() {
-		customModuleTemplatePath = getCustomModuleTemplatePathFromTextField();
-		if ((customModuleTemplatePath != null) && !gwtHomeDirectory.toFile().exists()) {
-			customModuleTemplatePathStatus.setError("The specified module template does not exists.");
-			return;
-		}
-		customModuleTemplatePathStatus.setOK();
 	}
 
 	private void updateGwtHomeDirectoryStatus() {

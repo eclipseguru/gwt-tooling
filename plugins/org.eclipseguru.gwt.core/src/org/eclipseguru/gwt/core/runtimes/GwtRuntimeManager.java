@@ -1,11 +1,11 @@
 /*******************************************************************************
  * Copyright (c) 2006, 2008 EclipseGuru and others.
  * All rights reserved.
- * 
- * This program and the accompanying materials are made available under the terms of the 
+ *
+ * This program and the accompanying materials are made available under the terms of the
  * Eclipse Public License v1.0 which accompanies this distribution, and is available at
  * http://www.eclipse.org/legal/epl-v10.html
- * 
+ *
  * Contributors:
  *     EclipseGuru - initial API and implementation
  *******************************************************************************/
@@ -20,35 +20,40 @@ import org.eclipse.core.resources.ResourcesPlugin;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IPath;
 import org.eclipse.core.runtime.Path;
-import org.eclipse.core.runtime.Preferences;
-import org.eclipse.core.runtime.Preferences.IPropertyChangeListener;
-import org.eclipse.core.runtime.Preferences.PropertyChangeEvent;
+import org.eclipse.core.runtime.preferences.IEclipsePreferences;
+import org.eclipse.core.runtime.preferences.InstanceScope;
+import org.eclipse.core.runtime.preferences.IEclipsePreferences.IPreferenceChangeListener;
+import org.eclipse.core.runtime.preferences.IEclipsePreferences.PreferenceChangeEvent;
 import org.eclipse.jdt.core.IClasspathContainer;
 import org.eclipse.jdt.core.IClasspathEntry;
 import org.eclipse.jdt.core.IJavaProject;
 import org.eclipse.jdt.core.JavaCore;
+import org.osgi.service.prefs.BackingStoreException;
+import org.osgi.service.prefs.Preferences;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.concurrent.atomic.AtomicReference;
+import java.util.concurrent.locks.Lock;
+import java.util.concurrent.locks.ReentrantLock;
 
 /**
  * A manager for GWT runtimes.
  */
 public class GwtRuntimeManager implements GwtCorePreferenceConstants {
 
-	private final static String CP_HOME_PREFERENCES_PREFIX = GwtCore.PLUGIN_ID + "." + PREF_GWT_HOME;
 	private static final boolean logProblems = false;
-	private static IPropertyChangeListener listener = new IPropertyChangeListener() {
+	private static final IPreferenceChangeListener listener = new IPreferenceChangeListener() {
 
-		public void propertyChange(final PropertyChangeEvent event) {
-			final String key = event.getProperty();
+		public void preferenceChange(final PreferenceChangeEvent event) {
+			final String key = event.getKey();
 			if (PREF_GWT_HOME.equals(key)) {
 				try {
-					installedRuntimes = null;
+					installedRuntimesRef.set(null);
 					rebindClasspathEntries();
 				} catch (final CoreException e) {
 					if (logProblems) {
-						GwtCore.logError("Exception while rebinding GWT runtime library '" + key.substring(CP_HOME_PREFERENCES_PREFIX.length()) + "'.", e); //$NON-NLS-1$ //$NON-NLS-2$
+						GwtCore.logError("Exception while rebinding GWT runtime libraries. " + e.getMessage(), e);
 					}
 
 				}
@@ -56,7 +61,28 @@ public class GwtRuntimeManager implements GwtCorePreferenceConstants {
 		}
 	};
 
-	private static GwtRuntime[] installedRuntimes;
+	private static AtomicReference<GwtRuntime[]> installedRuntimesRef = new AtomicReference<GwtRuntime[]>();
+	private static final Lock initializationLock = new ReentrantLock();
+
+	/**
+	 * Returns the installed runtime with the specified name.
+	 * 
+	 * @param name
+	 * @return the installed runtime (maybe <code>null</code>)
+	 */
+	public static GwtRuntime findInstalledRuntime(final String name) {
+		final GwtRuntime[] runtimes = getInstalledRuntimes();
+		for (final GwtRuntime gwtRuntime : runtimes) {
+			if (gwtRuntime.getName().equals(name)) {
+				return gwtRuntime;
+			}
+		}
+		return null;
+	}
+
+	private static IEclipsePreferences getGwtRuntimePreferencesNode() {
+		return (IEclipsePreferences) new InstanceScope().getNode(GwtCore.PLUGIN_ID).node(GwtCorePreferenceConstants.PREF_GWT_RUNTIMES);
+	}
 
 	/**
 	 * Returns a list of all installed runtimes.
@@ -64,12 +90,83 @@ public class GwtRuntimeManager implements GwtCorePreferenceConstants {
 	 * @return a list of all installed runtimes
 	 */
 	public static GwtRuntime[] getInstalledRuntimes() {
-		if (null == installedRuntimes) {
-			final Preferences pluginPreferences = GwtCore.getGwtCore().getPluginPreferences();
-			pluginPreferences.addPropertyChangeListener(listener);
-			installedRuntimes = new GwtRuntime[] { new GwtRuntime(Path.fromPortableString(pluginPreferences.getString(GwtCorePreferenceConstants.PREF_GWT_HOME))) };
+		GwtRuntime[] installedRuntimes = installedRuntimesRef.get();
+		while (null == installedRuntimes) {
+			installedRuntimesRef.compareAndSet(null, loadInstalledRuntimes());
+			installedRuntimes = installedRuntimesRef.get();
 		}
 		return installedRuntimes;
+	}
+
+	private static GwtRuntime[] loadInstalledRuntimes() {
+		initializationLock.lock();
+		try {
+			// check if already initialized
+			final GwtRuntime[] gwtRuntimes = installedRuntimesRef.get();
+			if (null != gwtRuntimes) {
+				return gwtRuntimes;
+			}
+
+			migrateOldPreferences();
+
+			final IEclipsePreferences preferences = getGwtRuntimePreferencesNode();
+
+			// hook change listener
+			preferences.addPreferenceChangeListener(listener); // ok to be called multiple times
+
+			// read runtimes
+			String[] runtimeNames;
+			try {
+				runtimeNames = preferences.childrenNames();
+			} catch (final BackingStoreException e) {
+				GwtCore.logError("Error while loading GWT runtimes from preferences. " + e.getMessage(), e);
+				return new GwtRuntime[0];
+			}
+			final List<GwtRuntime> runtimes = new ArrayList<GwtRuntime>(runtimeNames.length);
+			for (final String name : runtimeNames) {
+				final String location = preferences.node(name).get(GwtCorePreferenceConstants.PREF_LOCATION, null);
+				if (null != location) {
+					try {
+						runtimes.add(new GwtRuntime(name, Path.fromPortableString(location)));
+					} catch (final Exception e) {
+						// ignore bogus entry
+					}
+				}
+			}
+
+			return runtimes.toArray(new GwtRuntime[runtimes.size()]);
+
+		} finally {
+			initializationLock.unlock();
+		}
+	}
+
+	/**
+	 * Migrates old preferences if necessary.
+	 */
+	private static void migrateOldPreferences() {
+		final IEclipsePreferences preferences = new InstanceScope().getNode(GwtCore.PLUGIN_ID);
+		final String oldGwtHome = preferences.get(GwtCorePreferenceConstants.PREF_GWT_HOME, null);
+		if (null != oldGwtHome) {
+			final IPath oldLocation = Path.fromPortableString(oldGwtHome);
+			GwtRuntime gwtRuntime;
+			try {
+				gwtRuntime = new GwtRuntime(oldLocation.lastSegment(), oldLocation);
+			} catch (final IllegalArgumentException e) {
+				// invalid location
+				gwtRuntime = new GwtRuntime("Migrated GWT", oldLocation);
+			}
+
+			saveRuntime(gwtRuntime);
+
+			// remove old node
+			preferences.remove(GwtCorePreferenceConstants.PREF_GWT_HOME);
+			try {
+				preferences.flush();
+			} catch (final BackingStoreException e) {
+				// don't fail, we may issue a warning in this case
+			}
+		}
 	}
 
 	private static void rebindClasspathEntries() throws CoreException {
@@ -80,24 +177,42 @@ public class GwtRuntimeManager implements GwtCorePreferenceConstants {
 		final List<IJavaProject> affectedProjects = new ArrayList<IJavaProject>();
 		final List<IClasspathContainer> newContainers = new ArrayList<IClasspathContainer>();
 
-		final GwtRuntime runtime = getInstalledRuntimes()[0];
-		final GwtContainer container = new GwtContainer(runtime, containerPath);
-
 		for (final IJavaProject project : projects) {
 			final IClasspathEntry[] entries = project.getRawClasspath();
-			for (final IClasspathEntry curr : entries)
-				if (curr.getEntryKind() == IClasspathEntry.CPE_CONTAINER)
-					if (containerPath.equals(curr.getPath())) {
+			for (final IClasspathEntry curr : entries) {
+				if (curr.getEntryKind() == IClasspathEntry.CPE_CONTAINER) {
+					final IPath currPath = curr.getPath();
+					if (containerPath.isPrefixOf(currPath)) {
 						affectedProjects.add(project);
+						GwtContainer container = null;
+						if (currPath.segmentCount() > 1) {
+							final GwtRuntime runtime = findInstalledRuntime(currPath.segment(1));
+							if ((null != runtime) && !runtime.getLocation().isEmpty()) {
+								container = new GwtContainer(runtime, containerPath);
+							}
+						}
 						newContainers.add(container);
 						break;
 					}
+				}
+			}
 		}
 		if (!affectedProjects.isEmpty()) {
 			final IJavaProject[] affected = affectedProjects.toArray(new IJavaProject[affectedProjects.size()]);
 			final IClasspathContainer[] containers = newContainers.toArray(new IClasspathContainer[newContainers.size()]);
 			JavaCore.setClasspathContainer(containerPath, affected, containers, null);
 
+		}
+	}
+
+	private static void saveRuntime(final GwtRuntime runtime) {
+		final Preferences runtimeNode = getGwtRuntimePreferencesNode().node(runtime.getName());
+		runtimeNode.put(GwtCorePreferenceConstants.PREF_LOCATION, runtime.getLocation().toPortableString());
+
+		try {
+			runtimeNode.flush();
+		} catch (final BackingStoreException e) {
+			// don't fail, we may issue a warning in this case
 		}
 	}
 
