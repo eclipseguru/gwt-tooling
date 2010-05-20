@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- ======================================================================
+     20.05.2010 16:06:18
+
+     gwt-anttasks.jar
+     Builds a local gwt-anttasks.jar for development/self-hosting
+
+     gunnar
+     ====================================================================== -->
+<project name="gwt-anttasks.jar" default="default">
+    <description>
+            Builds a local gwt-anttasks.jar for development/self-hosting
+    </description>
+
+    <target name="default" description="Builds a local gwt-anttasks.jar for development/self-hosting">
+		<jar destfile="gwt-anttasks.jar" basedir="bin.anttasks"/>
+    </target>
+
+</project>
