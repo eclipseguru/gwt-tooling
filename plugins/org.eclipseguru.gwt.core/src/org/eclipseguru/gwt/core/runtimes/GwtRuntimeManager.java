@@ -21,9 +21,9 @@ import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IPath;
 import org.eclipse.core.runtime.Path;
 import org.eclipse.core.runtime.preferences.IEclipsePreferences;
-import org.eclipse.core.runtime.preferences.InstanceScope;
 import org.eclipse.core.runtime.preferences.IEclipsePreferences.IPreferenceChangeListener;
 import org.eclipse.core.runtime.preferences.IEclipsePreferences.PreferenceChangeEvent;
+import org.eclipse.core.runtime.preferences.InstanceScope;
 import org.eclipse.jdt.core.IClasspathContainer;
 import org.eclipse.jdt.core.IClasspathEntry;
 import org.eclipse.jdt.core.IJavaProject;
@@ -73,7 +73,9 @@ public class GwtRuntimeManager implements GwtCorePreferenceConstants {
 	public static GwtRuntime findInstalledRuntime(final String name) {
 		final GwtRuntime[] runtimes = getInstalledRuntimes();
 		for (final GwtRuntime gwtRuntime : runtimes) {
-			if (gwtRuntime.getName().equals(name)) {
+			if (name == null) {
+				return gwtRuntime;
+			} else if (gwtRuntime.getName().equals(name)) {
 				return gwtRuntime;
 			}
 		}

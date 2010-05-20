@@ -63,10 +63,12 @@ public class GwtPreferencesPage extends PreferencePage implements IWorkbenchPref
 	/**
 	 * Helper that opens the directory chooser dialog.
 	 * 
+	 * @param currentDirectory
 	 * @return absolute path or an empty string if cancel.
 	 */
-	private String browseForGwtHomeDirectory() {
+	private String browseForGwtHomeDirectory(final String currentDirectory) {
 		final DirectoryDialog fileDialog = new DirectoryDialog(getShell());
+		fileDialog.setFilterPath(currentDirectory);
 		String directory = fileDialog.open();
 		if (directory != null) {
 			directory = directory.trim();
@@ -90,7 +92,7 @@ public class GwtPreferencesPage extends PreferencePage implements IWorkbenchPref
 		gwtHomeDirectoryDialogField = new StringButtonDialogField(new IStringButtonAdapter() {
 			public void changeControlPressed(final DialogField field) {
 				if (gwtHomeDirectoryDialogField == field) {
-					final String directory = browseForGwtHomeDirectory();
+					final String directory = browseForGwtHomeDirectory(gwtHomeDirectoryDialogField.getText());
 					gwtHomeDirectoryDialogField.setText(directory);
 				}
 			}

@@ -49,6 +49,11 @@ public class GwtContainerInitializer extends ClasspathContainerInitializer {
 					if ((null != gwtRuntime) && !gwtRuntime.getLocation().isEmpty()) {
 						container = new GwtContainer(gwtRuntime, containerPath);
 					}
+				} else {
+					final GwtRuntime gwtRuntime = GwtRuntimeManager.findInstalledRuntime(null);
+					if ((null != gwtRuntime) && !gwtRuntime.getLocation().isEmpty()) {
+						container = new GwtContainer(gwtRuntime, containerPath);
+					}
 				}
 
 				JavaCore.setClasspathContainer(containerPath, new IJavaProject[] { project }, new IClasspathContainer[] { container }, null);
