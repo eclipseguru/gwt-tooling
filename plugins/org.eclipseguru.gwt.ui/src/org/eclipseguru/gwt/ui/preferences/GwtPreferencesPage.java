@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2006, 2008 EclipseGuru and others.
+ * Copyright (c) 2006, 2010 EclipseGuru and others.
  * All rights reserved.
  *
  * This program and the accompanying materials are made available under the terms of the
@@ -13,11 +13,13 @@ package org.eclipseguru.gwt.ui.preferences;
 
 import org.eclipseguru.gwt.core.GwtCore;
 import org.eclipseguru.gwt.core.preferences.GwtCorePreferenceConstants;
+import org.eclipseguru.gwt.ui.GwtUi;
 
 import org.eclipse.core.runtime.IPath;
 import org.eclipse.core.runtime.IStatus;
 import org.eclipse.core.runtime.Path;
-import org.eclipse.core.runtime.Preferences;
+import org.eclipse.core.runtime.preferences.IEclipsePreferences;
+import org.eclipse.core.runtime.preferences.InstanceScope;
 import org.eclipse.jdt.internal.ui.dialogs.StatusInfo;
 import org.eclipse.jdt.internal.ui.dialogs.StatusUtil;
 import org.eclipse.jdt.internal.ui.wizards.IStatusChangeListener;
@@ -34,6 +36,7 @@ import org.eclipse.swt.widgets.DirectoryDialog;
 import org.eclipse.swt.widgets.Display;
 import org.eclipse.ui.IWorkbench;
 import org.eclipse.ui.IWorkbenchPreferencePage;
+import org.osgi.service.prefs.BackingStoreException;
 
 import java.io.File;
 
@@ -149,8 +152,8 @@ public class GwtPreferencesPage extends PreferencePage implements IWorkbenchPref
 	}
 
 	String getPathFromPreferencesFor(final String preference) {
-		final Preferences pluginPreferences = GwtCore.getGwtCore().getPluginPreferences();
-		final String preferenceValue = pluginPreferences.getString(preference);
+		final IEclipsePreferences preferences = new InstanceScope().getNode(GwtCore.PLUGIN_ID);
+		final String preferenceValue = preferences.get(preference, null);
 		if ((null == preferenceValue) || (preferenceValue.trim().length() == 0)) {
 			return "";
 		}
@@ -188,10 +191,14 @@ public class GwtPreferencesPage extends PreferencePage implements IWorkbenchPref
 			return false;
 		}
 
-		final Preferences pluginPreferences = GwtCore.getGwtCore().getPluginPreferences();
-		pluginPreferences.setValue(GwtCorePreferenceConstants.PREF_GWT_HOME, gwtHomeDirectory.toPortableString());
-
-		GwtCore.getGwtCore().savePluginPreferences();
+		final IEclipsePreferences preferences = new InstanceScope().getNode(GwtCore.PLUGIN_ID);
+		preferences.put(GwtCorePreferenceConstants.PREF_GWT_HOME, gwtHomeDirectory.toPortableString());
+		try {
+			preferences.flush();
+		} catch (final BackingStoreException e) {
+			GwtUi.logError("Error saving preferences: " + e.getMessage(), e);
+			return false;
+		}
 
 		return true;
 	}

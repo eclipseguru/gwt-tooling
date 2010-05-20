@@ -1,12 +1,14 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<!-- ======================================================================
-     20.05.2010 16:06:18
-
-     gwt-anttasks.jar
-     Builds a local gwt-anttasks.jar for development/self-hosting
-
-     gunnar
-     ====================================================================== -->
+<!--
+    Copyright (c) 2010 EclipseGuru and others.
+    All rights reserved. This program and the accompanying materials
+    are made available under the terms of the Eclipse Public License v1.0
+    which accompanies this distribution, and is available at
+    http://www.eclipse.org/legal/epl-v10.html
+   
+    Contributors:
+        EclipseGuru - initial API and implementation
+ -->
 <project name="gwt-anttasks.jar" default="default">
     <description>
             Builds a local gwt-anttasks.jar for development/self-hosting

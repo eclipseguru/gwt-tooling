@@ -1,5 +1,5 @@
 /***************************************************************************************************
- * Copyright (c) 2006, 2008 Eclipse Guru and others.
+ * Copyright (c) 2006, 2010 Eclipse Guru and others.
  * All rights reserved.
  *
  * This program and the accompanying materials are made available under the terms of the

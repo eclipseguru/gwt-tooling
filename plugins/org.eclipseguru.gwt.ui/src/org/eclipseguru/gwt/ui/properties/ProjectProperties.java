@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2006, 2008 EclipseGuru and others.
+ * Copyright (c) 2006, 2010 EclipseGuru and others.
  * All rights reserved.
  *
  * This program and the accompanying materials are made available under the terms of the
@@ -240,12 +240,12 @@ public class ProjectProperties extends PropertyPage implements IWorkbenchPropert
 		initDialogFields();
 		updateButtonEnabledState();
 
-		// create copntrols based on assiged facets
+		// create controls based on assigned facets
 		final Group deployment = new Group(result, SWT.NONE);
 		deployment.setText("Deployment");
 		deployment.setLayoutData(new GridData(SWT.FILL, SWT.NONE, true, false));
 
-		final IProject project = getProject().getProjectResource();
+		//final IProject project = getProject().getProjectResource();
 		LayoutUtil.doDefaultLayout(deployment, new DialogField[] { outputLocationDialogField, autoBuildModulesDialogField, javascriptStyleDialogField, vmArgsDialogField }, false, 5, 5);
 		LayoutUtil.setHorizontalGrabbing(outputLocationDialogField.getTextControl(deployment));
 
@@ -422,11 +422,6 @@ public class ProjectProperties extends PropertyPage implements IWorkbenchPropert
 		}
 
 		return currentProject;
-	}
-
-	private void handleModuleListRemoveButtonPressed() {
-		modulesListDialogField.removeElements(modulesListDialogField.getSelectedElements());
-		isRebuildNecessary = true;
 	}
 
 	private void hostedModeDialogFieldChanged(final DialogField field) {

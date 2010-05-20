@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2006, 2008 EclipseGuru and others.
+ * Copyright (c) 2006, 2010 EclipseGuru and others.
  * All rights reserved.
  *
  * This program and the accompanying materials are made available under the terms of the
@@ -164,7 +164,7 @@ public class GwtLaunchUtil implements GwtLaunchConstants {
 		ILaunchConfiguration config = null;
 		try {
 			final ILaunchConfigurationType configType = getGwtBrowserLaunchConfigurationType();
-			final ILaunchConfigurationWorkingCopy wc = configType.newInstance(null, DebugPlugin.getDefault().getLaunchManager().generateUniqueLaunchConfigurationNameFrom(module.getSimpleName()));
+			final ILaunchConfigurationWorkingCopy wc = configType.newInstance(null, DebugPlugin.getDefault().getLaunchManager().generateLaunchConfigurationName(module.getSimpleName()));
 			wc.setAttribute(ATTR_PROJECT_NAME, module.getProjectName());
 			wc.setAttribute(ATTR_MODULE_ID, module.getModuleId());
 			wc.setAttribute(ATTR_NOSERVER, noserver);
