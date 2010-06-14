@@ -217,7 +217,7 @@ public class GwtLaunchUtil implements GwtLaunchConstants {
 	 * @throws CoreException
 	 *             if unable to retrieve the attribute
 	 */
-	public static String[] getGwtShellArguments(final ILaunchConfiguration configuration) throws CoreException {
+	public static String[] getGwtDevShellArguments(final ILaunchConfiguration configuration) throws CoreException {
 		final List<String> args = new ArrayList<String>();
 
 		// read project settings
@@ -234,11 +234,11 @@ public class GwtLaunchUtil implements GwtLaunchConstants {
 		}
 
 		// java script style
-		final String style = getStyle(configuration);
-		if ((null != style) && (style.trim().length() > 0)) {
-			args.add("-style");
-			args.add(style);
-		}
+		//		final String style = getStyle(configuration);
+		//		if ((null != style) && (style.trim().length() > 0)) {
+		//			args.add("-style");
+		//			args.add(style);
+		//		}
 
 		// port or noserver option
 		final boolean noserver = getNoServer(configuration);
@@ -248,15 +248,15 @@ public class GwtLaunchUtil implements GwtLaunchConstants {
 			// port
 			args.add("-port");
 			args.add(String.valueOf(getPort(configuration)));
-
-			// folder for generated stuff
-			args.add("-gen");
-			args.add(targetFolder.getLocation().append(".gen").toOSString());
-
-			// output folder
-			args.add("-war");
-			args.add(targetFolder.getLocation().toOSString());
 		}
+
+		// folder for generated stuff
+		args.add("-gen");
+		args.add(targetFolder.getLocation().append(".gen").toOSString());
+
+		// output folder
+		args.add("-war");
+		args.add(targetFolder.getLocation().toOSString());
 
 		// url
 		args.add("-startupUrl");

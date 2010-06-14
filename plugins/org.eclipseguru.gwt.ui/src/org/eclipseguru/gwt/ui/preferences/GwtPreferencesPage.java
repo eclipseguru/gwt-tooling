@@ -187,7 +187,11 @@ public class GwtPreferencesPage extends PreferencePage implements IWorkbenchPref
 	 */
 	@Override
 	public boolean performOk() {
-		if (null == gwtHomeDirectory) {
+		// ensure we are up to date
+		updateGwtHomeDirectoryStatus();
+
+		// read value
+		if ((null == gwtHomeDirectory) || !gwtHomeDirectoryStatus.isOK()) {
 			return false;
 		}
 
@@ -203,12 +207,7 @@ public class GwtPreferencesPage extends PreferencePage implements IWorkbenchPref
 		return true;
 	}
 
-	/*
-	 * (non-Javadoc)
-	 * @see
-	 * org.eclipse.jdt.internal.ui.wizards.IStatusChangeListener#statusChanged
-	 * (org.eclipse.core.runtime.IStatus)
-	 */
+	@Override
 	public void statusChanged(final IStatus status) {
 		setValid(!status.matches(IStatus.ERROR));
 		StatusUtil.applyToStatusLine(this, status);

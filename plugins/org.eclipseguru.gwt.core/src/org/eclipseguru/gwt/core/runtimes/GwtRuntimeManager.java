@@ -116,6 +116,9 @@ public class GwtRuntimeManager implements GwtCorePreferenceConstants {
 			// hook change listener
 			preferences.addPreferenceChangeListener(listener); // ok to be called multiple times
 
+			// TODO: remove ones runtimes are migrated completely
+			new InstanceScope().getNode(GwtCore.PLUGIN_ID).addPreferenceChangeListener(listener);
+
 			// read runtimes
 			String[] runtimeNames;
 			try {
@@ -162,12 +165,12 @@ public class GwtRuntimeManager implements GwtCorePreferenceConstants {
 			saveRuntime(gwtRuntime);
 
 			// remove old node
-			preferences.remove(GwtCorePreferenceConstants.PREF_GWT_HOME);
-			try {
-				preferences.flush();
-			} catch (final BackingStoreException e) {
-				// don't fail, we may issue a warning in this case
-			}
+			//			preferences.remove(GwtCorePreferenceConstants.PREF_GWT_HOME);
+			//			try {
+			//				preferences.flush();
+			//			} catch (final BackingStoreException e) {
+			//				// don't fail, we may issue a warning in this case
+			//			}
 		}
 	}
 

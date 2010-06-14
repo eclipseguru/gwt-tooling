@@ -134,6 +134,28 @@
        </enablement>
     </decorator>
  </extension>
+	<extension
+		point="org.eclipse.debug.ui.launchConfigurationTypeImages">
+		<launchConfigurationTypeImage
+			configTypeID="org.eclipseguru.gwt.core.launch.browser"
+			icon="$nl$/icons/gwt.png"
+			id="org.eclipseguru.gwt.launch.gwtApplicationImage" />
+	</extension>
+	<extension
+		point="org.eclipse.debug.ui.launchConfigurationTabGroups">
+		<launchConfigurationTabGroup
+			class="org.eclipseguru.gwt.ui.launch.GwtBrowserLaunchConfigurationTabGroup"
+			description="Launch a Google WebToolkit Module Code Server for the OOPHM."
+			id="org.eclipseguru.gwt.launch.gwtApplicationTabGroup"
+			type="org.eclipseguru.gwt.core.launch.browser">
+			<launchMode
+				description="Debug a Google Ajax application in the Google Web Toolkit browser."
+				mode="debug" />
+			<launchMode
+				description="Launch a Google Ajax application in the Google Web Toolkit browser."
+				mode="run" />
+		</launchConfigurationTabGroup>
+	</extension>
  <extension
        point="org.eclipse.ltk.core.refactoring.renameParticipants">
     <renameParticipant

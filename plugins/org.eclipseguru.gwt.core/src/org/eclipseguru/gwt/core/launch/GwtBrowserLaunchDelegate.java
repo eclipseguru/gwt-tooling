@@ -39,7 +39,7 @@ import java.util.Map;
 public class GwtBrowserLaunchDelegate extends AbstractJavaLaunchConfigurationDelegate implements ILaunchConfigurationDelegate, GwtLaunchConstants {
 
 	/** CLASS_NAME_GWTSHELL */
-	private static final String CLASS_NAME_GWTSHELL = "com.google.gwt.dev.HostedMode";
+	private static final String CLASS_NAME_DEVMODE_RUNNER = "com.google.gwt.dev.DevMode";
 
 	/**
 	 * Computes the classpath for the specified project and configuration.
@@ -129,7 +129,7 @@ public class GwtBrowserLaunchDelegate extends AbstractJavaLaunchConfigurationDel
 			final String[] envp = getEnvironment(configuration);
 
 			// Program & VM arguments
-			final String[] pgmArgs = GwtLaunchUtil.getGwtShellArguments(configuration);
+			final String[] pgmArgs = GwtLaunchUtil.getGwtDevShellArguments(configuration);
 			final String[] vmArgs = computeVmArgs(project, configuration);
 
 			// VM-specific attributes
@@ -139,7 +139,7 @@ public class GwtBrowserLaunchDelegate extends AbstractJavaLaunchConfigurationDel
 			final String[] classpath = computeClasspath(project, configuration);
 
 			// Create VM config
-			final VMRunnerConfiguration runConfig = new VMRunnerConfiguration(CLASS_NAME_GWTSHELL, classpath);
+			final VMRunnerConfiguration runConfig = new VMRunnerConfiguration(CLASS_NAME_DEVMODE_RUNNER, classpath);
 			runConfig.setProgramArguments(pgmArgs);
 			runConfig.setEnvironment(envp);
 			runConfig.setVMArguments(vmArgs);
