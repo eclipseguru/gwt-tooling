@@ -51,7 +51,7 @@
 		<launchConfigurationType
 			delegate="org.eclipseguru.gwt.core.launch.GwtBrowserLaunchDelegate"
 			id="org.eclipseguru.gwt.core.launch.browser" modes="debug"
-			name="GWT Code Server">
+			name="GWT Module DevMode">
 		</launchConfigurationType>
 	</extension>
 	<extension
