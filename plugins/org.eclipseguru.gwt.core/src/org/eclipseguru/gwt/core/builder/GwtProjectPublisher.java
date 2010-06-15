@@ -24,7 +24,6 @@ import org.eclipseguru.gwt.core.utils.ResourceUtil;
 import org.eclipse.core.resources.IFile;
 import org.eclipse.core.resources.IFolder;
 import org.eclipse.core.resources.IMarker;
-import org.eclipse.core.resources.IProject;
 import org.eclipse.core.resources.IResource;
 import org.eclipse.core.resources.IResourceStatus;
 import org.eclipse.core.resources.IResourceVisitor;
@@ -152,8 +151,12 @@ public class GwtProjectPublisher extends WorkspaceJob {
 	/** project */
 	private final GwtProject project;
 
+	/** a specific module to compile */
+	private GwtModule module;
+
 	public GwtProjectPublisher(final GwtModule module) {
 		this(module.getProject());
+		this.module = module;
 	}
 
 	public GwtProjectPublisher(final GwtProject project) {
@@ -481,67 +484,32 @@ public class GwtProjectPublisher extends WorkspaceJob {
 		}
 	}
 
-	/*
-	 * (non-Javadoc)
-	 * @see
-	 * org.eclipse.core.resources.WorkspaceJob#runInWorkspace(org.eclipse.core
-	 * .runtime.IProgressMonitor)
-	 */
 	@Override
 	public IStatus runInWorkspace(IProgressMonitor monitor) throws CoreException {
 		monitor = ProgressUtil.monitor(monitor);
 		try {
 			monitor.beginTask("Publishing GWT project " + project.getName(), 10);
-			// initialize
-			final GwtModule[] includedModules = project.getIncludedModules();
-			final List<IProject> includedModulesProjects = new ArrayList<IProject>(includedModules.length);
-			for (final GwtModule module : includedModules) {
-				final IProject includedProject = module.getProjectResource();
-				if (!includedModulesProjects.contains(includedProject)) {
-					includedModulesProjects.add(includedProject);
-				}
-			}
 
 			// remove project markers
 			project.getProjectResource().deleteMarkers(GwtCore.PROBLEM_MARKER, true, IResource.DEPTH_ZERO);
 
-			// find project modules
-			final GwtModule[] projectModules = project.getModules();
+			// check output folder
+			final IPath outputLocation = GwtUtil.getOutputLocation(project);
+			if (outputLocation.makeRelative().isEmpty()) {
+				ResourceUtil.createProblem(project.getProjectResource(), "The GWT build output folder is mapped to the project root which is not yet supported!");
+			} else {
+				// initialize output folder
+				final IFolder targetFolder = project.getProjectResource().getFolder(outputLocation);
+				if (!targetFolder.exists()) {
+					ResourceUtil.createFolderHierarchy(targetFolder, ProgressUtil.subProgressMonitor(monitor, 1));
+				}
 
-			// publish modules
-			if ((projectModules.length > 0) || (includedModules.length > 0)) {
-				// check output folder
-				final IPath outputLocation = GwtUtil.getOutputLocation(project);
-				if (outputLocation.makeRelative().isEmpty()) {
-					ResourceUtil.createProblem(project.getProjectResource(), "The GWT build output folder is mapped to the project root which is not yet supported!");
+				if (null != module) {
+					// publish single module
+					publishAndCompileModules(project, targetFolder, new GwtModule[] { module }, ProgressUtil.subProgressMonitor(monitor, 1));
 				} else {
-					// initialize output folder
-					final IFolder targetFolder = project.getProjectResource().getFolder(outputLocation);
-					if (!targetFolder.exists()) {
-						ResourceUtil.createFolderHierarchy(targetFolder, ProgressUtil.subProgressMonitor(monitor, 1));
-					}
-
-					monitor.subTask("Publishing Modules ...");
-
-					// clean the target folder
-					// ResourceUtil.removeFolderContent(targetFolder,
-					// ProgressUtil.subProgressMonitor(monitor, 1));
-
-					/*
-					 * In hosted mode: - copy module public files only In
-					 * compiled mode: - copy module public files and - compiled
-					 * module output Always: - check that support files exist in
-					 * build output directory (gwt-hosted.jsp, gwt.js,
-					 * history.html, gwt-user.jar) - check that the build output
-					 * folder and the gwt-user.jar is correctly registered with
-					 * deployment path in flex project component file
-					 */
-
-					// publish my modules
-					publishAndCompileModules(project, targetFolder, projectModules, ProgressUtil.subProgressMonitor(monitor, 1));
-
-					// publish included module
-					publishAndCompileModules(project, targetFolder, includedModules, ProgressUtil.subProgressMonitor(monitor, 1));
+					// publish all modules in project
+					publishAndCompileModules(project, targetFolder, project.getModules(), ProgressUtil.subProgressMonitor(monitor, 1));
 				}
 			}
 
