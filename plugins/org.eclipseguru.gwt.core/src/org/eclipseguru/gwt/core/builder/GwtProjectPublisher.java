@@ -23,7 +23,6 @@ import org.eclipseguru.gwt.core.utils.ResourceUtil;
 
 import org.eclipse.core.resources.IFile;
 import org.eclipse.core.resources.IFolder;
-import org.eclipse.core.resources.IMarker;
 import org.eclipse.core.resources.IResource;
 import org.eclipse.core.resources.IResourceStatus;
 import org.eclipse.core.resources.IResourceVisitor;
@@ -64,9 +63,7 @@ import java.text.MessageFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.locks.Condition;
 import java.util.concurrent.locks.Lock;
@@ -189,14 +186,15 @@ public class GwtProjectPublisher extends WorkspaceJob {
 		markerResource.deleteMarkers(GwtCore.PROBLEM_MARKER, true, IResource.DEPTH_ZERO);
 
 		// we don't compile modules without an entry point
-		if (null == module.getEntryPointTypeName()) {
-			final IMarker marker = markerResource.createMarker(GwtCore.PROBLEM_MARKER);
-			final Map<String, Object> attributes = new HashMap<String, Object>(2);
-			attributes.put(IMarker.MESSAGE, NLS.bind("Module {0} could not be compiled because it does not specify a module entry point.", module.getModuleId()));
-			attributes.put(IMarker.SEVERITY, IMarker.SEVERITY_INFO);
-			marker.setAttributes(attributes);
-			return;
-		}
+		// TODO: this needs to be revisited, it's possible to "inherit" an entry point
+		//		if (null == module.getEntryPointTypeName()) {
+		//			final IMarker marker = markerResource.createMarker(GwtCore.PROBLEM_MARKER);
+		//			final Map<String, Object> attributes = new HashMap<String, Object>(2);
+		//			attributes.put(IMarker.MESSAGE, NLS.bind("Module {0} could not be compiled because it does not specify a module entry point.", module.getModuleId()));
+		//			attributes.put(IMarker.SEVERITY, IMarker.SEVERITY_INFO);
+		//			marker.setAttributes(attributes);
+		//			return;
+		//		}
 
 		// the lock for the external process
 		final Lock compilerLaunchLock = new ReentrantLock();
