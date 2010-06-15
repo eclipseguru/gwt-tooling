@@ -250,6 +250,19 @@ public class GwtLaunchUtil implements GwtLaunchConstants {
 			args.add(String.valueOf(getPort(configuration)));
 		}
 
+		// remote ui (if available)
+		try {
+			final Class remoteUIServerClass = GwtCore.getGwtCore().getBundle().loadClass("com.google.gwt.eclipse.oophm.launch.RemoteUIServer");
+			final Object remoteUIServer = remoteUIServerClass.getDeclaredMethod("getInstance").invoke(null, (Object[]) null);
+			final int port = ((Integer) remoteUIServerClass.getDeclaredMethod("getPort").invoke(remoteUIServer, (Object[]) null)).intValue();
+			if (port > 0) {
+				args.add("-remoteUI");
+				args.add(port + ":" + "gwt_tooling_" + System.nanoTime());
+			}
+		} catch (final Exception e) {
+			// not available
+		}
+
 		// folder for generated stuff
 		args.add("-gen");
 		args.add(targetFolder.getLocation().append(".gen").toOSString());

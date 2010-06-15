@@ -17,7 +17,8 @@ Require-Bundle: org.eclipse.core.runtime,
  org.eclipse.jdt.ui;bundle-version="[3.4.0,3.7.0)",
  org.eclipse.jdt.launching,
  org.eclipse.jdt.debug.ui,
- org.eclipseguru.gwt.core
+ org.eclipseguru.gwt.core,
+ com.google.gwt.eclipse.oophm;resolution:=optional
 Bundle-ActivationPolicy: lazy
 Eclipse-LazyStart: true
 Bundle-RequiredExecutionEnvironment: JavaSE-1.6
