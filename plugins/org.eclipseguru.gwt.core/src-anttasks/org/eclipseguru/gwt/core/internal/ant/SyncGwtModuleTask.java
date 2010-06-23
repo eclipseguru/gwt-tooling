@@ -315,6 +315,10 @@ public class SyncGwtModuleTask extends Sync {
 		myCopy.setPreserveLastModified(true);
 	}
 
+	private boolean isSvnOrCvsMetadataDirectory(final File dir) {
+		return dir.isDirectory() && (dir.getName().equalsIgnoreCase(".svn") || dir.getName().equalsIgnoreCase("CVS"));
+	}
+
 	private void logRemovedCount(final int count, final String prefix, final String singularSuffix, final String pluralSuffix) {
 		final File toDir = myCopy.getToDir();
 
@@ -375,13 +379,13 @@ public class SyncGwtModuleTask extends Sync {
 		if (dir.isDirectory()) {
 			File[] children = dir.listFiles();
 			// the the only children is SVN or CVS metadata we remove it completely
-			if ((children.length == 1) && children[0].isDirectory() && (children[0].getName().equalsIgnoreCase(".svn") || children[0].getName().equalsIgnoreCase("CVS"))) {
+			if ((children.length == 1) && isSvnOrCvsMetadataDirectory(children[0])) {
 				removeDir(children[0]);
 			} else {
 				for (int i = 0; i < children.length; ++i) {
 					final File file = children[i];
-					// Test here again to avoid method call for non-directories!
-					if (file.isDirectory()) {
+					// Test here again to avoid method call for non-directories or SVN/CVS directories already handled above!
+					if (file.isDirectory() && !isSvnOrCvsMetadataDirectory(dir)) {
 						removedCount += removeEmptyDirectories(file, true);
 					}
 				}
