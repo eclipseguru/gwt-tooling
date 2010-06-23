@@ -69,6 +69,13 @@
           library="gwt-anttasks.jar"
           name="gwt.compilemodule">
     </antTask>
+    <antTask
+          class="org.eclipseguru.gwt.core.internal.ant.SyncGwtModuleTask"
+          eclipseRuntime="false"
+          headless="true"
+          library="gwt-anttasks.jar"
+          name="gwt.sync">
+    </antTask>
  </extension>
 
 </plugin>
