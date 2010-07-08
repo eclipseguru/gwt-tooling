@@ -19,6 +19,7 @@ import org.eclipse.core.resources.IStorage;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IPath;
 import org.eclipse.jdt.core.IJavaElement;
+import org.eclipse.jdt.core.IJavaProject;
 import org.eclipse.jdt.core.IPackageFragment;
 import org.eclipse.jdt.core.IPackageFragmentRoot;
 import org.eclipse.jdt.core.IType;
@@ -504,7 +505,7 @@ public class GwtModule extends GwtElement {
 	 *         module, <code>false</code> otherwise
 	 * @throws GwtModelException
 	 */
-	public boolean isModulePath(final IPath fullPath) throws GwtModelException {
+	boolean isModulePath(final IPath fullPath) throws GwtModelException {
 		final IPath moduleRoot = isBinary() ? modulePackage.getPath() : ((IFile) moduleDescriptor).getParent().getFullPath();
 
 		// client folder
@@ -538,7 +539,27 @@ public class GwtModule extends GwtElement {
 	 * @see #isModulePath(IPath)
 	 */
 	public boolean isModuleResource(final IResource resource) throws GwtModelException {
-		return isModulePath(resource.getFullPath());
+		// if the resource is below the module path, then consider it a module resource
+		if (isModulePath(resource.getFullPath())) {
+			return true;
+		}
+
+		// check if resource in reachable from classpath and is within a module package
+		final IJavaProject javaProject = JavaCore.create(getProjectResource());
+		if (javaProject.isOnClasspath(resource)) {
+			final String resourceFullPath = resource.getFullPath().toString();
+			final String modulePackageName = getModulePackage().getElementName().replace('.', '/').concat("/");
+			final GwtModuleSourceHandler info = getModuleSourceInfo();
+			for (final String sourcePath : info.getSourcePaths()) {
+				if (resourceFullPath.indexOf(modulePackageName.concat(sourcePath)) != -1) {
+					// resource is on the classpath *AND* within a module package
+					return true;
+				}
+			}
+		}
+
+		// give up
+		return false;
 	}
 
 	/*
