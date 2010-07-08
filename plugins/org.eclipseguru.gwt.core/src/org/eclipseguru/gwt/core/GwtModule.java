@@ -548,10 +548,16 @@ public class GwtModule extends GwtElement {
 		final IJavaProject javaProject = JavaCore.create(getProjectResource());
 		if (javaProject.isOnClasspath(resource)) {
 			final String resourceFullPath = resource.getFullPath().toString();
-			final String modulePackageName = getModulePackage().getElementName().replace('.', '/').concat("/");
+			final String modulePackageBaseName = getModulePackage().getElementName().replace('.', '/');
 			final GwtModuleSourceHandler info = getModuleSourceInfo();
 			for (final String sourcePath : info.getSourcePaths()) {
-				if (resourceFullPath.indexOf(modulePackageName.concat(sourcePath)) != -1) {
+				String modulePackageName;
+				if (sourcePath.equals(".") || sourcePath.equals("./") || sourcePath.equals("/") || sourcePath.equals("")) {
+					modulePackageName = modulePackageBaseName;
+				} else {
+					modulePackageName = modulePackageBaseName.concat("/").concat(sourcePath);
+				}
+				if (resourceFullPath.indexOf(modulePackageName) != -1) {
 					// resource is on the classpath *AND* within a module package
 					return true;
 				}
