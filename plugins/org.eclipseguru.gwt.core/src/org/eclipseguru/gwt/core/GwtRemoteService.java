@@ -1,11 +1,11 @@
 /*******************************************************************************
  * Copyright (c) 2006, 2010 EclipseGuru and others.
  * All rights reserved.
- * 
- * This program and the accompanying materials are made available under the terms of the 
+ *
+ * This program and the accompanying materials are made available under the terms of the
  * Eclipse Public License v1.0 which accompanies this distribution, and is available at
  * http://www.eclipse.org/legal/epl-v10.html
- * 
+ *
  * Contributors:
  *     EclipseGuru - initial API and implementation
  *     dobesv - contributed patch for issue 58
@@ -35,11 +35,11 @@ import java.util.List;
 public class GwtRemoteService extends GwtElement {
 
 	/** REMOTE_SERVICE_CLASS_SIMPLE_NAME */
-	public static final String REMOTE_SERVICE_CLASS_SIMPLE_NAME = "RemoteService";
+	static final String[] REMOTE_SERVICE_CLASS_SIMPLE_NAMES = new String[] { "RemoteService", "RpcService" };
 
 	/**
-	 * Finds all interfaces in the specified modules which implements
-	 * {@value GwtRemoteService#REMOTE_SERVICE_CLASS_SIMPLE_NAME}.
+	 * Finds all interfaces in the specified modules which implements the GWT
+	 * <code>RemoteService</code> or <code>RpcService</code> interface.
 	 * 
 	 * @param projectModules
 	 * @return a list of all found interfaces
@@ -92,7 +92,7 @@ public class GwtRemoteService extends GwtElement {
 
 	/**
 	 * Finds remote services in the specified compilation unit which implement
-	 * {@value #REMOTE_SERVICE_CLASS_SIMPLE_NAME}.
+	 * the GWT <code>RemoteService</code> or <code>RpcService</code> interface.
 	 * 
 	 * @param cu
 	 * @param remoteServiceFiles
@@ -108,8 +108,10 @@ public class GwtRemoteService extends GwtElement {
 			// for every interface implemented by that type
 			for (final String aSuperInterfaceSignature : someType.getSuperInterfaceTypeSignatures()) {
 				final String simpleName = GwtUtil.getTypeNameWithoutParameters(Signature.getSignatureSimpleName(aSuperInterfaceSignature));
-				if (simpleName.equals(GwtRemoteService.REMOTE_SERVICE_CLASS_SIMPLE_NAME) && !remoteServiceFiles.contains(someType)) {
-					remoteServiceFiles.add(someType);
+				for (final String remoteServiceInterfaceName : REMOTE_SERVICE_CLASS_SIMPLE_NAMES) {
+					if (simpleName.equals(remoteServiceInterfaceName) && !remoteServiceFiles.contains(someType)) {
+						remoteServiceFiles.add(someType);
+					}
 				}
 			}
 		}
@@ -117,13 +119,13 @@ public class GwtRemoteService extends GwtElement {
 
 	/**
 	 * Indicates if the specified type is a remote service, i.e. implements the
-	 * <code>{@value #REMOTE_SERVICE_CLASS_SIMPLE_NAME}</code> interface.
+	 * the GWT <code>RemoteService</code> or <code>RpcService</code> interface.
 	 * 
 	 * @param someType
 	 *            a type
-	 * @return <code>true</code> if the specified type implements the
-	 *         <code>{@value #REMOTE_SERVICE_CLASS_SIMPLE_NAME}</code>
-	 *         interface, <code>false</code> otherwise
+	 * @return <code>true</code> if the specified type implements the GWT
+	 *         <code>RemoteService</code> or <code>RpcService</code> interface,
+	 *         <code>false</code> otherwise
 	 * @throws JavaModelException
 	 */
 	public static boolean isRemoteService(final IType someType) throws JavaModelException {
@@ -135,8 +137,10 @@ public class GwtRemoteService extends GwtElement {
 		// for every interface implemented by that type
 		for (final String aSuperInterfaceSignature : someType.getSuperInterfaceTypeSignatures()) {
 			final String simpleName = GwtUtil.getTypeNameWithoutParameters(Signature.getSignatureSimpleName(aSuperInterfaceSignature));
-			if (simpleName.equals(GwtRemoteService.REMOTE_SERVICE_CLASS_SIMPLE_NAME)) {
-				return true;
+			for (final String remoteServiceInterfaceName : REMOTE_SERVICE_CLASS_SIMPLE_NAMES) {
+				if (simpleName.equals(remoteServiceInterfaceName)) {
+					return true;
+				}
 			}
 		}
 
