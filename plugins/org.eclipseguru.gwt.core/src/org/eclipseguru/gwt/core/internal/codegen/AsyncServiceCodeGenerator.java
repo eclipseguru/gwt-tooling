@@ -1,17 +1,18 @@
 /*******************************************************************************
  * Copyright (c) 2006, 2010 EclipseGuru and others.
  * All rights reserved.
- * 
- * This program and the accompanying materials are made available under the terms of the 
+ *
+ * This program and the accompanying materials are made available under the terms of the
  * Eclipse Public License v1.0 which accompanies this distribution, and is available at
  * http://www.eclipse.org/legal/epl-v10.html
- * 
+ *
  * Contributors:
  *     EclipseGuru - initial API and implementation
  *     dobesv - contributed patch for issue 2
  *******************************************************************************/
 package org.eclipseguru.gwt.core.internal.codegen;
 
+import org.eclipseguru.gwt.core.GwtCore;
 import org.eclipseguru.gwt.core.GwtUtil;
 import org.eclipseguru.gwt.core.internal.jdtext.ImportsManager;
 import org.eclipseguru.gwt.core.utils.ProgressUtil;
@@ -50,11 +51,15 @@ import org.eclipse.osgi.util.NLS;
 import org.eclipse.text.edits.TextEdit;
 import org.eclipse.text.edits.TextEditGroup;
 
+import java.text.DateFormat;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Set;
+import java.util.TimeZone;
 
 /**
  * A utility class for generating code
@@ -78,12 +83,17 @@ public class AsyncServiceCodeGenerator extends JdtTypeGenerator {
 	/** ASYNC_CALLBACK */
 	private static final String ASYNC_CALLBACK = "com.google.gwt.user.client.rpc.AsyncCallback";
 
-	//  /** GENERATED *
-	//	private static final String GENERATED = "javax.annotations.Generated";
-	//	/** GENERATOR */
-	//	private static final String GENERATOR = GwtCore.PLUGIN_ID.concat(".AsynServiceCodeGenerator");
-	//	/** DATE_FORMAT_ISO8601 */
-	//	private static final DateFormat DATE_FORMAT_ISO8601 = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSSZ");
+	/** GENERATED */
+	private static final String GENERATED = "javax.annotation.Generated";
+	/** GENERATOR */
+	private static final String GENERATOR = GwtCore.PLUGIN_ID.concat(".AsynServiceCodeGenerator");
+
+	/** DATE_FORMAT_ISO8601 */
+	private static final DateFormat DATE_FORMAT_ISO8601;
+	static {
+		DATE_FORMAT_ISO8601 = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSSZ");
+		DATE_FORMAT_ISO8601.setTimeZone(TimeZone.getTimeZone("UTC"));
+	}
 
 	/**
 	 * Add all methods from the given interface and its super interfaces to the
@@ -376,19 +386,19 @@ public class AsyncServiceCodeGenerator extends JdtTypeGenerator {
 				// Java 1.5 features
 				final boolean is50OrHigher = JavaModelUtil.is50OrHigher(createdType.getJavaProject());
 
-				//				// @Generated annotation
-				//				if (is50OrHigher) {
-				//					methodContent.append('@');
-				//					methodContent.append(imports.addImport(GENERATED));
-				//					methodContent.append('(');
-				//					methodContent.append("value={").append('"').append(GENERATOR).append('"').append('}');
-				//					methodContent.append(',');
-				//					methodContent.append("date=").append('"').append(DATE_FORMAT_ISO8601.format(new Date())).append('"');
-				//					methodContent.append(',');
-				//					methodContent.append("comments=").append('"').append("from ").append(remoteServiceType.getFullyQualifiedName('.')).append('[').append(Signature.toString(method.getSignature(), method.getElementName(), method.getParameterNames(), true, true)).append(']').append('"');
-				//					methodContent.append(')');
-				//					methodContent.append(' ');
-				//				}
+				// @Generated annotation
+				if (is50OrHigher) {
+					methodContent.append('@');
+					methodContent.append(imports.addImport(GENERATED));
+					methodContent.append('(');
+					methodContent.append("value={").append('"').append(GENERATOR).append('"').append('}');
+					methodContent.append(',');
+					methodContent.append("date=").append('"').append(DATE_FORMAT_ISO8601.format(new Date())).append('"');
+					methodContent.append(',');
+					methodContent.append("comments=").append('"').append("from ").append(remoteServiceType.getFullyQualifiedName('.')).append('[').append(Signature.toString(method.getSignature(), method.getElementName(), method.getParameterNames(), true, true)).append(']').append('"');
+					methodContent.append(')');
+					methodContent.append(' ');
+				}
 
 				// generics declaration
 				if (is50OrHigher && (method.getTypeParameters().length > 0)) {
@@ -425,12 +435,6 @@ public class AsyncServiceCodeGenerator extends JdtTypeGenerator {
 		}
 	}
 
-	/*
-	 * (non-Javadoc)
-	 * @see
-	 * org.eclipseguru.gwt.core.internal.codegen.JdtTypeGenerator#getFileComment
-	 * (org.eclipse.jdt.core.ICompilationUnit, java.lang.String)
-	 */
 	@Override
 	protected String getFileComment(final ICompilationUnit parentCU, final String lineDelimiter) throws CoreException {
 		// take remote service comment if possible
@@ -462,12 +466,6 @@ public class AsyncServiceCodeGenerator extends JdtTypeGenerator {
 		return result.toArray(new IMethod[result.size()]);
 	}
 
-	/*
-	 * (non-Javadoc)
-	 * @see
-	 * org.eclipseguru.gwt.core.internal.codegen.JdtTypeGenerator#getTypeComment
-	 * (org.eclipse.jdt.core.ICompilationUnit, java.lang.String)
-	 */
 	@Override
 	protected String getTypeComment(final ICompilationUnit parentCU, final String lineDelimiter) {
 		// take remote service comment if possible
