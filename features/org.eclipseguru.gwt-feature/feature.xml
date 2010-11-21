@@ -9,11 +9,10 @@
     Contributors:
         EclipseGuru - initial API and implementation
  -->
-
 <feature
       id="org.eclipseguru.gwt"
       label="%featureName"
-      version="2.0.0.qualifier"
+      version="2.1.0.qualifier"
       provider-name="%providerName"
       os="linux,macosx,win32"
       image="gwt_120.png">

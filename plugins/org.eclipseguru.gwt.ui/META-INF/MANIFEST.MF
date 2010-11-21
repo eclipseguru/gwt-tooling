@@ -2,19 +2,19 @@ Manifest-Version: 1.0
 Bundle-ManifestVersion: 2
 Bundle-Name: GWT Tooling UI
 Bundle-SymbolicName: org.eclipseguru.gwt.ui;singleton:=true
-Bundle-Version: 2.0.0.qualifier
+Bundle-Version: 2.1.0.qualifier
 Bundle-Activator: org.eclipseguru.gwt.ui.GwtUi
 Bundle-Vendor: EclipseGuru
 Require-Bundle: org.eclipse.core.runtime,
- org.eclipse.jface.text;bundle-version="[3.4.0,4.0.0)",
- org.eclipse.ui;bundle-version="[3.5.0,4.0.0)",
+ org.eclipse.jface.text,
+ org.eclipse.ui,
  org.eclipse.ui.ide,
  org.eclipse.ui.forms,
  org.eclipse.ui.workbench.texteditor,
  org.eclipse.debug.ui,
  org.eclipse.ltk.core.refactoring,
  org.eclipse.jdt.core,
- org.eclipse.jdt.ui;bundle-version="[3.4.0,3.7.0)",
+ org.eclipse.jdt.ui,
  org.eclipse.jdt.launching,
  org.eclipse.jdt.debug.ui,
  org.eclipseguru.gwt.core,
