@@ -11,15 +11,13 @@
  *******************************************************************************/
 package org.eclipseguru.gwt.ui.preferences;
 
-import org.eclipseguru.gwt.core.GwtCore;
-import org.eclipseguru.gwt.core.preferences.GwtCorePreferenceConstants;
+import org.eclipseguru.gwt.core.runtimes.GwtRuntime;
+import org.eclipseguru.gwt.core.runtimes.GwtRuntimeManager;
 import org.eclipseguru.gwt.ui.GwtUi;
 
 import org.eclipse.core.runtime.IPath;
 import org.eclipse.core.runtime.IStatus;
 import org.eclipse.core.runtime.Path;
-import org.eclipse.core.runtime.preferences.IEclipsePreferences;
-import org.eclipse.core.runtime.preferences.InstanceScope;
 import org.eclipse.jdt.internal.ui.dialogs.StatusInfo;
 import org.eclipse.jdt.internal.ui.dialogs.StatusUtil;
 import org.eclipse.jdt.internal.ui.wizards.IStatusChangeListener;
@@ -36,7 +34,6 @@ import org.eclipse.swt.widgets.DirectoryDialog;
 import org.eclipse.swt.widgets.Display;
 import org.eclipse.ui.IWorkbench;
 import org.eclipse.ui.IWorkbenchPreferencePage;
-import org.osgi.service.prefs.BackingStoreException;
 
 import java.io.File;
 
@@ -102,7 +99,7 @@ public class GwtPreferencesPage extends PreferencePage implements IWorkbenchPref
 		});
 		gwtHomeDirectoryDialogField.setLabelText("GWT Home Directory:");
 		gwtHomeDirectoryDialogField.setButtonLabel("Browse...");
-		gwtHomeDirectoryDialogField.setText(getPathFromPreferencesFor(GwtCorePreferenceConstants.PREF_GWT_HOME));
+		gwtHomeDirectoryDialogField.setText(getPathFromPreferences());
 
 		// we add the update listeners last to avoid coming up with errors
 		gwtHomeDirectoryDialogField.setDialogFieldListener(new IDialogFieldListener() {
@@ -151,19 +148,13 @@ public class GwtPreferencesPage extends PreferencePage implements IWorkbenchPref
 		return null;
 	}
 
-	String getPathFromPreferencesFor(final String preference) {
-		final IEclipsePreferences preferences = new InstanceScope().getNode(GwtCore.PLUGIN_ID);
-		final String preferenceValue = preferences.get(preference, null);
-		if ((null == preferenceValue) || (preferenceValue.trim().length() == 0)) {
+	String getPathFromPreferences() {
+		final GwtRuntime runtime = GwtRuntimeManager.findInstalledRuntime(null);
+		if (runtime == null) {
 			return "";
 		}
 
-		final IPath path = Path.fromPortableString(preferenceValue);
-		if (path.isEmpty()) {
-			return "";
-		}
-
-		return path.toOSString();
+		return runtime.getLocation().toOSString();
 	}
 
 	/*
@@ -195,11 +186,10 @@ public class GwtPreferencesPage extends PreferencePage implements IWorkbenchPref
 			return false;
 		}
 
-		final IEclipsePreferences preferences = new InstanceScope().getNode(GwtCore.PLUGIN_ID);
-		preferences.put(GwtCorePreferenceConstants.PREF_GWT_HOME, gwtHomeDirectory.toPortableString());
+		// update the installed runtime
 		try {
-			preferences.flush();
-		} catch (final BackingStoreException e) {
+			GwtRuntimeManager.setActiveRuntime(new GwtRuntime(gwtHomeDirectory.lastSegment(), gwtHomeDirectory));
+		} catch (final Exception e) {
 			GwtUi.logError("Error saving preferences: " + e.getMessage(), e);
 			return false;
 		}

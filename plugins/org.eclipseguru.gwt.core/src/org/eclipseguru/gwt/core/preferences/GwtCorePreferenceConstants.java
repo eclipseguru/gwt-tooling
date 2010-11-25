@@ -18,11 +18,6 @@ import org.eclipseguru.gwt.core.launch.GwtLaunchConstants;
  */
 public interface GwtCorePreferenceConstants {
 
-	/**
-	 * Defines the path to the GWT home directory.
-	 */
-	String PREF_GWT_HOME = "gwtHome";
-
 	/** the node containing the runtime definitions */
 	String PREF_GWT_RUNTIMES = "runtimes";
 

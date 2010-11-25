@@ -41,21 +41,18 @@ import java.util.concurrent.locks.ReentrantLock;
  * A manager for GWT runtimes.
  */
 public class GwtRuntimeManager implements GwtCorePreferenceConstants {
+	private static String PREF_GWT_HOME = "gwtHome";
 
 	private static final boolean logProblems = false;
 	private static final IPreferenceChangeListener listener = new IPreferenceChangeListener() {
 
 		public void preferenceChange(final PreferenceChangeEvent event) {
-			final String key = event.getKey();
-			if (PREF_GWT_HOME.equals(key)) {
-				try {
-					installedRuntimesRef.set(null);
-					rebindClasspathEntries();
-				} catch (final CoreException e) {
-					if (logProblems) {
-						GwtCore.logError("Exception while rebinding GWT runtime libraries. " + e.getMessage(), e);
-					}
-
+			try {
+				installedRuntimesRef.set(null);
+				rebindClasspathEntries();
+			} catch (final CoreException e) {
+				if (logProblems) {
+					GwtCore.logError("Exception while rebinding GWT runtime libraries. " + e.getMessage(), e);
 				}
 			}
 		}
@@ -151,7 +148,7 @@ public class GwtRuntimeManager implements GwtCorePreferenceConstants {
 	 */
 	private static void migrateOldPreferences() {
 		final IEclipsePreferences preferences = new InstanceScope().getNode(GwtCore.PLUGIN_ID);
-		final String oldGwtHome = preferences.get(GwtCorePreferenceConstants.PREF_GWT_HOME, null);
+		final String oldGwtHome = preferences.get(PREF_GWT_HOME, null);
 		if (null != oldGwtHome) {
 			final IPath oldLocation = Path.fromPortableString(oldGwtHome);
 			GwtRuntime gwtRuntime;
@@ -162,15 +159,20 @@ public class GwtRuntimeManager implements GwtCorePreferenceConstants {
 				gwtRuntime = new GwtRuntime("Migrated GWT", oldLocation);
 			}
 
-			saveRuntime(gwtRuntime);
+			try {
+				saveRuntime(gwtRuntime);
 
-			// remove old node
-			//			preferences.remove(GwtCorePreferenceConstants.PREF_GWT_HOME);
-			//			try {
-			//				preferences.flush();
-			//			} catch (final BackingStoreException e) {
-			//				// don't fail, we may issue a warning in this case
-			//			}
+				// remove old node
+				preferences.remove(PREF_GWT_HOME);
+				try {
+					preferences.flush();
+				} catch (final BackingStoreException e) {
+					// don't fail, we may issue a warning in this case
+				}
+			} catch (final BackingStoreException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
 		}
 	}
 
@@ -210,15 +212,21 @@ public class GwtRuntimeManager implements GwtCorePreferenceConstants {
 		}
 	}
 
-	private static void saveRuntime(final GwtRuntime runtime) {
+	private static void saveRuntime(final GwtRuntime runtime) throws BackingStoreException {
 		final Preferences runtimeNode = getGwtRuntimePreferencesNode().node(runtime.getName());
 		runtimeNode.put(GwtCorePreferenceConstants.PREF_LOCATION, runtime.getLocation().toPortableString());
+		runtimeNode.flush();
+	}
 
-		try {
-			runtimeNode.flush();
-		} catch (final BackingStoreException e) {
-			// don't fail, we may issue a warning in this case
-		}
+	/**
+	 * Sets the active runtime
+	 * 
+	 * @param runtime
+	 */
+	public static void setActiveRuntime(final GwtRuntime runtime) throws Exception {
+		final Preferences runtimeNode = getGwtRuntimePreferencesNode().node(runtime.getName());
+		runtimeNode.clear();
+		saveRuntime(runtime);
 	}
 
 	/**

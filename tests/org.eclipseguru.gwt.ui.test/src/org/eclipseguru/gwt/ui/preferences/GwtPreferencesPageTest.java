@@ -61,13 +61,6 @@ public class GwtPreferencesPageTest {
 	}
 
 	@Test
-	public void checkGwtHomeDirectoryPathFromPreferecesNotSet() {
-		String path = page
-				.getPathFromPreferencesFor(GwtCorePreferenceConstants.PREF_GWT_HOME);
-		assertTrue(path.isEmpty());
-	}
-
-	@Test
 	public void returnNullGWTHomeDirectoryIsNotSet() {
 		IPath path = page.getGwtHomeDirectoryPathFromTextField();
 		assertNull(path);
@@ -178,10 +171,6 @@ public class GwtPreferencesPageTest {
 		page.performOk();
 		Preferences pluginPreferences = GwtCore.getGwtCore()
 				.getPluginPreferences();
-		String actual = page.getGwtHomeDirectory().toPortableString();
-		String expected = pluginPreferences
-				.getString(GwtCorePreferenceConstants.PREF_GWT_HOME);
-		assertEquals(actual, expected);
 		gwtJarFile.delete();
 		gwtDirectory.delete();
 		field.setText("");
