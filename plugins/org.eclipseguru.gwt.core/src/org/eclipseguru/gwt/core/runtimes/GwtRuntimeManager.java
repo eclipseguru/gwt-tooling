@@ -21,8 +21,8 @@ import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IPath;
 import org.eclipse.core.runtime.Path;
 import org.eclipse.core.runtime.preferences.IEclipsePreferences;
-import org.eclipse.core.runtime.preferences.IEclipsePreferences.IPreferenceChangeListener;
-import org.eclipse.core.runtime.preferences.IEclipsePreferences.PreferenceChangeEvent;
+import org.eclipse.core.runtime.preferences.IEclipsePreferences.INodeChangeListener;
+import org.eclipse.core.runtime.preferences.IEclipsePreferences.NodeChangeEvent;
 import org.eclipse.core.runtime.preferences.InstanceScope;
 import org.eclipse.jdt.core.IClasspathContainer;
 import org.eclipse.jdt.core.IClasspathEntry;
@@ -44,17 +44,14 @@ public class GwtRuntimeManager implements GwtCorePreferenceConstants {
 	private static String PREF_GWT_HOME = "gwtHome";
 
 	private static final boolean logProblems = false;
-	private static final IPreferenceChangeListener listener = new IPreferenceChangeListener() {
+	private static final INodeChangeListener listener = new INodeChangeListener() {
 
-		public void preferenceChange(final PreferenceChangeEvent event) {
-			try {
-				installedRuntimesRef.set(null);
-				rebindClasspathEntries();
-			} catch (final CoreException e) {
-				if (logProblems) {
-					GwtCore.logError("Exception while rebinding GWT runtime libraries. " + e.getMessage(), e);
-				}
-			}
+		public void added(final NodeChangeEvent event) {
+			flush();
+		}
+
+		public void removed(final NodeChangeEvent event) {
+			flush();
 		}
 	};
 
@@ -77,6 +74,17 @@ public class GwtRuntimeManager implements GwtCorePreferenceConstants {
 			}
 		}
 		return null;
+	}
+
+	static void flush() {
+		try {
+			installedRuntimesRef.set(null);
+			rebindClasspathEntries();
+		} catch (final CoreException e) {
+			if (logProblems) {
+				GwtCore.logError("Exception while rebinding GWT runtime libraries. " + e.getMessage(), e);
+			}
+		}
 	}
 
 	private static IEclipsePreferences getGwtRuntimePreferencesNode() {
@@ -111,10 +119,7 @@ public class GwtRuntimeManager implements GwtCorePreferenceConstants {
 			final IEclipsePreferences preferences = getGwtRuntimePreferencesNode();
 
 			// hook change listener
-			preferences.addPreferenceChangeListener(listener); // ok to be called multiple times
-
-			// TODO: remove ones runtimes are migrated completely
-			new InstanceScope().getNode(GwtCore.PLUGIN_ID).addPreferenceChangeListener(listener);
+			preferences.addNodeChangeListener(listener); // ok to be called multiple times
 
 			// read runtimes
 			String[] runtimeNames;
@@ -224,8 +229,13 @@ public class GwtRuntimeManager implements GwtCorePreferenceConstants {
 	 * @param runtime
 	 */
 	public static void setActiveRuntime(final GwtRuntime runtime) throws Exception {
+		// remove all existing runtimes
 		final Preferences runtimeNode = getGwtRuntimePreferencesNode().node(runtime.getName());
-		runtimeNode.clear();
+		for (final String name : runtimeNode.childrenNames()) {
+			runtimeNode.node(name).removeNode();
+		}
+
+		// save new runtime
 		saveRuntime(runtime);
 	}
 
@@ -235,5 +245,4 @@ public class GwtRuntimeManager implements GwtCorePreferenceConstants {
 	private GwtRuntimeManager() {
 		// empty
 	}
-
 }
