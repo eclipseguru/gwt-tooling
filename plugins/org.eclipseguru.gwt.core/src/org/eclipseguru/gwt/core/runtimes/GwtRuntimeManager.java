@@ -230,7 +230,7 @@ public class GwtRuntimeManager implements GwtCorePreferenceConstants {
 	 */
 	public static void setActiveRuntime(final GwtRuntime runtime) throws Exception {
 		// remove all existing runtimes
-		final Preferences runtimeNode = getGwtRuntimePreferencesNode().node(runtime.getName());
+		final Preferences runtimeNode = getGwtRuntimePreferencesNode();
 		for (final String name : runtimeNode.childrenNames()) {
 			runtimeNode.node(name).removeNode();
 		}
