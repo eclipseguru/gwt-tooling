@@ -4,6 +4,5 @@ Bundle-Name: Core Test Fragment
 Bundle-SymbolicName: org.eclipseguru.gwt.core.test
 Bundle-Version: 1.0.0
 Fragment-Host: org.eclipseguru.gwt.core;bundle-version="0.0.0"
-Require-Bundle: org.junit4
 Bundle-RequiredExecutionEnvironment: JavaSE-1.6,
  J2SE-1.5
