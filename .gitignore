@@ -1,0 +1,11 @@
+bin/
+target/
+bin.anttasks/
+*~
+*.rej
+*.bak
+.DS_Store
+.Trashes
+*.swp
+*.lock
+pom.versionBackup
